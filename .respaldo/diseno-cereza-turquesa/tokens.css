@@ -1,0 +1,82 @@
+/* Alas de Ángel — variables de marca.
+   Generado a mano a partir de tokens.json: si cambiás un valor, cambialo en los dos. */
+
+:root {
+  /* Color */
+  /* Los nombres son de la marca, no del tono: amanecer es el cereza, halo el lima,
+     lavanda el turquesa y menta el rosa. */
+  --color-tinta: #163F40;
+  --color-tinta-suave: #3F6566;
+  --color-nube: #FEFFE0;
+  --color-cielo: #DCF2EF;
+  --color-renglon: #B9DDD8;
+  --color-amanecer: #B5185F;
+  --color-amanecer-fuerte: #96114D;
+  --color-amanecer-suave: #F1BFD5;
+  --color-halo: #D0E86E;
+  --color-halo-suave: #EEF6BF;
+  --color-lavanda: #35C1C2;
+  --color-lavanda-fuerte: #17999C;
+  --color-lavanda-suave: #C9EEEC;
+  --color-menta: #F4A6C8;
+  --color-menta-suave: #FCE4EE;
+  --color-velo: rgba(22, 63, 64, 0.5);
+
+  /* Tipografía */
+  /* Las variables --web-* las define next/font en app/layout.tsx. */
+  --fuente-titulo: var(--web-anton, "Anton"), Impact, "Arial Narrow", sans-serif;
+  --fuente-texto: var(--web-karla, "Karla"), system-ui, sans-serif;
+  --fuente-etiqueta: var(--web-syncopate, "Syncopate"), "Arial Black", sans-serif;
+
+  --texto-xs: 0.8125rem;
+  --texto-s: 0.9375rem;
+  --texto-m: 1.0625rem;
+  --texto-l: 1.25rem;
+  --texto-xl: 1.625rem;
+  --texto-2xl: clamp(2rem, 4vw, 2.75rem);
+  --texto-3xl: clamp(2.75rem, 7vw, 5rem);
+  --texto-etiqueta: 0.6875rem;
+
+  --interlinea-titulo: 1.12;
+  --interlinea-texto: 1.6;
+
+  /* Espacio */
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-7: 3rem;
+  --espacio-8: 4.5rem;
+  --espacio-9: 7rem;
+
+  /* Radios */
+  --radio-s: 6px;
+  --radio-m: 14px;
+  --radio-l: 28px;
+  --radio-pastilla: 999px;
+
+  /* Líneas */
+  --linea-fina: 1px;
+  --linea: 1.5px;
+  --linea-foco: 3px;
+  --trazo-dibujo: 2.5;
+  --borde: var(--linea) solid var(--color-tinta);
+
+  /* Sombras */
+  --sombra-sello: 4px 4px 0 var(--color-tinta);
+  --sombra-sello-alta: 7px 7px 0 var(--color-tinta);
+  --sombra-papel: 0 18px 40px -22px var(--color-velo);
+
+  /* Medidas */
+  --ancho-max: 72rem;
+  --ancho-lectura: 38rem;
+  --ancho-bolsita: 24rem;
+
+  /* Movimiento */
+  --mov-rapido: 160ms;
+  --mov-suave: 420ms;
+  --mov-curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --mov-aleteo: 3.2s;
+}

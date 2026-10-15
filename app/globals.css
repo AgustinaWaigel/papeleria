@@ -1,0 +1,64 @@
+@import "tailwindcss";
+@import "../marca/tokens.css";
+@import "./sitio.css" layer(components);
+
+/* El tema de Tailwind es la marca y nada más: cada utilidad apunta a una variable de
+   marca/tokens.css. Así `bg-halo`, `font-titulo`, `text-etiqueta`, `rounded-m`, `shadow-sello`
+   o `p-e5` usan siempre los valores del manual. */
+@theme inline {
+  --color-*: initial;
+  --color-tinta: var(--color-tinta);
+  --color-tinta-suave: var(--color-tinta-suave);
+  --color-nube: var(--color-nube);
+  --color-cielo: var(--color-cielo);
+  --color-renglon: var(--color-renglon);
+  --color-amanecer: var(--color-amanecer);
+  --color-amanecer-fuerte: var(--color-amanecer-fuerte);
+  --color-amanecer-suave: var(--color-amanecer-suave);
+  --color-halo: var(--color-halo);
+  --color-halo-suave: var(--color-halo-suave);
+  --color-lavanda: var(--color-lavanda);
+  --color-lavanda-suave: var(--color-lavanda-suave);
+  --color-menta: var(--color-menta);
+  --color-menta-suave: var(--color-menta-suave);
+
+  --font-*: initial;
+  --font-titulo: var(--fuente-titulo);
+  --font-texto: var(--fuente-texto);
+  --font-etiqueta: var(--fuente-etiqueta);
+
+  --text-*: initial;
+  --text-xs: var(--texto-xs);
+  --text-s: var(--texto-s);
+  --text-m: var(--texto-m);
+  --text-l: var(--texto-l);
+  --text-xl: var(--texto-xl);
+  --text-2xl: var(--texto-2xl);
+  --text-3xl: var(--texto-3xl);
+  --text-etiqueta: var(--texto-etiqueta);
+
+  --radius-*: initial;
+  --radius-s: var(--radio-s);
+  --radius-m: var(--radio-m);
+  --radius-l: var(--radio-l);
+  --radius-pastilla: var(--radio-pastilla);
+
+  --shadow-*: initial;
+  --shadow-sello: var(--sombra-sello);
+  --shadow-sello-alta: var(--sombra-sello-alta);
+  --shadow-papel: var(--sombra-papel);
+
+  /* Espacios de marca: p-e4, gap-e5, mt-e7… */
+  --spacing-e1: var(--espacio-1);
+  --spacing-e2: var(--espacio-2);
+  --spacing-e3: var(--espacio-3);
+  --spacing-e4: var(--espacio-4);
+  --spacing-e5: var(--espacio-5);
+  --spacing-e6: var(--espacio-6);
+  --spacing-e7: var(--espacio-7);
+  --spacing-e8: var(--espacio-8);
+  --spacing-e9: var(--espacio-9);
+
+  --container-lectura: var(--ancho-lectura);
+  --container-sitio: var(--ancho-max);
+}
