@@ -84,7 +84,10 @@ export default async function Inicio() {
             <h1>
               Papel para ideas que quieren <span className="resalte">volar.</span>
             </h1>
-            <p>Cuadernos, agendas y stickers para tener en la mano, y plantillas para imprimir en casa hoy mismo.</p>
+            <p>
+              Papelería hecha a mano, con mucho amor. Cuadernos, agendas y detalles para acompañar
+              tus días.
+            </p>
             <div className="fila-botones">
               <Link className="boton" href="/papeleria">
                 Ver la papelería
