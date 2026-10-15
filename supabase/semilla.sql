@@ -1,5 +1,5 @@
--- Alas de Ángel · catálogo inicial (sale de lib/productos.tsx).
--- Correlo una vez, después de esquema.sql. Si un producto ya existe, no lo pisa.
+-- YA NO SE USA: son productos de ejemplo. Para sacarlos de la base, corré 03-borrar-ejemplos.sql.
+-- (Alas de Ángel · catálogo de ejemplo. Si un producto ya existe, no lo pisa.)
 
 insert into public.productos
   (id, tipo, cat, nombre, resumen, detalle, precio, dibujo, color, destacado, contenido, fotos, descripcion, caracteristicas, orden)

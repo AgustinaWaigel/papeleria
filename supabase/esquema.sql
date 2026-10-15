@@ -1,6 +1,6 @@
 -- Alas de Ángel · esquema de Supabase.
 -- Pegalo entero en Supabase → SQL Editor → New query → Run. Se puede correr más de una vez.
--- Después corré semilla.sql para cargar el catálogo inicial y sumá tu mail a `admins` (al final).
+-- Después corré 02-pedidos-y-mas.sql y sumá tu mail a `admins` (al final).
 
 -- ---------- Productos ----------
 

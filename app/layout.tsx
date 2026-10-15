@@ -9,8 +9,8 @@ const karla = Karla({ subsets: ["latin"], style: ["normal", "italic"], variable:
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITIO_URL),
-  openGraph: { siteName: "Alas de Ángel Creaciones", locale: "es_AR", type: "website" },
-  title: { default: "Alas de Ángel Creaciones · Papelería creativa", template: "%s · Alas de Ángel Creaciones" },
+  openGraph: { siteName: "Alas de Ángel Papelería", locale: "es_AR", type: "website" },
+  title: { default: "Alas de Ángel Papelería · Papelería creativa", template: "%s · Alas de Ángel Papelería" },
   description: "Cuadernos, agendas, stickers y plantillas para imprimir. Papelería creativa para ideas que quieren volar.",
 };
 

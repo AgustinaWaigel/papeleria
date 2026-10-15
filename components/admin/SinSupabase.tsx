@@ -13,7 +13,7 @@ export function SinSupabase() {
           Copiá <code>.env.example</code> como <code>.env.local</code> y completá la URL y la clave publicable.
         </li>
         <li>
-          En Supabase → SQL Editor, corré <code>supabase/esquema.sql</code> y después <code>supabase/semilla.sql</code>.
+          En Supabase → SQL Editor, corré <code>supabase/esquema.sql</code> y después <code>supabase/02-pedidos-y-mas.sql</code>.
         </li>
         <li>Creá tu usuario y sumá tu mail a la tabla de admins (está explicado al final de esquema.sql).</li>
         <li>Reiniciá el servidor de desarrollo.</li>

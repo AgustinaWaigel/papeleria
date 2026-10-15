@@ -5,7 +5,7 @@ import { NavAdmin } from "@/components/admin/NavAdmin";
 import { Isotipo } from "@/components/CuadernoAlado";
 
 export const metadata: Metadata = {
-  title: { default: "Panel", template: "%s · Panel · Alas de Ángel" },
+  title: { default: "Panel", template: "%s · Panel · Alas de Ángel Papelería" },
   robots: { index: false, follow: false },
 };
 

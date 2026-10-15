@@ -473,6 +473,20 @@ a:hover { color: var(--color-tinta); }
 }
 .filtro:hover { background: var(--color-cielo); }
 .filtro[aria-pressed="true"] { background: var(--color-tinta); color: var(--color-nube); font-weight: 700; }
+.taller {
+  max-width: 36rem;
+  margin-inline: auto;
+  padding: var(--espacio-7) var(--espacio-6);
+  text-align: center;
+  background: var(--color-nube);
+  border: var(--borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra-sello);
+}
+.taller h2 { margin-block: var(--espacio-2) var(--espacio-3); }
+.taller p { color: var(--color-tinta-suave); margin-bottom: var(--espacio-5); }
+.taller .fila-botones { justify-content: center; }
+#novedades { scroll-margin-top: var(--espacio-8); }
 .catalogo__cuenta { font-size: var(--texto-s); color: var(--color-tinta-suave); margin-bottom: var(--espacio-7); }
 
 /* ---------- Pasos ---------- */
@@ -849,6 +863,16 @@ a:hover { color: var(--color-tinta); }
 }
 .admin__error { background: var(--color-lavanda); color: var(--color-amanecer-fuerte); }
 .admin__exito { background: var(--color-halo); }
+
+.excel { margin-bottom: var(--espacio-6); background: var(--color-nube); border: var(--borde); border-radius: var(--radio-m); box-shadow: var(--sombra-sello); }
+.excel > summary { padding: var(--espacio-3) var(--espacio-4); font-weight: 700; cursor: pointer; }
+.excel__cuerpo { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--espacio-5) var(--espacio-7); padding: var(--espacio-2) var(--espacio-4) var(--espacio-5); }
+.excel__cuerpo h2 { font-size: var(--texto-m); margin-bottom: var(--espacio-2); }
+.excel__cuerpo .campo__ayuda { margin-bottom: var(--espacio-4); }
+.excel__subir { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-3); }
+.excel__subir input[type="file"] { font: inherit; font-size: var(--texto-s); max-width: 100%; }
+.excel > .admin__exito, .excel > .admin__error { margin: 0 var(--espacio-4) var(--espacio-4); }
+.excel__errores { margin-top: var(--espacio-2); padding-left: var(--espacio-5); font-weight: 400; display: grid; gap: var(--espacio-1); }
 
 .admin__herramientas { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: var(--espacio-3) var(--espacio-5); }
 .admin__herramientas .filtros { margin-bottom: 0; }

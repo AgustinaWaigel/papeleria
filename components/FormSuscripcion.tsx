@@ -7,7 +7,7 @@ export function FormSuscripcion() {
   const [estado, accion, enviando] = useActionState(suscribirse, undefined);
 
   return (
-    <form action={accion} className="suscripcion">
+    <form action={accion} className="suscripcion" id="novedades">
       <h2>Novedades por mail</h2>
       <p>Productos nuevos, descargables y ofertas. Poquitos mails, prometido.</p>
       {estado?.ok ? (

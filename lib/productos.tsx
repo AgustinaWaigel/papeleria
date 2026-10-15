@@ -1,7 +1,5 @@
-/* Alas de Ángel — catálogo inicial.
-   Con Supabase conectado, los productos se cargan y editan desde el panel (/admin) y esta lista
-   solo sirve para llenar la tabla la primera vez (supabase/semilla.sql) y como respaldo si la base
-   no responde. Sin Supabase, la tienda muestra exactamente esta lista. Los precios y textos son de ejemplo.
+/* Alas de Ángel Papelería — tipos y datos fijos del catálogo.
+   Los productos se cargan y editan desde el panel (/admin), uno por uno o con un Excel.
 
    Cada producto:
      id        único, sin espacios
@@ -69,47 +67,9 @@ export const CATEGORIAS: Categorias = {
   ],
 };
 
-export const PRODUCTOS: Producto[] = [
-  // ----- Papelería (físicos) -----
-  { id: "cuaderno-pluma", tipo: "fisico", cat: "cuadernos", nombre: "Cuaderno Pluma", desc: "Tapa dura, cosido a hilo y con elástico. Abre plano, de punta a punta.", detalle: "A5 · 80 hojas · rayado", precio: 9800, dibujo: "cuaderno", color: "lavanda", destacado: true,
-    descripcion: [
-      "Es el cuaderno para usar todos los días: entra en la mochila, aguanta el trajín y se abre plano para escribir cómodo hasta el borde de la hoja.",
-      "Las hojas son gruesas, así que la tinta de gel no traspasa. El elástico lo mantiene cerrado y la cinta marca por dónde ibas.",
-    ],
-    caracteristicas: ["Tamaño A5 (15 × 21 cm)", "80 hojas rayadas de 90 g", "Tapa dura forrada", "Cosido a hilo: abre plano", "Elástico de cierre y cinta señaladora"],
-  },
-  { id: "cuaderno-nube", tipo: "fisico", cat: "cuadernos", nombre: "Cuaderno Nube", desc: "El mismo cuaderno, con hojas punteadas para dibujar, diagramar o hacer bullet journal.", detalle: "A5 · 80 hojas · punteado", precio: 9800, dibujo: "cuaderno", color: "menta" },
-  { id: "cuaderno-amanecer", tipo: "fisico", cat: "cuadernos", nombre: "Cuaderno Amanecer", desc: "Grande y de hojas lisas, para bocetos, mapas mentales y apuntes sin renglones.", detalle: "A4 · 100 hojas · liso", precio: 13500, dibujo: "cuaderno", color: "amanecer" },
-  { id: "libreta-halo", tipo: "fisico", cat: "cuadernos", nombre: "Libreta de bolsillo Halo", desc: "Anillada arriba, entra en cualquier bolsillo. Para la idea que aparece en el colectivo.", detalle: "A6 · 60 hojas · rayado", precio: 5200, dibujo: "libreta", color: "halo" },
-  { id: "agenda-2027", tipo: "fisico", cat: "agendas", nombre: "Agenda 2027 semana a la vista", desc: "Anillada, con la semana entera en dos páginas, hoja de objetivos por mes y bolsillo al final.", detalle: "A5 · anillada · tapa dura", precio: 18900, dibujo: "agenda", color: "lavanda", destacado: true },
-  { id: "planner-escritorio", tipo: "fisico", cat: "agendas", nombre: "Planner semanal de escritorio", desc: "Un block apaisado sin fechas: arrancás la semana que quieras y cortás la hoja cuando termina.", detalle: "Apaisado · 52 hojas · sin fechas", precio: 8400, dibujo: "block", color: "menta" },
-  { id: "stickers-cielo", tipo: "fisico", cat: "stickers", nombre: "Stickers Cielo abierto", desc: "Estrellas, nubes, lunas y plumas para marcar días lindos en la agenda.", detalle: "2 planchas · 48 stickers", precio: 2900, dibujo: "stickers", color: "halo", destacado: true },
-  { id: "stickers-habitos", tipo: "fisico", cat: "stickers", nombre: "Stickers Hábitos", desc: "Puntitos, tildes y etiquetas chicas para seguir rutinas sin escribir de más.", detalle: "2 planchas · 120 stickers", precio: 2900, dibujo: "stickers", color: "menta" },
-  { id: "washi-amanecer", tipo: "fisico", cat: "stickers", nombre: "Washi tapes trío Amanecer", desc: "Tres cintas de papel que se despegan sin romper la hoja. Lisas, a rayas y a lunares.", detalle: "3 rollos · 15 mm × 5 m", precio: 6300, dibujo: "washi", color: "amanecer" },
-  { id: "lapiceras-pastel", tipo: "fisico", cat: "escritura", nombre: "Lapiceras de gel pastel", desc: "Trazo fino y parejo, secan rápido y no traspasan la hoja.", detalle: "6 colores · punta 0,5 mm", precio: 7500, dibujo: "lapiceras", color: "lavanda", destacado: true },
-  { id: "resaltadores-suaves", tipo: "fisico", cat: "escritura", nombre: "Resaltadores suaves", desc: "Doble punta, colores que resaltan sin encandilar. Ideales para apuntes.", detalle: "4 colores · doble punta", precio: 6900, dibujo: "resaltadores", color: "halo" },
-  { id: "tarjetas-gracias", tipo: "fisico", cat: "tarjetas", nombre: "Tarjetas Gracias", desc: "Tarjetas en blanco por dentro, con su sobre. Para decir gracias a mano, como antes.", detalle: "6 tarjetas + 6 sobres", precio: 5800, dibujo: "tarjetas", color: "amanecer" },
-  { id: "block-lista", tipo: "fisico", cat: "tarjetas", nombre: "Block Lista del día", desc: "Tres prioridades, pendientes y un lugar para lo que no puede esperar a mañana.", detalle: "A6 · 50 hojas", precio: 4200, dibujo: "block", color: "lavanda" },
-
-  // ----- Descargables (PDF y plantillas) -----
-  { id: "pdf-planner-semanal", tipo: "descargable", cat: "planners", nombre: "Planner semanal imprimible", desc: "Una semana por hoja, con prioridades, pendientes y un rincón para notas.", detalle: "PDF · A4 y A5 · sin fechas", precio: 2500, dibujo: "hoja-semana", color: "lavanda", destacado: true },
-  { id: "pdf-planner-mensual", tipo: "descargable", cat: "planners", nombre: "Planner mensual 2027", desc: "Los doce meses con feriados de Argentina y una hoja de objetivos por mes.", detalle: "PDF · A4 · 24 páginas", precio: 3200, dibujo: "hoja-mes", color: "halo", destacado: true },
-  { id: "pdf-habitos", tipo: "descargable", cat: "planners", nombre: "Seguimiento de hábitos", desc: "Una grilla de 31 días para pintar un cuadradito por cada día cumplido.", detalle: "PDF · A4 · 3 diseños", precio: 1800, dibujo: "hoja-mes", color: "menta" },
-  { id: "pdf-cornell", tipo: "descargable", cat: "estudio", nombre: "Hojas de apuntes método Cornell", desc: "Columna de ideas clave, espacio de notas y resumen al pie. Rayadas y punteadas.", detalle: "PDF · A4 · 4 variantes", precio: 1800, dibujo: "hoja-lista", color: "lavanda" },
-  { id: "pdf-examenes", tipo: "descargable", cat: "estudio", nombre: "Planificador de exámenes", desc: "Fechas, temas por materia y cuenta regresiva para repartir el estudio sin ahogarte.", detalle: "PDF · A4 · 6 páginas", precio: 2200, dibujo: "hoja-semana", color: "amanecer", destacado: true },
-  { id: "pdf-horario", tipo: "descargable", cat: "estudio", nombre: "Horario de clases", desc: "Plantilla editable: escribís tus materias en la compu y la imprimís lista.", detalle: "PDF editable · A4", precio: 1500, dibujo: "hoja-semana", color: "menta" },
-  { id: "pdf-menu", tipo: "descargable", cat: "hogar", nombre: "Menú semanal y lista de compras", desc: "Planificás las comidas de la semana y la lista se arma al lado, por sector del súper.", detalle: "PDF · A4 · 2 páginas", precio: 1800, dibujo: "hoja-lista", color: "halo" },
-  { id: "pdf-presupuesto", tipo: "descargable", cat: "hogar", nombre: "Presupuesto del mes", desc: "Ingresos, gastos fijos, gastos hormiga y ahorro, en una sola hoja que se entiende.", detalle: "PDF · A4 · 3 páginas", precio: 2200, dibujo: "hoja-lista", color: "menta" },
-  { id: "pdf-etiquetas", tipo: "descargable", cat: "hogar", nombre: "Etiquetas para frascos y cajas", desc: "Para imprimir en papel autoadhesivo. Vienen escritas y también en blanco.", detalle: "PDF · A4 · 60 etiquetas", precio: 1500, dibujo: "hoja-etiquetas", color: "amanecer" },
-  { id: "pdf-cumple", tipo: "descargable", cat: "festejos", nombre: "Kit de cumpleaños", desc: "Invitación, banderines, toppers y etiquetas para souvenirs, todo combinado.", detalle: "PDF · A4 · 12 páginas", precio: 3500, dibujo: "hoja-fiesta", color: "halo", destacado: true },
-  { id: "pdf-tarjetas-regalo", tipo: "descargable", cat: "festejos", nombre: "Tarjetitas para regalos", desc: "De, para y un espacio para escribir algo lindo. Imprimís, recortás y atás.", detalle: "PDF · A4 · 24 tarjetas", precio: 1500, dibujo: "hoja-etiquetas", color: "lavanda" },
-
-  // ----- Packs regalo -----
-  { id: "pack-primer-vuelo", tipo: "pack", nombre: "Pack Primer vuelo", desc: "Para quien empieza algo: una carrera, un trabajo, un proyecto.", contenido: ["Cuaderno Pluma A5", "Lapiceras de gel pastel", "Stickers Cielo abierto", "Tarjeta escrita a mano"], precio: 19900, dibujo: "pack", color: "lavanda", destacado: true },
-  { id: "pack-vuelta-a-clases", tipo: "pack", nombre: "Pack Vuelta a clases", desc: "Todo lo que hace falta para arrancar el año con los apuntes en orden.", contenido: ["Cuaderno Amanecer A4", "Resaltadores suaves", "Stickers Hábitos", "Block Lista del día"], precio: 24900, dibujo: "pack", color: "halo" },
-  { id: "pack-escritorio", tipo: "pack", nombre: "Pack Escritorio en calma", desc: "Para ordenar la semana y que el escritorio dé ganas de sentarse.", contenido: ["Planner semanal de escritorio", "Agenda 2027", "Washi tapes trío Amanecer"], precio: 29900, dibujo: "pack", color: "menta" },
-  { id: "pack-agradecer", tipo: "pack", nombre: "Pack Para agradecer", desc: "Un regalo chico y pensado: para una maestra, una amiga, una madrina.", contenido: ["Libreta de bolsillo Halo", "Tarjetas Gracias", "Stickers Cielo abierto"], precio: 12900, dibujo: "pack", color: "amanecer" },
-];
+/* Respaldo: lo que muestra la tienda si Supabase no está conectado o no responde.
+   Vacío a propósito: sin productos, la tienda muestra el aviso de "estamos fabricando". */
+export const PRODUCTOS: Producto[] = [];
 
 /* Dibujos de línea. Todos en un lienzo de 200 × 150.
    Clases: t = trazo tinta, fc = color del producto, fn = nube, fh/fl/fa/fm/fs = colores de marca. */

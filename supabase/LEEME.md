@@ -13,8 +13,10 @@ La tienda lee los productos de Supabase y el panel (`/admin`) los edita. Sin con
 En **SQL Editor → New query**:
 
 1. Pegá todo `esquema.sql` y tocá **Run**. Crea la tabla `productos`, la tabla `admins`, las reglas de acceso y el bucket `productos` para las fotos.
-2. Pegá `semilla.sql` y tocá **Run**. Carga los productos que hoy están en `lib/productos.tsx`.
-3. Pegá `02-pedidos-y-mas.sql` y tocá **Run**. Suma pedidos y ventas, stock, ofertas, categorías editables, reseñas y suscriptores.
+2. Pegá `02-pedidos-y-mas.sql` y tocá **Run**. Suma pedidos y ventas, stock, ofertas, categorías editables, reseñas y suscriptores.
+3. Si alguna vez corriste `semilla.sql` (los productos de ejemplo), pegá `03-borrar-ejemplos.sql` y tocá **Run** para sacarlos. `semilla.sql` ya no hace falta.
+
+Los productos reales se cargan desde el panel, uno por uno o todos juntos con un Excel (en *Productos → Cargar o descargar productos con Excel*). Mientras no haya ninguno, la tienda muestra un aviso de "estamos fabricando".
 
 ## 3. Tu usuario del panel
 

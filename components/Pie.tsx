@@ -21,7 +21,7 @@ export function Pie() {
             </ul>
           </div>
           <div>
-            <h2>Alas de Ángel · Creaciones</h2>
+            <h2>Alas de Ángel Papelería</h2>
             <ul>
               {PAGINAS_PIE.map(([href, nombre]) => (
                 <li key={href}>
@@ -49,7 +49,7 @@ export function Pie() {
             </ul>
           </div>
         </div>
-        <p className="pie__legal">© Alas de Ángel Creaciones · Papelería creativa.</p>
+        <p className="pie__legal">© Alas de Ángel Papelería · Papel para ideas que quieren volar.</p>
       </div>
     </footer>
   );

@@ -17,9 +17,9 @@ export function Cabecera() {
   return (
     <header className="cabecera">
       <div className="contenedor cabecera__fila">
-        <Link className="logo" href="/" aria-label="Alas de Ángel Creaciones, inicio">
+        <Link className="logo" href="/" aria-label="Alas de Ángel Papelería, inicio">
           <Isotipo />
-          <span>Alas de Ángel<small>Creaciones</small></span>
+          <span>Alas de Ángel<small>Papelería</small></span>
         </Link>
 
         <nav id="navegacion" aria-label="Principal" className={menuAbierto ? "abierto" : undefined}>

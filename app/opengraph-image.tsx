@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 /* La imagen que acompaña los links del sitio en WhatsApp, Instagram o Facebook.
    Los productos con foto usan su primera foto (ver producto/[id]/page.tsx). */
-export const alt = "Alas de Ángel Creaciones · Papel para ideas que quieren volar";
+export const alt = "Alas de Ángel Papelería · Papel para ideas que quieren volar";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -16,7 +16,7 @@ export default function Imagen() {
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: 80, background: LAVANDA, color: TINTA, fontFamily: "sans-serif" }}>
-        <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: AMANECER }}>Alas de Ángel · Creaciones</div>
+        <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: AMANECER }}>Alas de Ángel · Papelería</div>
         <div style={{ display: "flex", flexWrap: "wrap", fontSize: 92, fontWeight: 800, lineHeight: 1.05, marginTop: 28, maxWidth: 980 }}>
           Papel para ideas que quieren&nbsp;<span style={{ background: HALO, padding: "0 16px" }}>volar.</span>
         </div>

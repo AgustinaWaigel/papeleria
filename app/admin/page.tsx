@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { CargaExcel } from "@/components/admin/CargaExcel";
 import { SinSupabase } from "@/components/admin/SinSupabase";
 import { TablaProductos } from "@/components/admin/TablaProductos";
 import { exigirAdmin } from "@/lib/admin";
@@ -33,6 +34,8 @@ async function Lista({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
         </p>
       )}
       {error && <p className="admin__error">No se pudo leer la tabla: {error.message}</p>}
+
+      <CargaExcel hayProductos={productos.length > 0} />
 
       <TablaProductos productos={productos} />
     </>

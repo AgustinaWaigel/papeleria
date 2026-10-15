@@ -40,7 +40,7 @@ function DatosParaGoogle({ p, resenas }: { p: Producto; resenas: Resena[] }) {
     name: p.nombre,
     description: p.desc,
     sku: p.id,
-    brand: { "@type": "Brand", name: "Alas de Ángel Creaciones" },
+    brand: { "@type": "Brand", name: "Alas de Ángel Papelería" },
     ...(p.fotos && { image: p.fotos.map((f) => (f.startsWith("http") ? f : SITIO_URL + f)) }),
     offers: {
       "@type": "Offer",

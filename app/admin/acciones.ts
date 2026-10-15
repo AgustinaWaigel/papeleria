@@ -4,11 +4,13 @@ import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirAdmin } from "@/lib/admin";
 import { TAGS, obtenerCategorias, type FilaProducto } from "@/lib/catalogo";
+import { leerExcel } from "@/lib/excel";
 import { COLORES, NOMBRES_DIBUJO, TIPOS, type TipoProducto } from "@/lib/productos";
 import { BUCKET_FOTOS, supabaseConfigurado } from "@/lib/supabase/config";
 import { clienteConSesion } from "@/lib/supabase/servidor";
 
 export type Estado = { error?: string; ok?: string } | undefined;
+export type EstadoImportar = { error?: string; ok?: string; detalles?: string[] } | undefined;
 
 // ---------- Sesión ----------
 
@@ -139,6 +141,43 @@ export async function borrarProducto(datos: FormData) {
 
   updateTag(TAGS.catalogo);
   redirect("/admin");
+}
+
+/* Carga los productos de un Excel: los que ya existen (mismo identificador) se actualizan y los
+   nuevos se agregan. Los que no están en la planilla quedan como estaban. Si alguna fila tiene un
+   error no se guarda nada, así no queda una carga a medias. */
+export async function importarExcel(_: Estado, datos: FormData): Promise<EstadoImportar> {
+  const { supabase } = await exigirAdmin();
+  const archivo = datos.get("archivo");
+  if (!(archivo instanceof File) || archivo.size === 0) return { error: "Elegí un archivo de Excel (.xlsx)." };
+  if (!archivo.name.toLowerCase().endsWith(".xlsx")) return { error: "El archivo tiene que ser .xlsx (en Excel: Guardar como → Libro de Excel)." };
+
+  const [{ data: antes, error: errorLectura }, categorias] = await Promise.all([
+    supabase.from("productos").select("*"),
+    obtenerCategorias(),
+  ]);
+  if (errorLectura) return { error: `No se pudo leer la tabla: ${errorLectura.message}` };
+  const existentes = new Map(((antes ?? []) as FilaProducto[]).map((f) => [f.id, f]));
+
+  let leido;
+  try {
+    leido = await leerExcel(await archivo.arrayBuffer(), categorias, existentes);
+  } catch {
+    return { error: "No se pudo abrir el archivo. ¿Es un Excel (.xlsx) sin contraseña?" };
+  }
+  if (leido.errores.length > 0) {
+    return { error: "No se cargó nada: hay que corregir estas filas y volver a subir el archivo.", detalles: leido.errores };
+  }
+
+  const { error } = await supabase.from("productos").upsert(leido.filas, { onConflict: "id" });
+  if (error) return { error: `No se pudo guardar: ${error.message}` };
+
+  updateTag(TAGS.catalogo);
+  refresh();
+  const nuevos = leido.filas.filter((f) => !existentes.has(f.id)).length;
+  const actualizados = leido.filas.length - nuevos;
+  const partes = [nuevos && `${nuevos} ${nuevos === 1 ? "producto nuevo" : "productos nuevos"}`, actualizados && `${actualizados} ${actualizados === 1 ? "actualizado" : "actualizados"}`];
+  return { ok: `Listo: ${partes.filter(Boolean).join(" y ")}. Ya se ve en la tienda.` };
 }
 
 /* Prende o apaga un sí/no de la lista sin entrar a editar: si se ve en la tienda o si va en Inicio. */
