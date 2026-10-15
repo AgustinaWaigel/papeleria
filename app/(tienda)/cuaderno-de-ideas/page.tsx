@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Portadilla } from "@/components/Bloques";
+import { ABIERTAS } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Cuaderno de ideas",
@@ -8,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function CuadernoDeIdeas() {
+  if (!ABIERTAS.ideas) notFound(); // guardado para más adelante (ver lib/paginas.ts)
   return (
     <>
       <Portadilla nota="anotaciones al margen" titulo="Cuaderno de ideas">

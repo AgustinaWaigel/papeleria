@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { Estanteria } from "@/components/Estanteria";
+import { ABIERTAS } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Descargables",
@@ -35,10 +36,12 @@ export default function Descargables() {
             </div>
           ))}
         </div>
-        <p className="mt-e7">
-          ¿Primera vez imprimiendo plantillas? Leé{" "}
-          <Link href="/cuaderno-de-ideas#imprimir-en-casa">cómo imprimir en casa y que quede lindo</Link>.
-        </p>
+        {ABIERTAS.ideas && (
+          <p className="mt-e7">
+            ¿Primera vez imprimiendo plantillas? Leé{" "}
+            <Link href="/cuaderno-de-ideas#imprimir-en-casa">cómo imprimir en casa y que quede lindo</Link>.
+          </p>
+        )}
       </Seccion>
     </>
   );

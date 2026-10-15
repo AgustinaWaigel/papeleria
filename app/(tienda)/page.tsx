@@ -42,30 +42,6 @@ const PASOS = [
   ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
 ];
 
-const NOTAS = [
-  {
-    href: "/cuaderno-de-ideas#estrenar-cuaderno",
-    tema: "Empezar",
-    lomo: "[--lomo:var(--color-lavanda)]",
-    titulo: "Cómo estrenar un cuaderno sin miedo a arruinarlo",
-    texto: "La primera hoja en blanco intimida. Cinco maneras de romper el hielo.",
-  },
-  {
-    href: "/cuaderno-de-ideas#semana-en-una-hoja",
-    tema: "Organización",
-    lomo: "[--lomo:var(--color-halo)]",
-    titulo: "Una semana entera en una sola hoja",
-    texto: "El método de las tres prioridades para planificar en diez minutos.",
-  },
-  {
-    href: "/cuaderno-de-ideas#imprimir-en-casa",
-    tema: "Descargables",
-    lomo: "[--lomo:var(--color-menta)]",
-    titulo: "Imprimir en casa y que quede lindo",
-    texto: "Qué papel usar, cómo configurar la impresora y cómo encuadernar sin anilladora.",
-  },
-];
-
 export default async function Inicio() {
   const catalogo = await obtenerCatalogo();
   // Sin productos cargados, la tienda se muestra "en el taller".
@@ -128,26 +104,6 @@ export default async function Inicio() {
         </ol>
       </Seccion>
 
-      <Seccion
-        nota="para leer con un mate"
-        titulo="Del cuaderno de ideas"
-        accion={
-          <Link className="boton boton--claro" href="/cuaderno-de-ideas">
-            Leer todas las notas
-          </Link>
-        }
-      >
-        <div className="grilla-notas">
-          {NOTAS.map((n) => (
-            <Link key={n.href} className={`tarjeta-nota ${n.lomo}`} href={n.href}>
-              <span className="tarjeta-nota__tema">{n.tema}</span>
-              <h3>{n.titulo}</h3>
-              <p>{n.texto}</p>
-            </Link>
-          ))}
-        </div>
-      </Seccion>
-
       {ABIERTAS.personalizados && (
         <Seccion>
           <Franja
@@ -180,26 +136,6 @@ function EnConstruccion() {
             </li>
           ))}
         </ol>
-      </Seccion>
-
-      <Seccion
-        nota="para leer con un mate"
-        titulo="Del cuaderno de ideas"
-        accion={
-          <Link className="boton boton--claro" href="/cuaderno-de-ideas">
-            Leer todas las notas
-          </Link>
-        }
-      >
-        <div className="grilla-notas">
-          {NOTAS.map((n) => (
-            <Link key={n.href} className={`tarjeta-nota ${n.lomo}`} href={n.href}>
-              <span className="tarjeta-nota__tema">{n.tema}</span>
-              <h3>{n.titulo}</h3>
-              <p>{n.texto}</p>
-            </Link>
-          ))}
-        </div>
       </Seccion>
 
       {ABIERTAS.personalizados && (
