@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITIO_URL),
   openGraph: { siteName: "Alas de Ángel Papelería", locale: "es_AR", type: "website" },
   title: { default: "Alas de Ángel Papelería · Papelería creativa", template: "%s · Alas de Ángel Papelería" },
-  description: "Cuadernos, agendas, stickers y plantillas para imprimir. Papelería creativa para ideas que quieren volar.",
+  description: "Cuadernos, agendas, stickers y plantillas para imprimir. Papelería hecha a mano para escribir, soñar y volar.",
 };
 
 /* La raíz solo pone el documento y las fuentes. La tienda y el panel tienen cada uno su layout. */

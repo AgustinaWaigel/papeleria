@@ -3,7 +3,7 @@ import { ALA_LOGO, HALO_LOGO } from "@/lib/alas";
 
 /* La imagen que acompaña los links del sitio en WhatsApp, Instagram o Facebook.
    Los productos con foto usan su primera foto (ver producto/[id]/page.tsx). */
-export const alt = "Alas de Ángel Papelería · Papel para ideas que quieren volar";
+export const alt = "Alas de Ángel Papelería · Para escribir, soñar y volar";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,7 +26,7 @@ export default function Imagen() {
           Alas de Ángel · Papelería
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", fontSize: 92, fontWeight: 800, lineHeight: 1.05, marginTop: 28, maxWidth: 980 }}>
-          Papel para ideas que quieren&nbsp;<span style={{ background: HALO, padding: "0 16px" }}>volar.</span>
+          Para escribir, soñar y&nbsp;<span style={{ background: HALO, padding: "0 16px" }}>volar.</span>
         </div>
         <div style={{ fontSize: 34, marginTop: 36 }}>Cuadernos, agendas, stickers y plantillas para imprimir.</div>
       </div>

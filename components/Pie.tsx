@@ -9,7 +9,7 @@ export function Pie() {
       <div className="contenedor">
         <FormSuscripcion />
         <div className="pie__grilla">
-          <p className="pie__lema">Papel para ideas que quieren volar.</p>
+          <p className="pie__lema">Para escribir, soñar y volar.</p>
           <div>
             <h2>Tienda</h2>
             <ul>
@@ -49,7 +49,7 @@ export function Pie() {
             </ul>
           </div>
         </div>
-        <p className="pie__legal">© Alas de Ángel Papelería · Papel para ideas que quieren volar.</p>
+        <p className="pie__legal">© Alas de Ángel Papelería · Para escribir, soñar y volar.</p>
       </div>
     </footer>
   );

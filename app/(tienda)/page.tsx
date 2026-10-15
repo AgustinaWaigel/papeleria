@@ -82,10 +82,10 @@ export default async function Inicio() {
           <div className="portada__texto">
             <span className="nota-mano">papelería creativa</span>
             <h1>
-              Papel para ideas que quieren <span className="resalte">volar.</span>
+              Para escribir, soñar y <span className="resalte">volar.</span>
             </h1>
             <p>
-              Papelería hecha a mano, con mucho amor. Cuadernos, agendas y detalles para acompañar
+              Papelería hecha a mano, con mucho amor. Cuadernos, agendas, cartucheras y detalles para acompañar
               tus días.
             </p>
             <div className="fila-botones">

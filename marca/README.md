@@ -11,7 +11,7 @@ Un cuaderno abierto tiene dos alas. De ahí sale todo:
 - **Las cosas están pegadas, no flotando.** Las fichas de producto llevan un pedacito de cinta washi arriba y una sombra dura, como recortes pegados en una hoja.
 - **Pluma** es a la vez pluma de ala y pluma de escribir. Se puede jugar con eso, sin abusar.
 
-Frase de marca: **Papel para ideas que quieren volar.**
+Frase de marca: **Para escribir, soñar y volar.**
 
 ## Voz
 
