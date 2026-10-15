@@ -1,70 +1,193 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
+import { enlaceWhatsApp } from "@/lib/contacto";
 import { ABIERTAS } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
-  description: "Envíos, pagos, descargables y cambios.",
+  description:
+    "Cómo hacer un pedido, medios de pago, envíos, retiro, descargables y cambios en Alas de Ángel Papelería.",
 };
 
-/* Respuestas de ejemplo: revisalas y ajustalas a cómo trabajan de verdad (envíos, pagos, plazos). */
-const TEMAS = [
+type Pregunta = [pregunta: string, respuesta: string];
+type Tema = { id: string; titulo: string; preguntas: Pregunta[] };
+
+/* Revisá que las respuestas sigan siendo ciertas cuando cambie algo (medios de pago, envíos, plazos). */
+const TEMAS: Tema[] = [
   {
-    titulo: "Compras y pagos",
+    id: "productos",
+    titulo: "Nuestros productos",
     preguntas: [
-      ["¿Cómo compro?", "Sumás lo que quieras a la bolsita y tocás “Enviar pedido por WhatsApp”. Se abre el chat con tu pedido ya escrito; ahí te confirmamos el stock y te pasamos los datos para pagar."],
-      ["¿Qué medios de pago aceptan?", "Transferencia bancaria y Mercado Pago. Te pasamos los datos por WhatsApp cuando confirmamos el pedido."],
-      ["¿Venden por mayor?", "Sí, para comercios y para eventos. Escribinos contando qué productos te interesan y qué cantidad, y te armamos un presupuesto."],
+      [
+        "¿Los productos son hechos a mano?",
+        "Sí. Cada cuaderno, agenda y cartuchera la armamos nosotras en el taller, de a poco y revisando cada detalle. Por eso puede haber pequeñas diferencias entre uno y otro: es parte de que esté hecho a mano.",
+      ],
+      [
+        "¿Puedo encargar algo que no está en la página?",
+        "Escribinos y lo charlamos. Si podemos hacerlo, te pasamos el precio y el plazo antes de empezar.",
+      ],
+      [
+        "¿Cuándo suben productos nuevos?",
+        "Vamos sumando de a poco. Anotate en las novedades por mail, al pie de la página, y te avisamos cada vez que sale algo nuevo.",
+      ],
     ],
   },
   {
-    titulo: "Envíos",
+    id: "pedidos",
+    titulo: "Pedidos y pagos",
     preguntas: [
-      ["¿Hacen envíos?", "Sí, a todo el país por correo. El costo depende del destino y del tamaño del paquete: te lo pasamos antes de que pagues."],
-      ["¿Cuánto tarda en llegar?", "Despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo; te mandamos el código de seguimiento para que lo veas."],
+      [
+        "¿Cómo hago un pedido?",
+        "Sumá lo que te guste a la bolsita y tocá “Enviar pedido por WhatsApp”. Se abre el chat con tu pedido ya escrito: ahí te confirmamos que haya stock, el total con el envío y cómo pagar.",
+      ],
+      [
+        "¿Qué medios de pago aceptan?",
+        "Transferencia bancaria y Mercado Pago. Te pasamos los datos por WhatsApp cuando confirmamos el pedido.",
+      ],
+      [
+        "¿Cuándo queda confirmado mi pedido?",
+        "Cuando se acredita el pago. Te avisamos por WhatsApp apenas lo vemos y empezamos a prepararlo.",
+      ],
+      [
+        "Me equivoqué en el pedido, ¿lo puedo cambiar?",
+        "Sí, avisanos lo antes posible por WhatsApp. Si todavía no lo despachamos, lo corregimos sin problema.",
+      ],
+      [
+        "¿Venden por mayor?",
+        "Sí, para comercios, souvenirs y eventos. Contanos qué productos te interesan y qué cantidad, y te armamos un presupuesto.",
+      ],
     ],
   },
   {
+    id: "envios",
+    titulo: "Envíos y retiro",
+    preguntas: [
+      [
+        "¿Hacen envíos?",
+        "Sí, a todo el país. El costo depende del destino y del tamaño del paquete, y te lo pasamos antes de que pagues.",
+      ],
+      [
+        "¿Puedo retirarlo en persona?",
+        "Sí, estamos en Paraná, Entre Ríos. Coordinamos el día y el lugar por WhatsApp, sin costo.",
+      ],
+      [
+        "¿Cuánto tarda en llegar?",
+        "Lo despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo: te mandamos el código de seguimiento para que lo sigas.",
+      ],
+      [
+        "¿Es para regalo? ¿Lo pueden envolver?",
+        "¡Claro! Avisanos al hacer el pedido y lo mandamos envuelto, con una tarjeta escrita a mano con el mensaje que quieras.",
+      ],
+    ],
+  },
+  {
+    id: "descargables",
     titulo: "Descargables",
     preguntas: [
-      ["¿Cómo recibo los archivos?", "Por mail, apenas se acredita el pago. Si en un rato no lo ves, fijate en la carpeta de spam antes de escribirnos."],
-      ["¿Puedo imprimirlos más de una vez?", "Todas las que quieras, para uso personal. Lo que no se puede es revender el archivo, compartirlo ni vender las hojas impresas."],
-      ["¿Necesito un programa especial?", "No. Son PDF: se abren en cualquier compu o celular. Los que dicen “editable” se completan con el lector de PDF gratuito de Adobe."],
+      [
+        "¿Cómo recibo los archivos?",
+        "Por mail, apenas se acredita el pago. Si en un rato no te llegó, fijate en la carpeta de spam o promociones antes de escribirnos.",
+      ],
+      [
+        "¿Puedo imprimirlos más de una vez?",
+        "Todas las veces que quieras, para uso personal. Lo que no se puede es compartir o revender el archivo, ni vender las hojas impresas.",
+      ],
+      [
+        "¿Necesito algún programa especial?",
+        "No. Son PDF: se abren en cualquier compu o celular. Los que dicen “editable” se completan con el lector de PDF gratuito de Adobe.",
+      ],
     ],
   },
   {
-    titulo: ABIERTAS.personalizados ? "Personalizados y cambios" : "Cambios",
+    id: "cambios",
+    titulo: "Cambios y problemas",
     preguntas: [
       ...(ABIERTAS.personalizados
-        ? [["¿Cuánto demora un personalizado?", "Entre siete y diez días hábiles desde que aprobás la muestra. Si lo necesitás para una fecha, avisanos antes de pedirlo."] as [string, string]]
+        ? ([
+            [
+              "¿Cuánto demora un personalizado?",
+              "Entre siete y diez días hábiles desde que aprobás la muestra. Si lo necesitás para una fecha, avisanos antes de pedirlo.",
+            ],
+          ] satisfies Pregunta[])
         : []),
-      ["¿Puedo cambiar un producto?", `Los productos físicos sin uso se pueden cambiar dentro de los diez días de recibidos. ${ABIERTAS.personalizados ? "Los personalizados y los descargables" : "Los descargables"} no tienen cambio, salvo que haya una falla nuestra.`],
-      ["Me llegó algo dañado, ¿qué hago?", "Mandanos una foto por WhatsApp apenas lo recibas y te lo reponemos."],
+      [
+        "¿Puedo cambiar un producto?",
+        `Sí, los productos físicos sin uso se pueden cambiar dentro de los diez días de recibidos. ${ABIERTAS.personalizados ? "Los personalizados y los descargables" : "Los descargables"} no tienen cambio, salvo que haya una falla nuestra.`,
+      ],
+      [
+        "Me llegó algo dañado, ¿qué hago?",
+        "Mandanos una foto por WhatsApp apenas lo recibas y lo solucionamos: te lo reponemos o te devolvemos el dinero, como prefieras.",
+      ],
     ],
   },
 ];
 
+/* Para que Google pueda mostrar las preguntas en los resultados de búsqueda. */
+function DatosParaGoogle() {
+  const datos = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: TEMAS.flatMap((t) =>
+      t.preguntas.map(([pregunta, respuesta]) => ({
+        "@type": "Question",
+        name: pregunta,
+        acceptedAnswer: { "@type": "Answer", text: respuesta },
+      })),
+    ),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(datos).replace(/</g, "\\u003c") }}
+    />
+  );
+}
+
+const WHATSAPP = enlaceWhatsApp("¡Hola Alas de Ángel! Tengo una consulta:");
+
 export default function PreguntasFrecuentes() {
   return (
     <>
+      <DatosParaGoogle />
       <Portadilla nota="lo que más nos preguntan" titulo="Preguntas frecuentes">
-        Envíos, pagos, descargables y cambios. Si no encontrás lo que buscás, escribinos.
+        Todo sobre pedidos, pagos, envíos y cambios. Si no encontrás lo que buscás, escribinos: te contesta una persona.
       </Portadilla>
 
       <Seccion>
         <div className="preguntas">
-          {TEMAS.map((tema) => (
-            <div key={tema.titulo}>
-              <h2>{tema.titulo}</h2>
-              {tema.preguntas.map(([pregunta, respuesta]) => (
-                <details key={pregunta}>
-                  <summary>{pregunta}</summary>
-                  <p>{respuesta}</p>
-                </details>
-              ))}
+          <aside className="preguntas__lado">
+            <nav aria-label="Temas">
+              <span className="nota-mano">temas</span>
+              <ul className="preguntas__indice">
+                {TEMAS.map((t) => (
+                  <li key={t.id}>
+                    <a href={`#${t.id}`}>{t.titulo}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="preguntas__ayuda">
+              <p>¿No encontrás tu respuesta?</p>
+              <a className="boton boton--chico" href={WHATSAPP} target="_blank" rel="noopener">
+                Abrir WhatsApp
+              </a>
             </div>
-          ))}
+          </aside>
+
+          <div className="preguntas__temas">
+            {TEMAS.map((tema) => (
+              <section key={tema.id} id={tema.id} className="preguntas__tema" aria-labelledby={`${tema.id}-titulo`}>
+                <h2 id={`${tema.id}-titulo`}>{tema.titulo}</h2>
+                {tema.preguntas.map(([pregunta, respuesta]) => (
+                  <details key={pregunta} name={tema.id}>
+                    <summary>{pregunta}</summary>
+                    <p>{respuesta}</p>
+                  </details>
+                ))}
+              </section>
+            ))}
+          </div>
         </div>
       </Seccion>
 
@@ -72,12 +195,17 @@ export default function PreguntasFrecuentes() {
         <Franja
           titulo="¿Te quedó una duda?"
           accion={
-            <Link className="boton" href="/contacto">
-              Escribinos
-            </Link>
+            <div className="fila-botones">
+              <a className="boton" href={WHATSAPP} target="_blank" rel="noopener">
+                Escribinos por WhatsApp
+              </a>
+              <Link className="boton boton--claro" href="/contacto">
+                Otras formas de contacto
+              </Link>
+            </div>
           }
         >
-          Preguntanos lo que necesites: te contesta una persona.
+          Preguntanos lo que necesites. Te contesta una persona, no un robot.
         </Franja>
       </Seccion>
     </>
