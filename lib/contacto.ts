@@ -1,8 +1,8 @@
 /* Datos de contacto: cambiá estos tres valores por los reales.
    El WhatsApp va con código de país y sin signos: 54 9 + característica + número. */
 export const CONTACTO = {
-  whatsapp: "5490000000000",
-  email: "hola@alasdeangel.com.ar",
+  whatsapp: "5493435449137",
+  email: "papeleria.alasdeangel@gmail.com",
   instagram: "alasdeangel.papeleria",
 };
 
