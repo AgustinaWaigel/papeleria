@@ -78,23 +78,6 @@ export default async function Inicio() {
   return (
     <>
       <section className="portada">
-        <svg className="cintas" viewBox="0 0 400 560" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
-          {[
-            ["c-vino", undefined, undefined],
-            ["c-rosa", "14 86", -18],
-            ["c-lima", "16 84", -44],
-            ["c-verde", "14 86", -72],
-          ].map(([color, tramo, desde]) => (
-            <path
-              key={color}
-              className={color as string}
-              pathLength={100}
-              strokeDasharray={tramo}
-              strokeDashoffset={desde}
-              d="M330,-30 C330,90 150,70 150,190 C150,300 340,280 340,400 C340,500 220,520 200,600"
-            />
-          ))}
-        </svg>
         <div className="contenedor portada__grilla">
           <div className="portada__texto">
             <span className="nota-mano">papelería creativa</span>

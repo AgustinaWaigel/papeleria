@@ -209,22 +209,35 @@ a:hover { color: var(--color-tinta); }
 
 /* ---------- Portada de inicio ---------- */
 
-.portada { position: relative; border-bottom: var(--borde); overflow: hidden; }
+/* Fondo vino, el del logo: las alas flotan sobre él con un resplandor detrás, sin recuadro. */
+.portada {
+  position: relative;
+  overflow: hidden;
+  color: var(--color-nube);
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 72%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
+    var(--color-amanecer);
+  border-bottom: var(--borde);
+}
+@media (min-width: 52rem) {
+  .portada {
+    background:
+      radial-gradient(ellipse 42% 62% at 74% 45%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
+      var(--color-amanecer);
+  }
+}
 .portada .contenedor { position: relative; }
+.portada h1 { color: var(--color-nube); }
+.portada .nota-mano { color: var(--color-lavanda); }
+.portada__texto p { color: var(--color-lavanda-suave); }
+.portada .boton { background: var(--color-halo); color: var(--color-amanecer-fuerte); border-color: var(--color-nube); }
+.portada .boton--claro { background: transparent; color: var(--color-nube); }
+.portada .boton:hover { color: var(--color-amanecer-fuerte); box-shadow: 4px 4px 0 var(--color-amanecer-fuerte); }
+.portada .boton--claro:hover { color: var(--color-nube); background: rgb(255 255 255 / 0.1); }
 
 /* Palabra resaltada con marcador, dentro de un título. */
 .resalte { background: var(--color-halo); padding: 0 0.18em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
-/* Cintas onduladas de la portada: el mismo trazo pintado por tramos. */
-.cintas { display: none; position: absolute; inset: 0 0 0 auto; height: 100%; width: auto; max-width: 46%; }
-.cintas path { fill: none; stroke-width: 44; stroke-linecap: butt; }
-.cintas .c-vino { stroke: var(--color-amanecer); }
-.cintas .c-rosa { stroke: var(--color-lavanda); }
-.cintas .c-lima { stroke: var(--color-halo); }
-.cintas .c-verde { stroke: var(--color-tinta); }
-@media (min-width: 52rem) {
-  .cintas { display: block; }
-}
 .portada__grilla {
   display: grid;
   gap: var(--espacio-6);
@@ -244,13 +257,6 @@ a:hover { color: var(--color-tinta); }
 }
 
 /* Las alas de la portada: entran desplegándose, después aletean; el halo baja y flota. */
-.alas {
-  padding: var(--espacio-6) var(--espacio-5);
-  background: radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--color-amanecer) 78%, white), var(--color-amanecer) 62%);
-  border: var(--borde);
-  border-radius: var(--radio-l);
-  box-shadow: var(--sombra-sello-alta);
-}
 .alas__dibujo {
   display: block;
   width: 100%;
@@ -773,7 +779,7 @@ a:hover { color: var(--color-tinta); }
    no deja nada puesto que rompa los position: fixed y sticky de adentro. */
 .entrada-pagina { animation: aparecer var(--mov-suave) var(--mov-curva) backwards; }
 
-/* Portada: el texto sube en escalera, el cuaderno despega, las cintas se desenrollan
+/* Portada: el texto sube en escalera, las alas despegan
    y el marcador pinta la palabra "volar". */
 .portada__texto > * { animation: subir 700ms var(--mov-curva) backwards; }
 .portada__texto > :nth-child(2) { animation-delay: 120ms; }
@@ -781,8 +787,8 @@ a:hover { color: var(--color-tinta); }
 .portada__texto > :nth-child(4) { animation-delay: 360ms; }
 .portada__dibujo { animation: despegar 900ms var(--mov-curva) 150ms backwards; }
 .portada__dibujo .nota-mano { animation: aparecer 600ms ease-out 1s backwards; }
-.cintas { animation: desenrollar 1.6s var(--mov-curva) backwards; }
 .portada .resalte {
+  color: var(--color-amanecer-fuerte);
   background: linear-gradient(var(--color-halo), var(--color-halo)) no-repeat left center / 100% 100%;
   animation: marcador 650ms var(--mov-curva) 700ms backwards;
 }
