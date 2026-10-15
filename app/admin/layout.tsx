@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { NavAdmin } from "@/components/admin/NavAdmin";
-import { Isotipo } from "@/components/CuadernoAlado";
+import { Isotipo } from "@/components/Alas";
 
 export const metadata: Metadata = {
   title: { default: "Panel", template: "%s · Panel · Alas de Ángel Papelería" },

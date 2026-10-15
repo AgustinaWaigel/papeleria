@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { enlaceInstagram } from "@/lib/contacto";
-import { CuadernoAlado } from "./CuadernoAlado";
+import { AlasAnimadas } from "./Alas";
 
 /* Lo que se ve mientras no hay productos cargados: la tienda "en el taller". */
 
@@ -29,7 +29,7 @@ export function TallerPortada() {
           </div>
         </div>
         <div className="portada__dibujo">
-          <CuadernoAlado />
+          <AlasAnimadas />
           <span className="nota-mano">aguja, hilo y paciencia</span>
         </div>
       </div>

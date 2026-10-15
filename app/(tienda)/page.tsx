@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Franja, Seccion } from "@/components/Bloques";
 import { Destacados } from "@/components/Estanteria";
-import { CuadernoAlado } from "@/components/CuadernoAlado";
+import { AlasAnimadas } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
 import { obtenerCatalogo } from "@/lib/catalogo";
 
@@ -112,7 +112,7 @@ export default async function Inicio() {
             </div>
           </div>
           <div className="portada__dibujo">
-            <CuadernoAlado />
+            <AlasAnimadas />
             <span className="nota-mano">cada hoja, un ala</span>
           </div>
         </div>

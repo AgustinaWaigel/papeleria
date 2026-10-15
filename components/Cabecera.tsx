@@ -6,7 +6,7 @@ import { useState } from "react";
 import { unidades } from "@/lib/bolsita";
 import { PAGINAS } from "@/lib/paginas";
 import { useAccionesBolsita, useRenglones } from "./Bolsita";
-import { Isotipo } from "./CuadernoAlado";
+import { Isotipo } from "./Alas";
 
 export function Cabecera() {
   const ruta = usePathname();

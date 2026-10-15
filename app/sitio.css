@@ -243,44 +243,56 @@ a:hover { color: var(--color-tinta); }
   .portada__grilla { grid-template-columns: 1.05fr 1fr; min-height: 34rem; }
 }
 
-.cuaderno-alado { width: 100%; height: auto; overflow: visible; }
-.cuaderno-alado .hoja,
-.logo .hoja {
-  stroke: var(--color-tinta);
-  stroke-width: var(--trazo-dibujo);
-  stroke-linejoin: round;
-  transform: rotate(var(--a));
-  transform-origin: 0 0;
+/* Las alas de la portada: entran desplegándose, después aletean; el halo baja y flota. */
+.alas {
+  padding: var(--espacio-6) var(--espacio-5);
+  background: radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--color-amanecer) 78%, white), var(--color-amanecer) 62%);
+  border: var(--borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra-sello-alta);
 }
-.logo .hoja { stroke-width: 9; }
-.cuaderno-alado .hoja {
-  animation: aleteo var(--mov-aleteo) ease-in-out infinite alternate;
-  animation-delay: calc(var(--i) * -90ms);
+.alas__dibujo {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: #fff;
+  filter: drop-shadow(5px 8px 5px rgb(45 6 28 / 0.55));
 }
-.cuaderno-alado .renglon-hoja { fill: none; stroke: var(--color-renglon); stroke-width: 2; }
-.cuaderno-alado .tapa, .logo .tapa { fill: var(--color-tinta); }
-.cuaderno-alado .plumita {
-  fill: var(--color-nube);
-  stroke: var(--color-tinta);
-  stroke-width: 2;
-  stroke-linejoin: round;
-  animation: planeo calc(var(--mov-aleteo) * 2) ease-in-out infinite alternate;
-  animation-delay: calc(var(--i) * -1.3s);
+.portada__dibujo:has(.alas) { padding-bottom: var(--espacio-7); }
+
+.alas__despliegue {
+  animation: abrir-ala 1.1s var(--mov-curva) backwards;
+  animation-delay: calc(300ms + var(--i) * 90ms);
 }
-@keyframes aleteo {
-  from { transform: rotate(var(--a)); }
-  to { transform: rotate(calc(var(--a) * 1.24 - 2deg)); }
+.alas__aleteo { animation: aletear calc(var(--mov-aleteo) / 2) ease-in-out 1.4s infinite alternate; }
+.alas__halo-entrada { animation: bajar-halo 900ms cubic-bezier(0.34, 1.56, 0.64, 1) 1s backwards; }
+.alas__halo { animation: flotar-halo var(--mov-aleteo) ease-in-out 1.9s infinite alternate; }
+.alas__brillo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: titilar 2.6s ease-in-out infinite backwards;
+  animation-delay: calc(var(--i) * -0.6s);
 }
-@keyframes planeo {
-  from { transform: translate(0, 0) rotate(0deg); }
-  to { transform: translate(-14px, 22px) rotate(-16deg); }
+.alas__dibujo > g:nth-child(3n + 1) .alas__brillo { fill: var(--color-lavanda); }
+.alas__dibujo > g:nth-child(3n + 2) .alas__brillo { fill: var(--color-halo); }
+
+@keyframes abrir-ala { from { opacity: 0; transform: rotate(60deg) scale(0.3); } }
+@keyframes aletear { to { transform: rotate(-9deg) scale(1.02, 0.97); } }
+@keyframes bajar-halo { from { opacity: 0; transform: translateY(-140px); } }
+@keyframes flotar-halo { to { transform: translateY(-16px); filter: drop-shadow(0 0 14px rgb(255 255 255 / 0.85)); } }
+@keyframes titilar {
+  0%, 100% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(45deg); }
 }
 
-.h-lavanda { fill: var(--color-lavanda-suave); }
-.h-halo { fill: var(--color-halo-suave); }
-.h-amanecer { fill: var(--color-amanecer-suave); }
-.h-cielo { fill: var(--color-cielo); }
-.h-nube { fill: var(--color-nube); }
+/* El logo: el ala sola sobre el cuadrado vino. Al pasar el mouse, aletea. */
+.logo .isotipo { width: 2.75rem; flex: none; }
+.isotipo rect { fill: var(--color-amanecer); }
+.isotipo__ala, .isotipo__halo { fill: #fff; transition: transform var(--mov-suave) var(--mov-curva); }
+.logo:hover .isotipo__ala { transform: rotate(-7deg); }
+.logo:hover .isotipo__halo { transform: translateY(-28px); }
+
 
 /* ---------- Portada de páginas internas ---------- */
 
