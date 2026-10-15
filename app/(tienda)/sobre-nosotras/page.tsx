@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
+import { ABIERTAS } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Sobre nosotras",
@@ -35,8 +36,9 @@ export default function SobreNosotras() {
             </p>
             <h2>Cómo trabajamos</h2>
             <p>
-              Diseñamos cada producto nosotras, desde la tapa hasta el renglón. Los personalizados se hacen por pedido, y
-              antes de imprimir siempre mandamos una muestra para que la apruebes.
+              Diseñamos cada producto nosotras, desde la tapa hasta el renglón.
+              {ABIERTAS.personalizados &&
+                " Los personalizados se hacen por pedido, y antes de imprimir siempre mandamos una muestra para que la apruebes."}
             </p>
             <p>
               Si querés saber algo más, <Link href="/contacto">escribinos</Link>. Nos encanta hablar de papel.

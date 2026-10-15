@@ -1,8 +1,15 @@
 "use client";
 
 import { enlaceWhatsApp } from "@/lib/contacto";
+import { ABIERTAS } from "@/lib/paginas";
 
-const MOTIVOS = ["Una consulta sobre un producto", "Un pedido personalizado", "Un pedido por mayor", "Un problema con mi compra", "Otra cosa"];
+const MOTIVOS = [
+  "Una consulta sobre un producto",
+  ...(ABIERTAS.personalizados ? ["Un pedido personalizado"] : []),
+  "Un pedido por mayor",
+  "Un problema con mi compra",
+  "Otra cosa",
+];
 
 export function FormularioContacto() {
   // En onSubmit y no en action: la ventana tiene que abrirse dentro del clic o el navegador la bloquea.

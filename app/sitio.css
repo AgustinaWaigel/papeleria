@@ -351,6 +351,8 @@ a:hover { color: var(--color-tinta); }
 .estante h3 { color: var(--titulo); }
 .estante:hover { color: var(--texto); transform: translate(-3px, -3px); box-shadow: var(--sombra-sello-alta); }
 .estante p { font-size: var(--texto-s); }
+.estante--pronto { opacity: 0.75; }
+.estante--pronto .estante__ir { text-decoration: none; font-style: italic; }
 .estante__ir { margin-top: auto; padding-top: var(--espacio-4); font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; }
 
 /* ---------- Fichas de producto ---------- */

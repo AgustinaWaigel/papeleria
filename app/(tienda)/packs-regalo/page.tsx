@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Proximamente } from "@/components/EnElTaller";
+import { ABIERTAS } from "@/lib/paginas";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { Estanteria } from "@/components/Estanteria";
 
@@ -9,6 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default function PacksRegalo() {
+  // Guardada para más adelante (ver lib/paginas.ts).
+  if (!ABIERTAS.packs)
+    return (
+      <Proximamente titulo="Packs regalo">
+        Combos de papelería ya armados y envueltos, con una tarjeta escrita a mano.
+      </Proximamente>
+    );
   return (
     <>
       <Portadilla nota="listos para dar" titulo="Packs regalo">

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
+import { ABIERTAS } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
-  description: "Envíos, pagos, descargables, personalizados y cambios.",
+  description: "Envíos, pagos, descargables y cambios.",
 };
 
 /* Respuestas de ejemplo: revisalas y ajustalas a cómo trabajan de verdad (envíos, pagos, plazos). */
@@ -33,10 +34,12 @@ const TEMAS = [
     ],
   },
   {
-    titulo: "Personalizados y cambios",
+    titulo: ABIERTAS.personalizados ? "Personalizados y cambios" : "Cambios",
     preguntas: [
-      ["¿Cuánto demora un personalizado?", "Entre siete y diez días hábiles desde que aprobás la muestra. Si lo necesitás para una fecha, avisanos antes de pedirlo."],
-      ["¿Puedo cambiar un producto?", "Los productos físicos sin uso se pueden cambiar dentro de los diez días de recibidos. Los personalizados y los descargables no tienen cambio, salvo que haya una falla nuestra."],
+      ...(ABIERTAS.personalizados
+        ? [["¿Cuánto demora un personalizado?", "Entre siete y diez días hábiles desde que aprobás la muestra. Si lo necesitás para una fecha, avisanos antes de pedirlo."] as [string, string]]
+        : []),
+      ["¿Puedo cambiar un producto?", `Los productos físicos sin uso se pueden cambiar dentro de los diez días de recibidos. ${ABIERTAS.personalizados ? "Los personalizados y los descargables" : "Los descargables"} no tienen cambio, salvo que haya una falla nuestra.`],
       ["Me llegó algo dañado, ¿qué hago?", "Mandanos una foto por WhatsApp apenas lo recibas y te lo reponemos."],
     ],
   },

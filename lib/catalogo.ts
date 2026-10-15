@@ -2,6 +2,7 @@
    (updateTag con los TAGS de abajo). Sin Supabase configurado, usa lib/productos.tsx. */
 
 import { cacheLife, cacheTag } from "next/cache";
+import { ABIERTAS } from "./paginas";
 import { supabaseConfigurado } from "./supabase/config";
 import { clientePublico } from "./supabase/servidor";
 import {
@@ -85,7 +86,8 @@ export async function obtenerCatalogo(): Promise<Producto[]> {
   }
   // Los cambios del panel se ven al instante por el tag; el plazo es solo un seguro.
   cacheLife("days");
-  return (data as FilaProducto[]).map(desdeFila);
+  // Los packs no se muestran mientras su sección esté guardada (ver lib/paginas.ts).
+  return (data as FilaProducto[]).map(desdeFila).filter((p) => ABIERTAS.packs || p.tipo !== "pack");
 }
 
 export async function obtenerProducto(id: string) {

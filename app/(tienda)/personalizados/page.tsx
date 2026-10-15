@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Proximamente } from "@/components/EnElTaller";
+import { ABIERTAS } from "@/lib/paginas";
 import { Armador } from "@/components/Armador";
 import { Portadilla, Seccion } from "@/components/Bloques";
 
@@ -9,11 +11,18 @@ export const metadata: Metadata = {
 };
 
 export default function Personalizados() {
+  // Guardada para más adelante (ver lib/paginas.ts).
+  if (!ABIERTAS.personalizados)
+    return (
+      <Proximamente titulo="Personalizados">
+        Cuadernos y agendas con tu nombre, eligiendo el color de la tapa, el dibujo y el interior.
+      </Proximamente>
+    );
   return (
     <>
       <Portadilla nota="único, como tu letra" titulo="Personalizados">
-        Elegí cómo lo querés y mirá cómo va quedando. Cuando te guste, nos mandás el diseño y te pasamos precio y fecha de
-        entrega.
+        Elegí cómo lo querés y mirá cómo va quedando. Cuando te guste, nos mandás el diseño y te pasamos precio y fecha
+        de entrega.
       </Portadilla>
 
       <section className="seccion">

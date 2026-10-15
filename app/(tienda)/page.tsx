@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Franja, Seccion } from "@/components/Bloques";
-import { Destacados } from "@/components/Estanteria";
 import { AlasAnimadas } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
 import { obtenerCatalogo } from "@/lib/catalogo";
+import { ABIERTAS, visible } from "@/lib/paginas";
 
 const ESTANTES = [
   {
@@ -37,10 +37,7 @@ const ESTANTES = [
 ];
 
 const PASOS = [
-  [
-    "Llená tu bolsita",
-    "Sumá lo que te guste: productos físicos, descargables y packs pueden ir juntos en el mismo pedido.",
-  ],
+  ["Llená tu bolsita", "Sumá lo que te guste: productos físicos y descargables pueden ir juntos en el mismo pedido."],
   ["Mandanos el pedido", "Con un toque se abre WhatsApp con todo ya escrito. Ahí coordinamos el pago y el envío."],
   ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
 ];
@@ -73,7 +70,6 @@ export default async function Inicio() {
   const catalogo = await obtenerCatalogo();
   // Sin productos cargados, la tienda se muestra "en el taller".
   if (catalogo.length === 0) return <EnConstruccion />;
-  const conDestacados = (tipo: string) => catalogo.some((p) => p.tipo === tipo && p.destacado);
 
   return (
     <>
@@ -85,8 +81,8 @@ export default async function Inicio() {
               Para escribir, soñar y <span className="resalte">volar.</span>
             </h1>
             <p>
-              Papelería hecha a mano, con mucho amor. Cuadernos, agendas, cartucheras y detalles para acompañar
-              tus días.
+              Papelería hecha a mano, con mucho amor. Cuadernos, agendas, cartucheras y detalles para acompañar tus
+              días.
             </p>
             <div className="fila-botones">
               <Link className="boton" href="/papeleria">
@@ -107,44 +103,19 @@ export default async function Inicio() {
       <Seccion nota="por dónde empezar" titulo="Cuatro estantes para revolver">
         <div className="estantes">
           {ESTANTES.map((e) => (
-            <Link key={e.href} className="estante" href={e.href} data-pestana={e.pestana}>
+            <Link
+              key={e.href}
+              className={visible(e.href) ? "estante" : "estante estante--pronto"}
+              href={e.href}
+              data-pestana={visible(e.href) ? e.pestana : "Próximamente"}
+            >
               <h3>{e.titulo}</h3>
               <p>{e.texto}</p>
-              <span className="estante__ir">{e.ir}</span>
+              <span className="estante__ir">{visible(e.href) ? e.ir : "Lo estamos preparando"}</span>
             </Link>
           ))}
         </div>
       </Seccion>
-
-      {conDestacados("fisico") && (
-        <Seccion
-          cielo
-          nota="los más pedidos"
-          titulo="Recién salidos del taller"
-          accion={
-            <Link className="boton boton--claro" href="/papeleria">
-              Ver toda la papelería
-            </Link>
-          }
-        >
-          <Destacados tipo="fisico" />
-        </Seccion>
-      )}
-
-      {conDestacados("descargable") && (
-        <Seccion
-          nota="sin esperar al correo"
-          titulo="Imprimí en casa y empezá hoy"
-          bajada="Plantillas en PDF listas para imprimir en A4 o A5, todas las veces que quieras."
-          accion={
-            <Link className="boton boton--claro" href="/descargables">
-              Ver todos los descargables
-            </Link>
-          }
-        >
-          <Destacados tipo="descargable" />
-        </Seccion>
-      )}
 
       <Seccion cielo nota="así de simple" titulo="Cómo comprar">
         <ol className="pasos">
@@ -177,18 +148,20 @@ export default async function Inicio() {
         </div>
       </Seccion>
 
-      <Seccion>
-        <Franja
-          titulo="¿Lo querés con tu nombre?"
-          accion={
-            <Link className="boton" href="/personalizados">
-              Armar mi personalizado
-            </Link>
-          }
-        >
-          Armá tu cuaderno o agenda: elegís color, dibujo e interior, y ves cómo queda antes de pedirlo.
-        </Franja>
-      </Seccion>
+      {ABIERTAS.personalizados && (
+        <Seccion>
+          <Franja
+            titulo="¿Lo querés con tu nombre?"
+            accion={
+              <Link className="boton" href="/personalizados">
+                Armar mi personalizado
+              </Link>
+            }
+          >
+            Armá tu cuaderno o agenda: elegís color, dibujo e interior, y ves cómo queda antes de pedirlo.
+          </Franja>
+        </Seccion>
+      )}
     </>
   );
 }
@@ -229,18 +202,20 @@ function EnConstruccion() {
         </div>
       </Seccion>
 
-      <Seccion>
-        <Franja
-          titulo="¿No querés esperar?"
-          accion={
-            <Link className="boton" href="/personalizados">
-              Armar mi personalizado
-            </Link>
-          }
-        >
-          Los personalizados ya se pueden pedir: elegís color, dibujo e interior, y nos lo mandás por WhatsApp.
-        </Franja>
-      </Seccion>
+      {ABIERTAS.personalizados && (
+        <Seccion>
+          <Franja
+            titulo="¿No querés esperar?"
+            accion={
+              <Link className="boton" href="/personalizados">
+                Armar mi personalizado
+              </Link>
+            }
+          >
+            Los personalizados ya se pueden pedir: elegís color, dibujo e interior, y nos lo mandás por WhatsApp.
+          </Franja>
+        </Seccion>
+      )}
     </>
   );
 }
