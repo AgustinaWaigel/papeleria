@@ -222,7 +222,7 @@ a:hover { color: var(--color-tinta); }
 @media (min-width: 52rem) {
   .portada {
     background:
-      radial-gradient(ellipse 42% 62% at 74% 45%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
+      radial-gradient(ellipse 30% 55% at 82% 45%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
       var(--color-amanecer);
   }
 }
@@ -244,8 +244,8 @@ a:hover { color: var(--color-tinta); }
   align-items: center;
   padding-block: var(--espacio-8);
 }
-.portada__texto p { font-size: var(--texto-l); max-width: 30rem; margin-block: var(--espacio-5) var(--espacio-6); }
-.portada__dibujo { position: relative; }
+.portada__texto p { font-size: var(--texto-l); max-width: 38rem; margin-block: var(--espacio-5) var(--espacio-6); }
+.portada__dibujo { position: relative; width: 100%; max-width: 22rem; justify-self: center; }
 .portada__dibujo .nota-mano {
   position: absolute;
   right: var(--espacio-4);
@@ -253,7 +253,8 @@ a:hover { color: var(--color-tinta); }
   margin-bottom: 0;
 }
 @media (min-width: 52rem) {
-  .portada__grilla { grid-template-columns: 1.05fr 1fr; min-height: 34rem; }
+  .portada__grilla { grid-template-columns: 1.7fr 1fr; min-height: 34rem; }
+  .portada__dibujo { max-width: 24rem; justify-self: end; }
 }
 
 /* Las alas de la portada: entran desplegándose, después aletean; el halo baja y flota. */
