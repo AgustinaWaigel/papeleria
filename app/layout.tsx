@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Karla, La_Belle_Aurore } from "next/font/google";
+import { Baloo_2, Karla, La_Belle_Aurore } from "next/font/google";
 import { SITIO_URL } from "@/lib/sitio";
 import "./globals.css";
 
 // Las variables --web-* alimentan --fuente-titulo, --fuente-texto, --fuente-etiqueta y --fuente-mano de marca/tokens.css.
-const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--web-bebas" });
+const baloo = Baloo_2({ subsets: ["latin"], variable: "--web-baloo" });
 const aurore = La_Belle_Aurore({ weight: "400", subsets: ["latin"], variable: "--web-aurore" });
 const karla = Karla({ subsets: ["latin"], style: ["normal", "italic"], variable: "--web-karla" });
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 /* La raíz solo pone el documento y las fuentes. La tienda y el panel tienen cada uno su layout. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={`${bebas.variable} ${aurore.variable} ${karla.variable}`}>
+    <html lang="es-AR" className={`${baloo.variable} ${aurore.variable} ${karla.variable}`}>
       <body>{children}</body>
     </html>
   );

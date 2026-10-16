@@ -18,7 +18,7 @@ export function TallerPortada() {
             Estamos fabricando algo <span className="resalte">lindo.</span>
           </h1>
           <p>
-            Cosemos cuadernos, armamos agendas y diseñamos plantillas para imprimir. Muy pronto vas a poder verlos y
+            Hacemos cuadernos, armamos agendas y diseñamos plantillas para imprimir. Muy pronto vas a poder verlos y
             pedirlos acá.
           </p>
           <div className="fila-botones">
@@ -32,7 +32,7 @@ export function TallerPortada() {
         </div>
         <div className="portada__dibujo">
           <AlasAnimadas />
-          <span className="nota-mano">aguja, hilo y paciencia</span>
+          
         </div>
       </div>
     </section>

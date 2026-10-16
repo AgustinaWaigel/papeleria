@@ -57,12 +57,12 @@ Uso: crema de base, verde oscuro para leer, y rosa, vino y lima en bloques enter
 
 | Variable | Fuente | Uso |
 | --- | --- | --- |
-| `--fuente-titulo` | Bebas Neue | Títulos (en mayúscula, altos y angostos), precios, nombre de la marca. |
+| `--fuente-titulo` | Baloo 2 | Títulos (en mayúscula, redondeados y gruesos), precios, nombre de la marca. |
 | `--fuente-texto` | Karla | Todo lo demás: párrafos, botones, menú. |
-| `--fuente-etiqueta` | Bebas Neue | Etiquetas cortas en mayúscula: pestañas, encabezados de tablas. |
+| `--fuente-etiqueta` | Baloo 2 | Etiquetas cortas en mayúscula: pestañas, encabezados de tablas. |
 | `--fuente-mano` | La Belle Aurore | Las notitas escritas a mano ("papelería creativa", "próximamente") y el "Papelería" del logo. |
 
-Las tres son de Google Fonts. Bebas Neue y La Belle Aurore tienen un solo grosor: no las pongas en negrita. Tamaños: `--texto-xs` a `--texto-3xl`, más `--texto-etiqueta`.
+Las tres son de Google Fonts. La Belle Aurore tiene un solo grosor: no la pongas en negrita. Baloo 2 va de 400 a 800; los títulos usan 800. Tamaños: `--texto-xs` a `--texto-3xl`, más `--texto-etiqueta`.
 
 ## Combinaciones de color
 

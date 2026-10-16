@@ -15,7 +15,7 @@ body {
   line-height: var(--interlinea-texto);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  /* Bebas Neue y La Belle Aurore tienen un solo grosor: que el navegador no las engorde a la fuerza. */
+  /* La Belle Aurore tiene un solo grosor: que el navegador no la engorde a la fuerza. */
   font-synthesis-weight: none;
 }
 
@@ -23,7 +23,7 @@ img, svg { max-width: 100%; display: block; }
 
 h1, h2, h3 {
   font-family: var(--fuente-titulo);
-  font-weight: 700;
+  font-weight: 800;
   line-height: var(--interlinea-titulo);
   margin: 0;
   text-wrap: balance;
@@ -32,7 +32,7 @@ h1, h2, h3 {
 }
 h1 { font-size: var(--texto-3xl); }
 h2 { font-size: var(--texto-2xl); }
-h3 { font-size: calc(var(--texto-xl) * 1.2); letter-spacing: 0.02em; }
+h3 { font-size: var(--texto-xl); font-weight: 700; text-transform: none; letter-spacing: 0; }
 
 p { margin: 0; text-wrap: pretty; }
 
@@ -151,8 +151,8 @@ a:hover { color: var(--color-tinta); }
   align-items: center;
   gap: var(--espacio-2);
   font-family: var(--fuente-titulo);
-  font-size: var(--texto-xl);
-  font-weight: 700;
+  font-size: var(--texto-l);
+  font-weight: 800;
   line-height: 0.95;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -238,7 +238,7 @@ a:hover { color: var(--color-tinta); }
 .portada .boton--claro:hover { color: var(--color-nube); background: rgb(255 255 255 / 0.1); }
 
 /* Palabra resaltada con marcador, dentro de un título. */
-.resalte { background: var(--color-halo); padding: 0 0.18em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.resalte { background: linear-gradient(var(--color-halo), var(--color-halo)) no-repeat left 62% / 100% 80%; padding: 0 0.18em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
 .portada__grilla {
   display: grid;
@@ -838,7 +838,7 @@ a:hover { color: var(--color-tinta); }
 @keyframes posarse { from { opacity: 0; translate: 0 var(--espacio-6); rotate: -1.5deg; } }
 @keyframes despegar { from { opacity: 0; scale: 0.82; translate: 0 var(--espacio-6); } }
 @keyframes saltito { 40% { scale: 1.35; } }
-@keyframes marcador { from { background-size: 0 100%; } }
+@keyframes marcador { from { background-size: 0 80%; } }
 @keyframes desenrollar { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
 @keyframes desplegar { from { opacity: 0; translate: 0 calc(var(--espacio-3) * -1); } }
 
@@ -856,7 +856,7 @@ a:hover { color: var(--color-tinta); }
 .portada__dibujo .nota-mano { animation: aparecer 600ms ease-out 1s backwards; }
 .portada .resalte {
   color: var(--color-amanecer-fuerte);
-  background: linear-gradient(var(--color-halo), var(--color-halo)) no-repeat left center / 100% 100%;
+  background: linear-gradient(var(--color-halo), var(--color-halo)) no-repeat left 62% / 100% 80%;
   animation: marcador 650ms var(--mov-curva) 700ms backwards;
 }
 
