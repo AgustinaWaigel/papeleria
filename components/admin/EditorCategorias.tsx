@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { borrarCategoria, crearCategoria, guardarCategoria } from "@/app/admin/tienda-acciones";
+import { BotonConfirmar } from "./BotonConfirmar";
 
 export type FilaCategoria = { id: string; nombre: string; orden: number; productos: number };
 
@@ -33,16 +34,9 @@ function Renglon({ c }: { c: FilaCategoria }) {
         <button className="boton boton--claro boton--chico" type="submit" disabled={guardando}>
           Guardar
         </button>
-        <button
-          className="admin__borrar"
-          type="submit"
-          formAction={borrar}
-          onClick={(e) => {
-            if (!confirm(`¿Borrar la categoría «${c.nombre}»?`)) e.preventDefault();
-          }}
-        >
+        <BotonConfirmar pregunta={`¿Borrar la categoría «${c.nombre}»?`} formAction={borrar}>
           Borrar
-        </button>
+        </BotonConfirmar>
       </form>
       <Aviso estado={estadoBorrar ?? estadoGuardar} />
     </li>

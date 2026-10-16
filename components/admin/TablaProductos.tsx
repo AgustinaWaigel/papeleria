@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { alternar, borrarProducto } from "@/app/admin/acciones";
+import { BotonConfirmar } from "./BotonConfirmar";
 import { precio } from "@/lib/contacto";
 import { Dibujo, TIPOS, enOferta, type Producto } from "@/lib/productos";
 
@@ -98,16 +99,9 @@ export function TablaProductos({ productos }: { productos: ProductoAdmin[] }) {
                     <Link className="boton boton--claro boton--chico" href={`/admin/productos/${p.id}`}>
                       Editar
                     </Link>
-                    <form
-                      action={borrarProducto}
-                      onSubmit={(e) => {
-                        if (!confirm(`¿Borrar «${p.nombre}»? No se puede deshacer.`)) e.preventDefault();
-                      }}
-                    >
+                    <form action={borrarProducto}>
                       <input type="hidden" name="id" value={p.id} />
-                      <button className="admin__borrar" type="submit">
-                        Borrar
-                      </button>
+                      <BotonConfirmar pregunta={`¿Borrar «${p.nombre}»?`}>Borrar</BotonConfirmar>
                     </form>
                   </div>
                 </td>

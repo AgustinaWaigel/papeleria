@@ -978,6 +978,31 @@ a:hover { color: var(--color-tinta); }
 .admin__precio { font-family: var(--fuente-titulo); white-space: nowrap; }
 .admin__acciones { display: flex; align-items: center; justify-content: end; gap: var(--espacio-3); }
 .admin__borrar { padding: 0; font: inherit; font-size: var(--texto-xs); color: var(--color-amanecer-fuerte); text-decoration: underline; background: none; border: 0; cursor: pointer; }
+/* La ventanita que pregunta antes de borrar (components/admin/BotonConfirmar.tsx). */
+.confirmar {
+  padding: 0;
+  max-width: min(26rem, calc(100% - 2rem));
+  background: none;
+  border: 0;
+  overflow: visible;
+}
+.confirmar::backdrop { background: rgb(40 8 26 / 0.45); backdrop-filter: blur(2px); }
+.confirmar[open] { animation: despegar 260ms var(--mov-curva); }
+.confirmar[open]::backdrop { animation: aparecer 200ms ease-out; }
+.confirmar__tarjeta {
+  padding: var(--espacio-6);
+  color: var(--color-tinta);
+  background: var(--color-nube);
+  border: var(--borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra-sello-alta);
+}
+.confirmar__pregunta { font-weight: 700; font-size: var(--texto-l); overflow-wrap: anywhere; }
+.confirmar__nota { margin-top: var(--espacio-2); font-size: var(--texto-s); color: var(--color-tinta-suave); }
+.confirmar__botones { display: flex; flex-wrap: wrap; justify-content: end; gap: var(--espacio-3); margin-top: var(--espacio-5); }
+.confirmar__si { background: var(--color-amanecer); }
+.confirmar__si:hover { box-shadow: 4px 4px 0 var(--color-amanecer-fuerte); }
+
 .admin__vacio { padding: var(--espacio-6); text-align: center; color: var(--color-tinta-suave); }
 
 /* Interruptor sí/no de la lista. */
