@@ -57,11 +57,12 @@ Uso: crema de base, verde oscuro para leer, y rosa, vino y lima en bloques enter
 
 | Variable | Fuente | Uso |
 | --- | --- | --- |
-| `--fuente-titulo` | Unbounded | Títulos (h1 y h2 en mayúscula sostenida), precios, nombre de la marca. |
+| `--fuente-titulo` | Bebas Neue | Títulos (en mayúscula, altos y angostos), precios, nombre de la marca. |
 | `--fuente-texto` | Karla | Todo lo demás: párrafos, botones, menú. |
-| `--fuente-etiqueta` | Unbounded | Etiquetas y notas cortas, chicas, en mayúscula y espaciadas. |
+| `--fuente-etiqueta` | Bebas Neue | Etiquetas cortas en mayúscula: pestañas, encabezados de tablas. |
+| `--fuente-mano` | La Belle Aurore | Las notitas escritas a mano ("papelería creativa", "próximamente") y el "Papelería" del logo. |
 
-Las dos son de Google Fonts. Tamaños: `--texto-xs` a `--texto-3xl`, más `--texto-etiqueta`.
+Las tres son de Google Fonts. Bebas Neue y La Belle Aurore tienen un solo grosor: no las pongas en negrita. Tamaños: `--texto-xs` a `--texto-3xl`, más `--texto-etiqueta`.
 
 ## Combinaciones de color
 

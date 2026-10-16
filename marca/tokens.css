@@ -23,20 +23,21 @@
 
   /* Tipografía */
   /* Las variables --web-* las define next/font en app/layout.tsx. */
-  --fuente-titulo: var(--web-unbounded, "Unbounded"), "Arial Black", sans-serif;
+  --fuente-titulo: var(--web-bebas, "Bebas Neue"), "Arial Narrow", sans-serif;
   --fuente-texto: var(--web-karla, "Karla"), system-ui, sans-serif;
-  --fuente-etiqueta: var(--web-unbounded, "Unbounded"), "Arial Black", sans-serif;
+  --fuente-etiqueta: var(--web-bebas, "Bebas Neue"), "Arial Narrow", sans-serif;
+  --fuente-mano: var(--web-aurore, "La Belle Aurore"), cursive;
 
   --texto-xs: 0.8125rem;
   --texto-s: 0.9375rem;
   --texto-m: 1.0625rem;
   --texto-l: 1.25rem;
   --texto-xl: 1.375rem;
-  --texto-2xl: clamp(1.5rem, 3vw, 2.125rem);
-  --texto-3xl: clamp(2rem, 5vw, 3.5rem);
-  --texto-etiqueta: 0.6875rem;
+  --texto-2xl: clamp(2rem, 4vw, 2.875rem);
+  --texto-3xl: clamp(2.75rem, 7vw, 5rem);
+  --texto-etiqueta: 0.9375rem;
 
-  --interlinea-titulo: 1.18;
+  --interlinea-titulo: 1.02;
   --interlinea-texto: 1.6;
 
   /* Espacio */

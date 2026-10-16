@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Karla, Unbounded } from "next/font/google";
+import { Bebas_Neue, Karla, La_Belle_Aurore } from "next/font/google";
 import { SITIO_URL } from "@/lib/sitio";
 import "./globals.css";
 
-// Las variables --web-* alimentan --fuente-titulo, --fuente-texto y --fuente-etiqueta de marca/tokens.css.
-const unbounded = Unbounded({ subsets: ["latin"], variable: "--web-unbounded" });
+// Las variables --web-* alimentan --fuente-titulo, --fuente-texto, --fuente-etiqueta y --fuente-mano de marca/tokens.css.
+const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--web-bebas" });
+const aurore = La_Belle_Aurore({ weight: "400", subsets: ["latin"], variable: "--web-aurore" });
 const karla = Karla({ subsets: ["latin"], style: ["normal", "italic"], variable: "--web-karla" });
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 /* La raíz solo pone el documento y las fuentes. La tienda y el panel tienen cada uno su layout. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={`${unbounded.variable} ${karla.variable}`}>
+    <html lang="es-AR" className={`${bebas.variable} ${aurore.variable} ${karla.variable}`}>
       <body>{children}</body>
     </html>
   );
