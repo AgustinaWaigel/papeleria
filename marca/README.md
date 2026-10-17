@@ -57,12 +57,12 @@ Uso: crema de base, verde oscuro para leer, y rosa, vino y lima en bloques enter
 
 | Variable | Fuente | Uso |
 | --- | --- | --- |
-| `--fuente-titulo` | Baloo 2 | Títulos (en mayúscula, redondeados y gruesos), precios, nombre de la marca. |
+| `--fuente-titulo` | Londrina Solid | Títulos (en mayúscula, gruesos y con aire de hecho a mano), precios, nombre de la marca. |
 | `--fuente-texto` | Karla | Todo lo demás: párrafos, botones, menú. |
 | `--fuente-etiqueta` | Baloo 2 | Etiquetas cortas en mayúscula: pestañas, encabezados de tablas. |
 | `--fuente-mano` | La Belle Aurore | Las notitas escritas a mano ("papelería creativa", "próximamente") y el "Papelería" del logo. |
 
-Las tres son de Google Fonts. La Belle Aurore tiene un solo grosor: no la pongas en negrita. Baloo 2 va de 400 a 800; los títulos usan 800. Tamaños: `--texto-xs` a `--texto-3xl`, más `--texto-etiqueta`.
+Las cuatro son de Google Fonts y gratis para uso comercial. La Belle Aurore tiene un solo grosor: no la pongas en negrita. Londrina Solid se carga solo en 400 (ya es gruesa): aunque el CSS pida 700 u 800, sale con ese trazo. Baloo 2 va de 400 a 800. Tamaños: `--texto-xs` a `--texto-3xl`, más `--texto-etiqueta`.
 
 ## Combinaciones de color
 

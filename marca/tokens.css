@@ -23,7 +23,7 @@
 
   /* Tipografía */
   /* Las variables --web-* las define next/font en app/layout.tsx. */
-  --fuente-titulo: var(--web-baloo, "Baloo 2"), "Arial Rounded MT Bold", sans-serif;
+  --fuente-titulo: var(--web-londrina, "Londrina Solid"), "Arial Rounded MT Bold", sans-serif;
   --fuente-texto: var(--web-karla, "Karla"), system-ui, sans-serif;
   --fuente-etiqueta: var(--web-baloo, "Baloo 2"), "Arial Rounded MT Bold", sans-serif;
   --fuente-mano: var(--web-aurore, "La Belle Aurore"), cursive;

@@ -1308,6 +1308,82 @@ a.tablero:hover { color: var(--color-tinta); translate: -2px -2px; box-shadow: v
 
 /* ---------- Movimiento reducido ---------- */
 
+/* ---------- Enlaces (la página del QR de los cuadernos) ---------- */
+
+/* El mismo fondo vino con resplandor de la portada, a pantalla completa. */
+.enlaces {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 26rem);
+  place-content: center;
+  padding: var(--espacio-7) var(--espacio-4);
+  color: var(--color-nube);
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 18%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
+    var(--color-amanecer);
+}
+.enlaces__caja { text-align: center; }
+.enlaces__alas { width: 13rem; margin-inline: auto; animation: despegar 900ms var(--mov-curva) backwards; }
+.enlaces .nota-mano { color: var(--color-lavanda); margin-block: var(--espacio-3) 0; }
+.enlaces h1 { font-size: var(--texto-2xl); color: var(--color-nube); }
+.enlaces__caja > p { color: var(--color-lavanda-suave); margin-block: var(--espacio-3) var(--espacio-6); }
+
+.enlaces__lista { display: grid; gap: var(--espacio-4); list-style: none; margin: 0; padding: 0; }
+.enlaces__lista li { animation: subir 600ms var(--mov-curva) backwards; animation-delay: calc(250ms + var(--n, 0) * 110ms); }
+.enlaces__lista li:nth-child(2) { --n: 1; }
+.enlaces__lista li:nth-child(3) { --n: 2; }
+
+/* Los botones grandes: pastilla con borde y sombra de sello, como los botones del sitio. */
+.enlace-grande {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+  min-height: 4.5rem;
+  padding: var(--espacio-3) var(--espacio-5) var(--espacio-3) var(--espacio-3);
+  font-family: var(--fuente-titulo);
+  font-size: 1.625rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-decoration: none;
+  color: var(--color-tinta);
+  border: 2px solid var(--color-nube);
+  border-radius: var(--radio-pastilla);
+  box-shadow: 4px 4px 0 var(--color-amanecer-fuerte);
+  transition: transform var(--mov-rapido) var(--mov-curva), box-shadow var(--mov-rapido) var(--mov-curva);
+}
+.enlace-grande:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--color-amanecer-fuerte); }
+.enlace-grande:active { transform: none; box-shadow: none; scale: 0.98; }
+.enlace-grande small { display: block; font-family: var(--fuente-texto); font-size: var(--texto-s); font-weight: 500; opacity: 0.9; }
+.enlace-grande__icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.25);
+}
+.enlace-grande__icono svg { width: 1.6rem; height: 1.6rem; }
+
+.enlace-grande--catalogo { background: var(--color-halo); color: var(--color-amanecer-fuerte); }
+.enlace-grande--catalogo:hover { color: var(--color-amanecer-fuerte); }
+.enlace-grande--catalogo .enlace-grande__icono { background: var(--color-amanecer); color: var(--color-nube); }
+
+/* Instagram y WhatsApp con sus colores propios, para reconocerlos de un vistazo. */
+.enlace-grande--instagram, .enlace-grande--instagram:hover {
+  color: #fff;
+  background: radial-gradient(circle at 15% 110%, #fdf497 0%, #fd5949 35%, #d6249f 62%, #285aeb 100%);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+.enlace-grande--whatsapp, .enlace-grande--whatsapp:hover { color: #fff; background: #1a9d4c; }
+.enlace-grande--whatsapp .enlace-grande__icono { background: #fff; color: #1a9d4c; }
+.enlace-grande--instagram .enlace-grande__icono { background: #fff; color: #d6249f; }
+
+.enlaces__sitio { display: inline-block; margin-top: var(--espacio-6); color: var(--color-nube); font-size: var(--texto-s); }
+.enlaces__sitio:hover { color: var(--color-halo); }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
