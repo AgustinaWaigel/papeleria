@@ -14,13 +14,13 @@ export function BotonSumar({ id, nombre, grande, agotado }: { id: string; nombre
   if (grande) {
     return (
       <button className="boton" type="button" onClick={() => sumar(id)}>
-        Sumar a la bolsita
+        Agregar a la bolsita
       </button>
     );
   }
   return (
     <button className="boton boton--chico" type="button" onClick={() => sumar(id)}>
-      Sumar<span className="sr-only"> {nombre} a la bolsita</span>
+      Comprar<span className="sr-only"> {nombre} a la bolsita</span>
     </button>
   );
 }

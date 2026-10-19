@@ -39,6 +39,16 @@ async function Pedidos({ searchParams }: Pick<PageProps<"/admin/pedidos">, "sear
   for (const p of confirmados) for (const i of p.pedido_items) porProducto.set(i.nombre, (porProducto.get(i.nombre) ?? 0) + i.cantidad);
   const masVendidos = [...porProducto].sort((a, b) => b[1] - a[1]).slice(0, 5);
   const porEnviar = pedidos.filter((p) => p.estado === "pagado").length;
+  // De dónde vino la plata: por canal (online, WhatsApp, en persona) y por medio de pago.
+  const sumar = (mapa: Map<string, number>, clave: string, monto: number) => mapa.set(clave, (mapa.get(clave) ?? 0) + monto);
+  const porCanal = new Map<string, number>();
+  const porMedio = new Map<string, number>();
+  for (const p of confirmados) {
+    sumar(porCanal, p.origen === "manual" ? "En persona" : p.medio_pago === "Mercado Pago" && p.pago_estado ? "Pago online" : "WhatsApp", p.total);
+    sumar(porMedio, p.medio_pago || "Sin anotar", p.total);
+  }
+  const ordenar = (mapa: Map<string, number>) => [...mapa].sort((a, b) => b[1] - a[1]);
+  const descuentos = confirmados.reduce((s, p) => s + (p.descuento ?? 0), 0);
 
   const visibles = filtro === "todos" ? pedidos : pedidos.filter((p) => p.estado === filtro);
   const enlace = (cambios: Record<string, string>) => {
@@ -112,6 +122,31 @@ async function Pedidos({ searchParams }: Pick<PageProps<"/admin/pedidos">, "sear
                 </li>
               ))}
             </ol>
+          </div>
+        )}
+        {porCanal.size > 0 && (
+          <div className="tablero tablero--lista">
+            <span>Por canal</span>
+            <ol>
+              {ordenar(porCanal).map(([canal, monto]) => (
+                <li key={canal}>
+                  {canal} <small>{precio(monto)}</small>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        {porMedio.size > 0 && (
+          <div className="tablero tablero--lista">
+            <span>Cómo te pagaron</span>
+            <ol>
+              {ordenar(porMedio).map(([medio, monto]) => (
+                <li key={medio}>
+                  {medio} <small>{precio(monto)}</small>
+                </li>
+              ))}
+            </ol>
+            {descuentos > 0 && <small>Descuentos con cupón: {precio(descuentos)}</small>}
           </div>
         )}
       </div>

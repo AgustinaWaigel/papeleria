@@ -3,10 +3,11 @@
 import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirAdmin } from "@/lib/admin";
+import { avisarStock } from "@/lib/mails";
 import { TAGS, obtenerCategorias, type FilaProducto } from "@/lib/catalogo";
 import { leerExcel } from "@/lib/excel";
 import { COLORES, NOMBRES_DIBUJO, TIPOS, type TipoProducto } from "@/lib/productos";
-import { BUCKET_FOTOS, supabaseConfigurado } from "@/lib/supabase/config";
+import { BUCKET_DESCARGABLES, BUCKET_FOTOS, supabaseConfigurado } from "@/lib/supabase/config";
 import { clienteConSesion } from "@/lib/supabase/servidor";
 
 export type Estado = { error?: string; ok?: string } | undefined;
@@ -76,6 +77,8 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
   const stockTexto = texto(datos, "stock").replace(/\D/g, "");
   const anteriorTexto = texto(datos, "precio_anterior").replace(/\D/g, "");
   if (categorias.length > 0 && !categorias.some(([c]) => c === cat)) return { error: "Elegí una categoría." };
+  const rutaPdf = texto(datos, "archivo") || null;
+  if (rutaPdf && !rutaPdf.startsWith(`${id}/`)) return { error: "El PDF no corresponde a este producto. Volvé a elegirlo." };
 
   // Fotos: las que quedaron (en el orden elegido) y después las nuevas.
   const quedan = datos.getAll("fotos").map(String).filter(Boolean);
@@ -100,6 +103,8 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
     precio,
     precio_anterior: anteriorTexto ? Number(anteriorTexto) : null,
     stock: stockTexto ? Number(stockTexto) : null,
+    // Solo si el formulario trajo el campo (la columna existe desde supabase/07-envios-cupones-y-mas.sql).
+    ...(datos.has("peso_gramos") && { peso_gramos: Number(texto(datos, "peso_gramos").replace(/\D/g, "")) || null }),
     dibujo: (NOMBRES_DIBUJO.find((d) => d === texto(datos, "dibujo")) ?? "cuaderno"),
     color: (COLORES.find(([c]) => c === texto(datos, "color"))?.[0] ?? "lavanda"),
     destacado: datos.get("destacado") === "on",
@@ -109,16 +114,23 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
     descripcion: oNull(parrafos(texto(datos, "descripcion"))),
     caracteristicas: oNull(renglones(texto(datos, "caracteristicas"))),
     fotos: oNull([...quedan, ...subidas]),
+    // El PDF ya lo subió el navegador al bucket privado: acá llega dónde quedó.
+    // Solo si el formulario trajo el campo (la columna existe desde supabase/04-pagos-online.sql).
+    ...(datos.has("archivo") && { archivo: tipo === "descargable" ? rutaPdf : null }),
   };
 
   if (original) {
-    const { data: antes } = await supabase.from("productos").select("fotos").eq("id", id).single();
+    const { data: antes } = await supabase.from("productos").select("*").eq("id", id).single();
     const { error } = await supabase.from("productos").update(fila).eq("id", id);
     if (error) return { error: `No se pudo guardar: ${error.message}` };
     // Las fotos que se sacaron del producto también se borran del bucket.
     const sacadas = ((antes?.fotos as string[] | null) ?? []).filter((f) => !quedan.includes(f)).map(rutaEnBucket);
     const rutas = sacadas.filter((r): r is string => Boolean(r));
     if (rutas.length > 0) await supabase.storage.from(BUCKET_FOTOS).remove(rutas);
+    // Si se cambió el PDF, el viejo se borra.
+    if (antes?.archivo && datos.has("archivo") && antes.archivo !== (tipo === "descargable" ? rutaPdf : null)) await supabase.storage.from(BUCKET_DESCARGABLES).remove([antes.archivo]);
+    // Estaba agotado y volvió: a quienes pidieron aviso les llega un mail.
+    if (antes?.stock === 0 && fila.stock !== 0) await avisarStock(id).catch((e) => console.error("No se pudieron mandar los avisos de stock:", e));
   } else {
     const { error } = await supabase.from("productos").insert(fila);
     if (error) {
@@ -134,10 +146,11 @@ export async function borrarProducto(datos: FormData) {
   const { supabase } = await exigirAdmin();
   const id = texto(datos, "id");
 
-  const { data: antes } = await supabase.from("productos").select("fotos").eq("id", id).single();
+  const { data: antes } = await supabase.from("productos").select("*").eq("id", id).single();
   await supabase.from("productos").delete().eq("id", id);
   const rutas = ((antes?.fotos as string[] | null) ?? []).map(rutaEnBucket).filter((r): r is string => Boolean(r));
   if (rutas.length > 0) await supabase.storage.from(BUCKET_FOTOS).remove(rutas);
+  if (antes?.archivo) await supabase.storage.from(BUCKET_DESCARGABLES).remove([antes.archivo]);
 
   updateTag(TAGS.catalogo);
   redirect("/admin");
@@ -171,6 +184,10 @@ export async function importarExcel(_: Estado, datos: FormData): Promise<EstadoI
 
   const { error } = await supabase.from("productos").upsert(leido.filas, { onConflict: "id" });
   if (error) return { error: `No se pudo guardar: ${error.message}` };
+  // Los que estaban agotados y volvieron: avisos a quienes los esperaban.
+  for (const f of leido.filas) {
+    if (existentes.get(f.id)?.stock === 0 && f.stock !== 0) await avisarStock(f.id).catch((e) => console.error("No se pudieron mandar los avisos de stock:", e));
+  }
 
   updateTag(TAGS.catalogo);
   refresh();

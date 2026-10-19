@@ -9,3 +9,6 @@ export const supabaseConfigurado = Boolean(SUPABASE_URL && SUPABASE_CLAVE);
 
 /* Bucket de Storage donde se guardan las fotos de producto. */
 export const BUCKET_FOTOS = "productos";
+
+/* Bucket privado con los PDFs de los descargables (ver supabase/04-pagos-online.sql). */
+export const BUCKET_DESCARGABLES = "descargables";

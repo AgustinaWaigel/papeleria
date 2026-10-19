@@ -3,7 +3,7 @@ import { SITIO_URL } from "@/lib/sitio";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/buscar"] },
+    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/buscar", "/pedido/", "/api/"] },
     sitemap: `${SITIO_URL}/sitemap.xml`,
   };
 }

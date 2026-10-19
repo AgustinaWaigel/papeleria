@@ -14,6 +14,7 @@ En **SQL Editor → New query**:
 
 1. Pegá todo `esquema.sql` y tocá **Run**. Crea la tabla `productos`, la tabla `admins`, las reglas de acceso y el bucket `productos` para las fotos.
 2. Pegá `02-pedidos-y-mas.sql` y tocá **Run**. Suma pedidos y ventas, stock, ofertas, categorías editables, reseñas y suscriptores.
+   Después, `04-pagos-online.sql` (pago con Mercado Pago, seguimiento de pedidos y PDFs de los descargables) y `05-mail-descargables.sql` (el mail con los PDF). Ver *Pago online* y *Mail con los PDF* más abajo.
 3. Si alguna vez corriste `semilla.sql` (los productos de ejemplo), pegá `03-borrar-ejemplos.sql` y tocá **Run** para sacarlos. `semilla.sql` ya no hace falta.
 
 Los productos reales se cargan desde el panel, uno por uno o todos juntos con un Excel (en *Productos → Cargar o descargar productos con Excel*). Mientras no haya ninguno, la tienda muestra un aviso de "estamos fabricando".
@@ -41,6 +42,62 @@ Los cambios que guardes se ven en la tienda al instante: el panel invalida la ca
 - **Pedidos de la web:** cuando alguien toca "Enviar pedido por WhatsApp", el pedido queda guardado como *Sin confirmar*, con un código (AA-XXXXX) que también va en el mensaje. Así lo encontrás en el chat.
 - **Ventas directas:** en *Pedidos y ventas → Registrar una venta* cargás lo que vendés en persona, por Instagram o en una feria (código V-XXXXX). Podés cambiar el precio si hiciste un descuento.
 - **Stock:** baja solo cuando un pedido pasa a *Pagado*, *Enviado* o *Entregado*, y vuelve si lo cancelás o lo borrás. Un producto con el stock vacío no se controla.
+
+## Pago online con Mercado Pago
+
+La bolsita ofrece dos caminos: **pagar con Mercado Pago** o **pedir por WhatsApp** (como siempre). El pago online aparece solo cuando están configuradas las dos claves de abajo.
+
+1. En el SQL Editor corré `04-pagos-online.sql`. Suma los datos de quien compra, el envío, el pago, el link de seguimiento y el bucket privado `descargables` para los PDFs.
+2. En Supabase, **Project Settings → API Keys**, copiá la **Secret key** y pegala en `.env.local` como `SUPABASE_SECRET_KEY`. Es secreta: no la compartas ni la subas a GitHub.
+3. En [Mercado Pago Developers](https://www.mercadopago.com.ar/developers/panel/app), **Crear aplicación** (tipo *Pagos online*, *Checkout Pro*). En **Credenciales de prueba** copiá el *Access Token* y pegalo como `MERCADOPAGO_ACCESS_TOKEN`.
+4. Reiniciá `npm run dev`.
+
+**Probar sin plata real:** con las credenciales de prueba, en *Cuentas de prueba* creá un comprador de prueba y pagá con las [tarjetas de prueba](https://www.mercadopago.com.ar/developers/es/docs/checkout-pro/additional-content/your-integrations/test/cards) (con el nombre `APRO` sale aprobado, con `OTHE` rechazado). Al volver a la tienda, la página del pedido le pregunta a Mercado Pago cómo salió el pago, así que funciona también en `localhost`.
+
+**Cobrar de verdad:** cambiá `MERCADOPAGO_ACCESS_TOKEN` por el de **Credenciales de producción** (en Vercel: *Settings → Environment Variables*, junto con `SUPABASE_SECRET_KEY`) y volvé a publicar. En producción Mercado Pago avisa solo a `/api/mercadopago` cada vez que un pago cambia, aunque quien compró no vuelva a la tienda.
+
+**Cómo funciona:**
+
+- Quien compra completa nombre, mail, WhatsApp y cómo lo recibe (retiro o envío; si es todo descargable, no se pregunta). Los precios salen de la base y, si algo no tiene stock, no deja pagar.
+- Paga en Mercado Pago y vuelve a **su página de seguimiento** (`/pedido/AA-XXXXX?clave=…`): ve qué compró, el estado del pago, los pasos del pedido y el número de envío cuando lo cargues.
+- Cuando el pago se aprueba, el pedido pasa solo a **Pagado** y se descuenta el stock. Lo demás (enviado, entregado) lo cambiás vos desde el panel, y el cliente lo ve en su página.
+- **Descargables:** en el producto subís el PDF (o un .zip, hasta 50 MB). Queda en privado y le llega por mail a quien pagó (ver abajo).
+- En el panel, cada pedido tiene **Copiar link de seguimiento**: sirve también para los pedidos de WhatsApp y las ventas a mano.
+
+## Mail con los PDF
+
+Cuando un pedido con descargables queda pagado (por Mercado Pago, o porque lo pasás a *Pagado* en el panel), a quien compró le llega un mail con los PDF adjuntos. Si pesan más de lo que Gmail deja adjuntar, van como link dentro del mismo mail (dura 7 días). Se manda una sola vez; en el panel, el pedido muestra cuándo salió y tiene **Reenviar los PDF por mail**.
+
+1. En el SQL Editor corré `05-mail-descargables.sql`.
+2. En la cuenta de Google de la tienda, activá la **verificación en dos pasos** (*Cuenta de Google → Seguridad*).
+3. Entrá a [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords), creá una contraseña con el nombre "Tienda" y copiá las 16 letras.
+4. En `.env.local` (y en Vercel) poné `GMAIL_USUARIO` con el mail de la tienda y `GMAIL_CLAVE_APP` con esas 16 letras. Reiniciá `npm run dev`.
+
+Para un pedido de WhatsApp o una venta a mano, cargá el mail del cliente en *Cliente y pago* **antes** de pasarlo a *Pagado* (o después, y tocá *Mandar los PDF por mail*).
+
+## Envíos, cupones, mails automáticos y botón de arrepentimiento
+
+Corré `07-envios-cupones-y-mas.sql` en el SQL Editor. Suma:
+
+- **Envíos por zona** (panel → *Envíos*): quien paga online pone su código postal (la provincia se completa sola) y ve el costo de su zona antes de pagar; lo paga junto con el pedido. Vienen cinco zonas pensadas para despachar desde Paraná (Paraná, resto de Entre Ríos, Litoral, CABA/Buenos Aires/Córdoba y resto del país), sin precio: cargalos mirando las tarifas de tu correo y actualizalos cuando suban. Una zona puede tener provincias y códigos postales puntuales (estos ganan). Sin precio, usa el *costo por defecto*; sin ninguno, se coordina por WhatsApp. También: desde cuánto es gratis y un texto para quien compra.
+- **Cupones** (panel → *Cupones*): porcentaje o monto fijo, con compra mínima, vencimiento y cantidad de usos opcionales. Se escriben en la bolsita al pagar online; un uso se cuenta cuando el pago se aprueba.
+- **Mails automáticos** (con Gmail configurado, ver arriba): al cliente le llegan *Recibimos tu compra* cuando queda pagado, *Tu pedido está en camino* o *Listo para retirar* cuando lo pasás a *Enviado* (cargá antes el número de seguimiento) y los PDF de los descargables. A vos te llega un aviso por cada venta online (a `MAIL_AVISOS`, o a la misma casilla de Gmail). En cada pedido, *Mails al cliente* muestra cuáles salieron y deja reenviarlos.
+- **Avisame cuando vuelva**: en un producto agotado, quien quiera deja su mail; cuando le cargás stock desde el panel (o el Excel), le llega un aviso.
+- **Botón de arrepentimiento** (obligatorio, Res. 424/2020): está en el pie de todas las páginas. Quien lo usa recibe un código de trámite al instante y por mail; a vos te llega un aviso y lo ves en el panel → *Arrepentimientos*. Hay que responder dentro de las 24 horas.
+- **Términos y condiciones** y **Privacidad**: páginas en el pie. Conviene que las lea alguien de confianza y sumar tus datos fiscales.
+
+### Cotización en vivo con Correo Argentino (opcional)
+
+Con la API **MiCorreo**, quien compra ve el precio real de Correo Argentino para su código postal (el servicio a domicilio más barato, más tu recargo). Si el correo no responde, se usa el precio de la zona: la venta nunca se traba.
+
+1. Necesitás una cuenta en [MiCorreo](https://www.correoargentino.com.ar/MiCorreo/public/) y **credenciales de la API**, que Correo Argentino da a pedido desde el [formulario de contacto](https://www.correoargentino.com.ar/MiCorreo/public/contact). Pedí las de **prueba** y las de **producción** (son distintas).
+2. En `.env.local` (y en Vercel): `CORREO_AMBIENTE` (`prueba` o `produccion`), `CORREO_API_USUARIO`, `CORREO_API_CLAVE`, `CORREO_MICORREO_EMAIL` y `CORREO_MICORREO_CLAVE`. Si despachás desde otro lado que no sea Paraná, `CORREO_CP_ORIGEN`.
+3. En el panel → *Envíos* → *Correo Argentino*: las medidas de tu caja, el peso por defecto y el recargo. Tocá **Probar cotización** con un código postal para ver que ande.
+4. En cada producto físico cargá el **peso en gramos** (ya envuelto).
+
+La API **Paq.ar 2.0** (la de "agreement" y "API-Key") es otra cosa: es para clientes con contrato comercial y sirve para crear envíos e imprimir rótulos, no para cotizar.
+
+**Orden de los scripts:** `05` y `07` antes de publicar esta versión; `06-seguridad.sql`, después.
 
 ## En producción
 

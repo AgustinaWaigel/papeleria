@@ -20,7 +20,7 @@ Español rioplatense, de vos. Cercana, clara y con un guiño, como una amiga que
 | Sí | No |
 | --- | --- |
 | "Elegí tu tapa y contanos qué nombre lleva." | "Seleccione las opciones de personalización." |
-| "Sumar a la bolsita" | "Añadir al carrito" |
+| "Agregar a la bolsita" | "Añadir al carrito" |
 | "Te lo mandamos por mail apenas se acredita el pago." | "El envío digital se procesará oportunamente." |
 | Una imagen de vuelo cada tanto. | Una metáfora de alas en cada oración. |
 

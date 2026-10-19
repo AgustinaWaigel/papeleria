@@ -4,15 +4,22 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { borrarPedido } from "../acciones";
 import { BotonConfirmar } from "@/components/admin/BotonConfirmar";
+import type { TipoMail } from "../acciones";
+import { BotonMail } from "@/components/admin/BotonMail";
+import { CopiarTexto } from "@/components/admin/CopiarTexto";
 import { FormDatosPedido } from "@/components/admin/FormDatosPedido";
 import { SelectorEstado } from "@/components/admin/SelectorEstado";
 import { SinSupabase } from "@/components/admin/SinSupabase";
 import { exigirAdmin } from "@/lib/admin";
 import { precio } from "@/lib/contacto";
-import { CONFIRMADOS, fechaLinda, whatsappDe, type Pedido } from "@/lib/pedidos";
+import { CONFIRMADOS, ESTADOS_MP, fechaLinda, whatsappDe, type Pedido } from "@/lib/pedidos";
+import { linkDeSeguimiento } from "@/lib/seguimiento";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 
 export const metadata: Metadata = { title: "Pedido" };
+
+const fechaHora = (iso: string) =>
+  new Date(iso).toLocaleString("es-AR", { dateStyle: "long", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" });
 
 async function Detalle({ params }: Pick<PageProps<"/admin/pedidos/[id]">, "params">) {
   const { supabase } = await exigirAdmin();
@@ -22,6 +29,35 @@ async function Detalle({ params }: Pick<PageProps<"/admin/pedidos/[id]">, "param
   if (!data) notFound();
   const p = data as Pedido;
   const whatsapp = whatsappDe(p.cliente_contacto);
+  const pago = p.pago_estado ? (ESTADOS_MP[p.pago_estado] ?? p.pago_estado) : null;
+  // ¿Lleva algún descargable? Esos le llegan al cliente por mail.
+  const ids = p.pedido_items.flatMap((i) => (i.producto_id ? [i.producto_id] : []));
+  const { count } = ids.length
+    ? await supabase.from("productos").select("id", { count: "exact", head: true }).in("id", ids).eq("tipo", "descargable")
+    : { count: 0 };
+  const conPdf = (count ?? 0) > 0;
+  const soloPdf = conPdf && count === ids.length && p.pedido_items.every((i) => i.producto_id);
+  const pagado = CONFIRMADOS.includes(p.estado);
+  const retiro = p.entrega === "retiro";
+
+  // Los mails que corresponden a este pedido, con cuándo salieron (o cuándo salen solos).
+  const mails: { tipo: TipoMail; nombre: string; enviadoEn: string | null | undefined; cuando: string; posible: boolean }[] = [
+    ...(!soloPdf
+      ? [{ tipo: "confirmacion" as const, nombre: "Recibimos tu compra", enviadoEn: p.mail_confirmacion_en, cuando: "Sale solo cuando el pedido queda pagado.", posible: pagado }]
+      : []),
+    ...(conPdf ? [{ tipo: "descargables" as const, nombre: "Los PDF", enviadoEn: p.pdf_enviado_en, cuando: "Salen solos cuando el pedido queda pagado.", posible: pagado }] : []),
+    ...(!soloPdf && p.entrega !== "digital"
+      ? [
+          {
+            tipo: "envio" as const,
+            nombre: retiro ? "Listo para retirar" : "Tu pedido está en camino",
+            enviadoEn: p.mail_envio_en,
+            cuando: `Sale solo cuando lo pasás a Enviado${retiro ? "" : " (cargá antes el número de seguimiento, así va en el mail)"}.`,
+            posible: p.estado === "enviado" || p.estado === "entregado",
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
@@ -62,6 +98,22 @@ async function Detalle({ params }: Pick<PageProps<"/admin/pedidos/[id]">, "param
                 ))}
               </tbody>
               <tfoot>
+                {(p.descuento ?? 0) > 0 && (
+                  <tr>
+                    <th scope="row" colSpan={3}>
+                      Descuento{p.cupon && ` (cupón ${p.cupon})`}
+                    </th>
+                    <td className="admin__precio">−{precio(p.descuento!)}</td>
+                  </tr>
+                )}
+                {(p.costo_envio ?? 0) > 0 && (
+                  <tr>
+                    <th scope="row" colSpan={3}>
+                      Envío
+                    </th>
+                    <td className="admin__precio">{precio(p.costo_envio!)}</td>
+                  </tr>
+                )}
                 <tr>
                   <th scope="row" colSpan={3}>
                     Total
@@ -86,7 +138,43 @@ async function Detalle({ params }: Pick<PageProps<"/admin/pedidos/[id]">, "param
               Escribirle por WhatsApp
             </a>
           )}
-          {p.origen === "web" && (
+          {p.cliente_email && (
+            <a className="boton boton--claro boton--ancho" href={`mailto:${p.cliente_email}?subject=Tu pedido ${p.codigo}`}>
+              Escribirle un mail
+            </a>
+          )}
+          {p.clave && (
+            <>
+              <CopiarTexto texto={linkDeSeguimiento(p.codigo, p.clave)}>Copiar link de seguimiento</CopiarTexto>
+              <p className="campo__ayuda">
+                {p.medio_pago === "Mercado Pago"
+                  ? "Es donde el cliente ve cómo va su pedido. Ya lo recibió al pagar; podés reenviárselo si lo pierde."
+                  : "Mandáselo al cliente: ahí ve qué compró y cómo va su pedido cada vez que le cambiás el estado."}
+              </p>
+            </>
+          )}
+          {pago && (
+            <p className="campo__ayuda">
+              <strong>Mercado Pago:</strong> {pago}
+              {p.mp_pago_id && ` · pago n.º ${p.mp_pago_id}`}
+            </p>
+          )}
+          {p.mail_confirmacion_en !== undefined && (
+            <section className="admin__mails">
+              <h2 className="admin__subtitulo">Mails al cliente</h2>
+              {!p.cliente_email && <p className="campo__ayuda">Cargá su mail en Cliente y pago para que le lleguen.</p>}
+              <ul>
+                {mails.map(({ tipo, nombre, enviadoEn, cuando, posible }) => (
+                  <li key={tipo}>
+                    <strong>{nombre}</strong>
+                    <span className="campo__ayuda">{enviadoEn ? `Enviado el ${fechaHora(enviadoEn)}.` : cuando}</span>
+                    {posible && p.cliente_email && <BotonMail id={p.id} tipo={tipo} texto={enviadoEn ? "Reenviar" : "Mandar ahora"} />}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {p.origen === "web" && p.medio_pago !== "Mercado Pago" && (
             <p className="campo__ayuda">
               El cliente mandó este código en su mensaje de WhatsApp: buscalo en el chat para encontrar la conversación.
             </p>

@@ -766,7 +766,7 @@ a:hover { color: var(--color-tinta); }
 .campo { display: grid; gap: var(--espacio-2); margin-bottom: var(--espacio-5); border: 0; padding: 0; min-width: 0; }
 .campo > label, .campo > legend { font-weight: 700; padding: 0; }
 .campo__ayuda { font-size: var(--texto-s); color: var(--color-tinta-suave); }
-.campo input[type="text"], .campo input[type="email"], .campo input[type="password"], .campo select, .campo textarea {
+.campo input[type="text"], .campo input[type="email"], .campo input[type="tel"], .campo input[type="password"], .campo select, .campo textarea {
   width: 100%;
   padding: var(--espacio-3) var(--espacio-4);
   font: inherit;
@@ -893,6 +893,101 @@ a:hover { color: var(--color-tinta); }
 .bolsita__total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--espacio-4); font-weight: 700; }
 .bolsita__total span { font-family: var(--fuente-titulo); font-size: var(--texto-xl); font-weight: 400; }
 .bolsita__aviso { margin-top: var(--espacio-3); font-size: var(--texto-xs); color: var(--color-tinta-suave); }
+/* Con el formulario de compra el pie crece: que se pueda bajar sin tapar todo el cajón. */
+.bolsita__pie { max-height: 78dvh; overflow-y: auto; }
+.bolsita__o { display: flex; align-items: center; gap: var(--espacio-3); margin-block: var(--espacio-4); font-size: var(--texto-xs); color: var(--color-tinta-suave); }
+.bolsita__o::before, .bolsita__o::after { content: ""; flex: 1; border-top: var(--linea) dashed var(--color-renglon); }
+
+/* Los datos de quien compra antes de ir a Mercado Pago (components/FormCompra.tsx). */
+.compra .campo { margin-bottom: var(--espacio-4); }
+.compra .campo input, .compra .campo textarea { padding: var(--espacio-2) var(--espacio-3); }
+.compra .campo textarea { min-height: 0; }
+.compra__volver { margin-bottom: var(--espacio-3); padding: 0; font: inherit; font-size: var(--texto-s); font-weight: 700; color: var(--color-tinta); text-decoration: underline; background: none; border: 0; cursor: pointer; }
+/* Cómo lo recibe, en la bolsita antes de pagar (components/Envio.tsx). */
+.envio-elegir .campo { margin-bottom: var(--espacio-3); }
+.envio-elegir .campo input, .envio-elegir .campo select { padding: var(--espacio-2) var(--espacio-3); }
+.envio-elegir__texto { margin: 0 0 var(--espacio-3); }
+/* En el formulario de pago: lo que se eligió en la bolsita, con "Cambiar". */
+.compra__entrega { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--espacio-2); margin-bottom: var(--espacio-4); padding: var(--espacio-2) var(--espacio-3); font-size: var(--texto-s); font-weight: 700; background: var(--color-nube); border: var(--borde); border-radius: var(--radio-m); }
+.compra__entrega .compra__volver { margin: 0; font-size: var(--texto-xs); }
+.compra__par { display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--espacio-3); }
+.compra__par .campo { margin-bottom: var(--espacio-4); }
+.compra__par select { padding: var(--espacio-2) var(--espacio-3); }
+
+/* Zonas de envío en el panel (components/admin/EditorZonas.tsx). */
+.zonas { display: grid; gap: var(--espacio-4); margin: var(--espacio-4) 0; padding: 0; list-style: none; }
+.zona { padding: var(--espacio-4); background: var(--color-nube); border: var(--borde); border-radius: var(--radio-m); }
+.zona__fila { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: center; }
+.zona__fila .categoria__nombre { flex: 1 1 14rem; }
+.zona__costo { display: inline-flex; align-items: center; gap: var(--espacio-1); font-weight: 700; }
+.zona__costo input, .zona__cps input { width: 8rem; padding: var(--espacio-2) var(--espacio-3); font: inherit; color: var(--color-tinta); background: var(--color-cielo); border: var(--borde); border-radius: var(--radio-s); }
+.zona__provincias { display: flex; flex-wrap: wrap; gap: var(--espacio-1) var(--espacio-3); margin: var(--espacio-3) 0; padding: 0; border: 0; font-size: var(--texto-s); }
+.zona__provincia { display: inline-flex; align-items: center; gap: var(--espacio-1); cursor: pointer; }
+.zona__provincia input { accent-color: var(--color-tinta); }
+.zona__cps { display: grid; gap: var(--espacio-1); font-size: var(--texto-s); font-weight: 700; }
+.zona__cps input { width: 100%; max-width: 20rem; }
+.zona__acciones { justify-content: start; margin-top: var(--espacio-3); }
+
+.compra__fila { display: flex; gap: var(--espacio-2); align-items: center; }
+.compra__fila input { flex: 1; min-width: 0; }
+#compra-cupon { text-transform: uppercase; }
+.compra__cupon { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--espacio-2); margin: 0; padding: var(--espacio-2) var(--espacio-3); font-size: var(--texto-s); background: var(--color-halo-suave); border: var(--borde); border-radius: var(--radio-m); }
+.compra__cupon .compra__volver { margin: 0 0 0 auto; font-size: var(--texto-xs); }
+.compra__error-chico { font-size: var(--texto-xs); font-weight: 700; color: var(--color-amanecer-fuerte); }
+.compra__cuentas { display: grid; gap: var(--espacio-1); margin: 0 0 var(--espacio-4); padding: var(--espacio-3) 0; border-block: var(--linea) dashed var(--color-renglon); font-size: var(--texto-s); }
+.compra__cuentas div { display: flex; justify-content: space-between; gap: var(--espacio-3); }
+.compra__cuentas dd { margin: 0; font-family: var(--fuente-titulo); }
+.compra__total { font-weight: 700; font-size: var(--texto-m); }
+.compra__total dd { font-size: var(--texto-l); }
+.compra__error { margin-bottom: var(--espacio-4); padding: var(--espacio-3) var(--espacio-4); font-size: var(--texto-s); color: var(--color-amanecer-fuerte); background: var(--color-lavanda-suave); border: var(--borde); border-radius: var(--radio-m); }
+
+/* ---------- Seguimiento de un pedido ---------- */
+
+.seguimiento { display: grid; gap: var(--espacio-7); }
+@media (min-width: 52rem) { .seguimiento { grid-template-columns: 1fr 20rem; align-items: start; } }
+.seguimiento__pasos { display: flex; flex-wrap: wrap; gap: var(--espacio-2); margin: 0 0 var(--espacio-6); padding: 0; list-style: none; counter-reset: paso; }
+.seguimiento__pasos li {
+  counter-increment: paso;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  padding: var(--espacio-2) var(--espacio-4) var(--espacio-2) var(--espacio-2);
+  font-size: var(--texto-s);
+  color: var(--color-tinta-suave);
+  background: var(--color-nube);
+  border: var(--linea) dashed var(--color-renglon);
+  border-radius: var(--radio-pastilla);
+}
+.seguimiento__pasos li::before {
+  content: counter(paso);
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  border: var(--linea) solid currentColor;
+  border-radius: 50%;
+}
+.seguimiento__pasos li.hecho { color: var(--color-tinta); border-style: solid; border-color: var(--color-tinta); }
+.seguimiento__pasos li.hecho::before { content: "✓"; color: var(--color-nube); background: var(--color-tinta); border-color: var(--color-tinta); }
+.seguimiento__pasos li.actual { font-weight: 700; color: var(--color-amanecer-fuerte); background: var(--color-halo-suave); border: var(--borde); box-shadow: var(--sombra-sello); }
+.seguimiento__aviso { display: grid; gap: var(--espacio-3); justify-items: start; margin-bottom: var(--espacio-6); padding: var(--espacio-4) var(--espacio-5); border: var(--borde); border-radius: var(--radio-m); }
+.seguimiento__aviso p { margin: 0; }
+.seguimiento__aviso--bien { background: var(--color-menta-suave); }
+.seguimiento__aviso--espera { background: var(--color-halo-suave); }
+.seguimiento__aviso--mal { color: var(--color-amanecer-fuerte); background: var(--color-lavanda-suave); }
+.seguimiento__subtitulo { margin-bottom: var(--espacio-3); font-size: var(--texto-xl); }
+.seguimiento__items { margin: 0; padding: 0; list-style: none; }
+.seguimiento__items li { display: flex; justify-content: space-between; gap: var(--espacio-4); padding-block: var(--espacio-3); border-bottom: var(--linea) dashed var(--color-renglon); }
+.seguimiento__precio { font-family: var(--fuente-titulo); white-space: nowrap; }
+.seguimiento__total { font-weight: 700; border-bottom: 0 !important; }
+.seguimiento__total .seguimiento__precio { font-size: var(--texto-xl); font-weight: 400; }
+.seguimiento__datos { display: grid; gap: var(--espacio-5); padding: var(--espacio-5); background: var(--color-nube); border: var(--borde); border-radius: var(--radio-l); box-shadow: var(--sombra-sello); }
+.seguimiento__datos dl { display: grid; gap: var(--espacio-1); margin: 0; }
+.seguimiento__datos dt { font-size: var(--texto-xs); font-weight: 700; color: var(--color-tinta-suave); text-transform: uppercase; letter-spacing: 0.04em; }
+.seguimiento__datos dd { margin: 0 0 var(--espacio-3); }
+.seguimiento__numero { font-family: var(--fuente-titulo); font-size: var(--texto-l); }
 
 .aviso {
   position: fixed;
@@ -920,6 +1015,23 @@ a:hover { color: var(--color-tinta); }
 .pie h2 { font-family: var(--fuente-etiqueta); font-size: var(--texto-etiqueta); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-halo); margin-bottom: var(--espacio-3); }
 .pie ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-2); font-size: var(--texto-s); }
 .pie__legal { margin-top: var(--espacio-7); padding-top: var(--espacio-5); border-top: var(--linea-fina) solid var(--color-tinta-suave); font-size: var(--texto-xs); }
+.pie__legal ul { display: flex; flex-wrap: wrap; gap: var(--espacio-2) var(--espacio-5); margin: 0 0 var(--espacio-3); padding: 0; list-style: none; }
+.pie__legal a { color: inherit; }
+/* El botón de arrepentimiento tiene que verse: va como pastilla. */
+.pie__arrepentimiento { display: inline-block; padding: var(--espacio-1) var(--espacio-3); font-weight: 700; text-decoration: none; border: var(--linea) solid currentColor; border-radius: var(--radio-pastilla); }
+
+/* ---------- Avisame cuando vuelva (producto agotado) ---------- */
+
+.aviso-stock { display: grid; gap: var(--espacio-2); margin-block: var(--espacio-4); padding: var(--espacio-4); background: var(--color-lavanda-suave); border: var(--borde); border-radius: var(--radio-m); }
+.aviso-stock label { font-weight: 700; }
+.aviso-stock input[type="email"] { padding: var(--espacio-2) var(--espacio-3); font: inherit; color: var(--color-tinta); background: var(--color-nube); border: var(--borde); border-radius: var(--radio-m); }
+.aviso-stock--listo { font-weight: 700; background: var(--color-menta-suave); }
+
+/* ---------- Botón de arrepentimiento ---------- */
+
+.arrepentimiento__form { display: grid; align-content: start; padding: var(--espacio-5); background: var(--color-nube); border: var(--borde); border-radius: var(--radio-l); box-shadow: var(--sombra-sello); }
+.arrepentimiento__listo { text-align: center; }
+.arrepentimiento__codigo { margin-block: var(--espacio-2) var(--espacio-4); font-family: var(--fuente-titulo); font-size: var(--texto-2xl); letter-spacing: 0.05em; color: var(--color-amanecer); }
 
 /* ---------- Movimiento ----------
    Todo lo que se mueve está acá. Las animaciones usan translate/scale/rotate sueltos (no
@@ -1072,6 +1184,15 @@ a:hover { color: var(--color-tinta); }
 .admin__precio { font-family: var(--fuente-titulo); white-space: nowrap; }
 .admin__acciones { display: flex; align-items: center; justify-content: end; gap: var(--espacio-3); }
 .admin__borrar { padding: 0; font: inherit; font-size: var(--texto-xs); color: var(--color-amanecer-fuerte); text-decoration: underline; background: none; border: 0; cursor: pointer; }
+/* Los mails al cliente en el detalle de un pedido. */
+.admin__mails { margin-top: var(--espacio-4); padding-top: var(--espacio-4); border-top: var(--linea) dashed var(--color-renglon); }
+.admin__mails ul { display: grid; gap: var(--espacio-4); margin: 0; padding: 0; list-style: none; }
+.admin__mails li { display: grid; gap: var(--espacio-1); justify-items: start; }
+
+/* Crear una categoría desde el formulario de producto (components/admin/FormProducto.tsx). */
+.editor__nueva-cat { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-3); }
+.editor__nueva-cat input { flex: 1 1 12rem; }
+.campo > .admin__error { margin: 0; font-size: var(--texto-s); }
 /* La ventanita que pregunta antes de borrar (components/admin/BotonConfirmar.tsx). */
 .confirmar {
   padding: 0;

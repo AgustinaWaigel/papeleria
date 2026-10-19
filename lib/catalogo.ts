@@ -14,8 +14,10 @@ import {
   type Producto,
   type TipoProducto,
 } from "./productos";
+import type { AjustesEnvio } from "./seguimiento";
+import type { Zona } from "./zonas";
 
-export const TAGS = { catalogo: "productos", categorias: "categorias", resenas: "resenas" } as const;
+export const TAGS = { catalogo: "productos", categorias: "categorias", resenas: "resenas", ajustes: "ajustes" } as const;
 
 /* Una fila de la tabla tal como la devuelve Supabase (ver supabase/*.sql). */
 export type FilaProducto = {
@@ -37,6 +39,8 @@ export type FilaProducto = {
   caracteristicas: string[] | null;
   orden: number;
   activo: boolean;
+  archivo?: string | null; // el PDF de un descargable, en el bucket privado (supabase/04-pagos-online.sql)
+  peso_gramos?: number | null; // para cotizar con Correo Argentino (supabase/07-envios-cupones-y-mas.sql)
 };
 
 const lista = (valor: string[] | null) => (valor && valor.length > 0 ? valor : undefined);
@@ -62,6 +66,11 @@ export function desdeFila(f: FilaProducto): Producto {
   };
 }
 
+/* Lo que la tienda muestra de cada producto. Las mismas columnas que supabase/06-seguridad.sql deja leer
+   con la clave pública: si sumás una columna que la tienda tiene que ver, va en los dos lados. */
+const COLUMNAS_PUBLICAS =
+  "id, tipo, cat, nombre, resumen, detalle, precio, precio_anterior, stock, dibujo, color, destacado, contenido, fotos, descripcion, caracteristicas, orden, activo";
+
 export async function obtenerCatalogo(): Promise<Producto[]> {
   "use cache";
   cacheTag(TAGS.catalogo);
@@ -73,7 +82,8 @@ export async function obtenerCatalogo(): Promise<Producto[]> {
 
   const { data, error } = await clientePublico()
     .from("productos")
-    .select("*")
+    // Columnas con nombre y no "*": la clave pública no puede leer `archivo` (supabase/06-seguridad.sql).
+    .select(COLUMNAS_PUBLICAS)
     .eq("activo", true)
     .order("orden")
     .order("nombre");
@@ -114,6 +124,27 @@ export async function obtenerCategorias(): Promise<Categorias> {
     (categorias[c.tipo] ??= []).push([c.id, c.nombre]);
   }
   return categorias;
+}
+
+/* Lo que se muestra en la bolsita sobre el envío (ver AjustesEnvio en lib/seguimiento.ts). */
+export async function obtenerAjustesEnvio(): Promise<AjustesEnvio> {
+  "use cache";
+  cacheTag(TAGS.ajustes);
+  const sinCosto: AjustesEnvio = { costo: null, gratisDesde: null, detalle: null, zonas: [] };
+  if (!supabaseConfigurado) {
+    cacheLife("max");
+    return sinCosto;
+  }
+  const [{ data, error }, { data: zonas }] = await Promise.all([
+    clientePublico().from("ajustes").select("envio_costo, envio_gratis_desde, envio_detalle").maybeSingle(),
+    clientePublico().from("zonas_envio").select("id, nombre, provincias, codigos_postales, costo, orden").order("orden"),
+  ]);
+  if (error || !data) {
+    cacheLife("minutes");
+    return sinCosto;
+  }
+  cacheLife("days");
+  return { costo: data.envio_costo, gratisDesde: data.envio_gratis_desde, detalle: data.envio_detalle, zonas: (zonas ?? []) as Zona[] };
 }
 
 export type Resena = { id: number; nombre: string; texto: string; puntaje: number; creado_en: string };

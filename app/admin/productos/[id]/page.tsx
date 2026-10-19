@@ -15,6 +15,12 @@ async function Contenido({ params }: Pick<PageProps<"/admin/productos/[id]">, "p
   const { data } = await supabase.from("productos").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
   const fila = data as FilaProducto;
+  // Quiénes esperan que vuelva (supabase/07-envios-cupones-y-mas.sql).
+  const { count: esperando } = await supabase
+    .from("avisos_stock")
+    .select("id", { count: "exact", head: true })
+    .eq("producto_id", id)
+    .is("avisado_en", null);
 
   return (
     <>
@@ -29,7 +35,24 @@ async function Contenido({ params }: Pick<PageProps<"/admin/productos/[id]">, "p
           </a>
         )}
       </div>
-      <FormProducto producto={{ ...desdeFila(fila), activo: fila.activo, orden: fila.orden }} categorias={await obtenerCategorias()} />
+      {(esperando ?? 0) > 0 && (
+        <p className="admin__exito" role="status">
+          {esperando === 1 ? "1 persona espera" : `${esperando} personas esperan`} que vuelva. Cuando le cargues stock,
+          les llega un mail solo.
+        </p>
+      )}
+      <FormProducto
+        producto={{
+          ...desdeFila(fila),
+          activo: fila.activo,
+          orden: fila.orden,
+          archivo: fila.archivo ?? null,
+          peso_gramos: fila.peso_gramos ?? null,
+        }}
+        categorias={await obtenerCategorias()}
+        conPdf={"archivo" in fila}
+        conPeso={"peso_gramos" in fila}
+      />
     </>
   );
 }

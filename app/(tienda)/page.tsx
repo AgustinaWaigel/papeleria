@@ -20,7 +20,7 @@ const ESTANTES = [
     href: "/descargables",
     pestana: "Para imprimir",
     titulo: "Descargables",
-    texto: "Planners, hojas de estudio y kits de festejo en PDF. Los pedís y te llegan por mail.",
+    texto: "Planners, hojas de estudio y kits de festejo en PDF. Te llegan por mail apenas pagás.",
     ir: "Ver plantillas",
   },
   {
@@ -41,7 +41,7 @@ const ESTANTES = [
 
 const PASOS = [
   ["Llená tu bolsita", "Sumá lo que te guste: productos físicos y descargables pueden ir juntos en el mismo pedido."],
-  ["Mandanos el pedido", "Con un toque se abre WhatsApp con todo ya escrito. Ahí coordinamos el pago y el envío."],
+  ["Pagá o escribinos", "Pagá online con Mercado Pago en el momento, o mandanos el pedido por WhatsApp y coordinamos el pago y el envío."],
   ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
 ];
 

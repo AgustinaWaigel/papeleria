@@ -1,12 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useActionState, useEffect, useState, type CSSProperties } from "react";
+import { startTransition, useActionState, useEffect, useState, useTransition, type CSSProperties } from "react";
 import { guardarProducto } from "@/app/admin/acciones";
+import { agregarCategoria } from "@/app/admin/tienda-acciones";
 import { Precio } from "@/components/Precio";
 import { COLORES, Dibujo, NOMBRES_DIBUJO, TIPOS, type Categorias, type Producto, type TipoProducto } from "@/lib/productos";
+import { BUCKET_DESCARGABLES } from "@/lib/supabase/config";
+import { clienteNavegador } from "@/lib/supabase/navegador";
 
-type Props = { producto?: Producto & { activo: boolean; orden: number }; categorias: Categorias };
+/* conPdf: la base ya tiene dónde guardar el PDF de los descargables (supabase/04-pagos-online.sql). */
+type Props = {
+  producto?: Producto & { activo: boolean; orden: number; archivo?: string | null; peso_gramos?: number | null };
+  categorias: Categorias;
+  conPdf: boolean;
+  conPeso?: boolean; // la base ya tiene la columna del peso (supabase/07-envios-cupones-y-mas.sql)
+};
 
 /* "Cuaderno Pluma A5" → "cuaderno-pluma-a5" */
 const aIdentificador = (texto: string) =>
@@ -41,7 +50,9 @@ async function achicarFoto(archivo: File): Promise<File> {
   }
 }
 
-export function FormProducto({ producto: p, categorias: todasLasCategorias }: Props) {
+const NUEVA = "__nueva"; // la opción "+ Nueva categoría…" de la lista
+
+export function FormProducto({ producto: p, categorias: todasLasCategorias, conPdf, conPeso = false }: Props) {
   const [estado, accion, enviando] = useActionState(guardarProducto, undefined);
   const editando = Boolean(p);
 
@@ -59,8 +70,33 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
   const [fotos, setFotos] = useState(p?.fotos ?? []);
   const [nuevas, setNuevas] = useState<string[]>([]);
   const [achicando, setAchicando] = useState(false);
+  const [subiendoPdf, setSubiendoPdf] = useState(false);
+  const [errorPdf, setErrorPdf] = useState("");
 
-  const categorias = todasLasCategorias[tipo] ?? [];
+  // Categorías: las de la base más las que se crean desde acá sin salir del formulario.
+  const usaCategorias = tipo !== "pack";
+  const [extras, setExtras] = useState<Categorias>({});
+  const [cat, setCat] = useState(p?.cat ?? "");
+  const [nueva, setNueva] = useState<string | null>(null); // null: eligiendo de la lista
+  const [errorCat, setErrorCat] = useState("");
+  const [creandoCat, empezarCat] = useTransition();
+  // Sin repetidos: al crear una, el panel también la recibe en la lista que llega del servidor.
+  const categorias = [...(todasLasCategorias[tipo] ?? []), ...(extras[tipo] ?? [])].filter(
+    ([c], n, lista) => lista.findIndex(([otra]) => otra === c) === n,
+  );
+  const catElegida = categorias.some(([c]) => c === cat) ? cat : (categorias[0]?.[0] ?? "");
+
+  const crearCategoria = () => {
+    if (!nueva?.trim()) return;
+    setErrorCat("");
+    empezarCat(async () => {
+      const { categoria, error } = await agregarCategoria(tipo, nueva);
+      if (!categoria) return setErrorCat(error ?? "No se pudo crear la categoría.");
+      if (!categorias.some(([c]) => c === categoria[0])) setExtras((x) => ({ ...x, [tipo]: [...(x[tipo] ?? []), categoria] }));
+      setCat(categoria[0]);
+      setNueva(null);
+    });
+  };
   const portada = fotos[0] ?? nuevas[0];
 
   // Las vistas previas de archivos locales son URLs temporales: se liberan al cambiar.
@@ -89,6 +125,22 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
           for (const archivo of archivos) datos.append("fotos_nuevas", await achicarFoto(archivo));
           setAchicando(false);
         }
+        // El PDF va directo del navegador al bucket privado (puede pesar decenas de MB);
+        // al servidor le llega solo dónde quedó guardado.
+        const pdf = datos.get("pdf_nuevo");
+        datos.delete("pdf_nuevo");
+        if (tipo === "descargable" && conPdf && pdf instanceof File && pdf.size > 0 && id) {
+          setErrorPdf("");
+          setSubiendoPdf(true);
+          const ruta = `${id}/${Date.now()}-${pdf.name.normalize("NFD").replace(/[^\w.-]+/g, "-")}`;
+          const { error } = await clienteNavegador().storage.from(BUCKET_DESCARGABLES).upload(ruta, pdf, { contentType: pdf.type });
+          setSubiendoPdf(false);
+          if (error) {
+            setErrorPdf(`No se pudo subir el PDF: ${error.message}`);
+            return;
+          }
+          datos.set("archivo", ruta);
+        }
         startTransition(() => accion(datos));
       }}
     >
@@ -116,7 +168,16 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
           <div className="editor__par">
             <div className="campo">
               <label htmlFor="f-tipo">Sección</label>
-              <select id="f-tipo" name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value as TipoProducto)}>
+              <select
+                id="f-tipo"
+                name="tipo"
+                value={tipo}
+                onChange={(e) => {
+                  setTipo(e.target.value as TipoProducto);
+                  setNueva(null);
+                  setErrorCat("");
+                }}
+              >
                 {TIPOS.map(([valor, etiqueta]) => (
                   <option key={valor} value={valor}>
                     {etiqueta}
@@ -124,16 +185,68 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
                 ))}
               </select>
             </div>
-            {categorias.length > 0 && (
+            {usaCategorias && (
               <div className="campo">
                 <label htmlFor="f-cat">Categoría</label>
-                <select id="f-cat" name="cat" defaultValue={p?.cat ?? categorias[0][0]} key={tipo}>
-                  {categorias.map(([valor, etiqueta]) => (
-                    <option key={valor} value={valor}>
-                      {etiqueta}
-                    </option>
-                  ))}
-                </select>
+                {/* Va siempre en el formulario (aunque se esté escribiendo una nueva). */}
+                <input type="hidden" name="cat" value={catElegida} />
+                {nueva === null ? (
+                  <select
+                    id="f-cat"
+                    value={catElegida}
+                    onChange={(e) => {
+                      if (e.target.value === NUEVA) {
+                        setNueva("");
+                        setErrorCat("");
+                      } else setCat(e.target.value);
+                    }}
+                  >
+                    {categorias.length === 0 && <option value="">Sin categoría</option>}
+                    {categorias.map(([valor, etiqueta]) => (
+                      <option key={valor} value={valor}>
+                        {etiqueta}
+                      </option>
+                    ))}
+                    <option value={NUEVA}>+ Nueva categoría…</option>
+                  </select>
+                ) : (
+                  <div className="editor__nueva-cat">
+                    <input
+                      type="text"
+                      id="f-cat"
+                      value={nueva}
+                      autoFocus
+                      placeholder="Por ejemplo: Cartucheras"
+                      aria-describedby="f-cat-ayuda"
+                      onChange={(e) => setNueva(e.target.value)}
+                      // Enter agrega la categoría en vez de mandar todo el formulario.
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          crearCategoria();
+                        }
+                        if (e.key === "Escape") setNueva(null);
+                      }}
+                    />
+                    <button className="boton boton--chico" type="button" disabled={creandoCat || !nueva.trim()} onClick={crearCategoria}>
+                      {creandoCat ? "Creando…" : "Agregar"}
+                    </button>
+                    <button className="admin__borrar" type="button" onClick={() => setNueva(null)}>
+                      Cancelar
+                    </button>
+                  </div>
+                )}
+                {errorCat ? (
+                  <span className="admin__error" role="alert" id="f-cat-ayuda">
+                    {errorCat}
+                  </span>
+                ) : (
+                  nueva !== null && (
+                    <span className="campo__ayuda" id="f-cat-ayuda">
+                      Se suma a {TIPOS.find(([t]) => t === tipo)?.[1]} y queda elegida para este producto.
+                    </span>
+                  )
+                )}
               </div>
             )}
           </div>
@@ -190,6 +303,15 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
               </span>
             </div>
           </div>
+          {conPeso && tipo !== "descargable" && (
+            <div className="campo">
+              <label htmlFor="f-peso">Peso, en gramos (ya envuelto)</label>
+              <input type="text" inputMode="numeric" id="f-peso" name="peso_gramos" defaultValue={p?.peso_gramos ?? ""} aria-describedby="f-peso-ayuda" />
+              <span className="campo__ayuda" id="f-peso-ayuda">
+                Para cotizar el envío con Correo Argentino. Vacío: se usa el peso por defecto de Envíos.
+              </span>
+            </div>
+          )}
           <div className="editor__marcas">
             <label className="tilde">
               <input type="checkbox" name="activo" defaultChecked={p?.activo ?? true} />
@@ -243,6 +365,27 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
             </span>
           </div>
         </fieldset>
+
+        {tipo === "descargable" && conPdf && (
+          <fieldset className="admin__grupo">
+            <legend>El PDF</legend>
+            <input type="hidden" name="archivo" value={p?.archivo ?? ""} />
+            <div className="campo">
+              <label htmlFor="f-pdf">{p?.archivo ? "Cambiar el PDF" : "Archivo PDF"}</label>
+              {p?.archivo && <span className="campo__ayuda">Ahora: {p.archivo.split("/").pop()?.replace(/^\d+-/, "")}</span>}
+              <input type="file" id="f-pdf" name="pdf_nuevo" accept="application/pdf,application/zip" aria-describedby="f-pdf-ayuda" />
+              <span className="campo__ayuda" id="f-pdf-ayuda">
+                Hasta 50 MB (si son varios, juntalos en un .zip). Queda guardado en privado: a quien compra le llega por mail cuando
+                se acredita el pago.
+              </span>
+            </div>
+            {errorPdf && (
+              <p className="admin__error" role="alert">
+                {errorPdf}
+              </p>
+            )}
+          </fieldset>
+        )}
 
         <fieldset className="admin__grupo">
           <legend>Imagen</legend>
@@ -334,7 +477,7 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
           <div className="ficha__pie">
             <Precio producto={{ precio: Number(precio) || 0, precioAnterior: Number(anterior) || undefined }} className="ficha__precio" />
             <span className="boton boton--chico" aria-hidden="true">
-              Sumar
+              Comprar
             </span>
           </div>
         </article>
@@ -345,8 +488,8 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
           </p>
         )}
         <div className="editor__botones">
-          <button className="boton boton--ancho" type="submit" disabled={enviando || achicando}>
-            {achicando ? "Preparando las fotos…" : enviando ? "Guardando…" : editando ? "Guardar cambios" : "Crear producto"}
+          <button className="boton boton--ancho" type="submit" disabled={enviando || achicando || subiendoPdf}>
+            {subiendoPdf ? "Subiendo el PDF…" : achicando ? "Preparando las fotos…" : enviando ? "Guardando…" : editando ? "Guardar cambios" : "Crear producto"}
           </button>
           <Link className="boton boton--claro boton--ancho" href="/admin">
             Volver sin guardar

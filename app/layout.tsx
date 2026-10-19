@@ -24,7 +24,9 @@ export const metadata: Metadata = {
 /* La raíz solo pone el documento y las fuentes. La tienda y el panel tienen cada uno su layout. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={`${londrina.variable} ${baloo.variable} ${aurore.variable} ${karla.variable}`}>
+    // data-scroll-behavior: el scroll suave (sitio.css) es para los saltos dentro de una página; al cambiar
+    // de página Next lo apaga, así no se ve deslizarse hasta arriba.
+    <html lang="es-AR" data-scroll-behavior="smooth" className={`${londrina.variable} ${baloo.variable} ${aurore.variable} ${karla.variable}`}>
       <body>{children}</body>
     </html>
   );

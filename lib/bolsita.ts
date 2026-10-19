@@ -4,7 +4,7 @@
 import { precio } from "./contacto";
 
 export type Bolsita = Record<string, number>;
-export type ResumenProducto = { id: string; nombre: string; precio: number; stock?: number };
+export type ResumenProducto = { id: string; nombre: string; precio: number; stock?: number; tipo: string };
 export type Buscar = (id: string) => ResumenProducto | undefined;
 
 const CLAVE = "alas-bolsita";
@@ -47,6 +47,17 @@ export function cambiarCantidad(id: string, delta: number) {
   oyentes.forEach((oyente) => oyente());
 }
 
+/* Después de pagar online la bolsita arranca de cero. */
+export function vaciar() {
+  estado = {};
+  try {
+    localStorage.removeItem(CLAVE);
+  } catch {
+    /* sin almacenamiento: no había nada guardado */
+  }
+  oyentes.forEach((oyente) => oyente());
+}
+
 /* Lo que hay en la bolsita y sigue en el catálogo (un producto puede haberse dado de baja). */
 export const renglones = (bolsita: Bolsita, buscar: Buscar) =>
   Object.entries(bolsita).flatMap(([id, cantidad]) => {
@@ -71,9 +82,11 @@ export function nuevoCodigo() {
   return "AA-" + Array.from(azar, (n) => letras[n % letras.length]).join("");
 }
 
-export function textoPedido(lista: Renglon[], codigo?: string, nombre?: string) {
+/* envio: cómo lo recibe y cuánto sale (costo null: se coordina), elegido en la bolsita. */
+export function textoPedido(lista: Renglon[], codigo?: string, nombre?: string, envio?: { texto: string; costo: number | null }) {
   const lineas = lista.map(({ producto: p, cantidad: n }) => `• ${n} × ${p.nombre} — ${precio(p.precio * n)}`);
   const saludo = nombre ? `¡Hola Alas de Ángel! Soy ${nombre} y quiero hacer este pedido` : "¡Hola Alas de Ángel! Quiero hacer este pedido";
   const pie = codigo ? `\n\nCódigo de pedido: ${codigo}` : "";
-  return `${saludo}:\n\n${lineas.join("\n")}\n\nTotal: ${precio(total(lista))}${pie}`;
+  const entrega = envio ? `\n${envio.texto}` : "";
+  return `${saludo}:\n\n${lineas.join("\n")}${entrega}\n\nTotal: ${precio(total(lista) + (envio?.costo ?? 0))}${pie}`;
 }

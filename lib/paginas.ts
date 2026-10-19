@@ -33,3 +33,10 @@ export const PAGINAS_PIE: Pagina[] = (
     ["/contacto", "Contacto"],
   ] satisfies Pagina[]
 ).filter(([href]) => visible(href));
+
+/* Lo legal: va en el pie de todas las páginas (el botón de arrepentimiento tiene que estar a mano, Res. 424/2020). */
+export const PAGINAS_LEGALES: Pagina[] = [
+  ["/arrepentimiento", "Botón de arrepentimiento"],
+  ["/terminos", "Términos y condiciones"],
+  ["/privacidad", "Privacidad"],
+];

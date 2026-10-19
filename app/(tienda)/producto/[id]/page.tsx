@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { Seccion } from "@/components/Bloques";
 import { BotonSumar } from "@/components/BotonSumar";
 import { Ficha, sello } from "@/components/Ficha";
+import { FormAvisoStock } from "@/components/FormAvisoStock";
 import { FormResena } from "@/components/FormResena";
 import { Galeria } from "@/components/Galeria";
 import { Precio } from "@/components/Precio";
@@ -109,9 +110,7 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
               <p className="producto__bajada">{p.desc}</p>
 
               <BotonSumar id={p.id} nombre={p.nombre} grande agotado={agotado(p)} />
-              <p className="producto__entrega">
-                {agotado(p) ? "Se nos terminó. Escribinos por WhatsApp y te avisamos cuando vuelva." : seccion.entrega}
-              </p>
+              {agotado(p) ? <FormAvisoStock productoId={p.id} /> : <p className="producto__entrega">{seccion.entrega}</p>}
 
               {p.descripcion?.map((parrafo) => (
                 <p key={parrafo}>{parrafo}</p>

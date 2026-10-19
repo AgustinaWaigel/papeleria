@@ -9,7 +9,10 @@ import { supabaseConfigurado } from "@/lib/supabase/config";
 export const metadata: Metadata = { title: "Nuevo producto" };
 
 async function Contenido() {
-  await exigirAdmin();
+  const { supabase } = await exigirAdmin();
+  // Sin supabase/04-pagos-online.sql la columna del PDF no existe y la consulta da error.
+  const { error: sinPdf } = await supabase.from("productos").select("archivo").limit(1);
+  const { error: sinPeso } = await supabase.from("productos").select("peso_gramos").limit(1);
   return (
     <>
       <div className="admin__encabezado">
@@ -18,7 +21,7 @@ async function Contenido() {
           <h1>Nuevo producto</h1>
         </div>
       </div>
-      <FormProducto categorias={await obtenerCategorias()} />
+      <FormProducto categorias={await obtenerCategorias()} conPdf={!sinPdf} conPeso={!sinPeso} />
     </>
   );
 }

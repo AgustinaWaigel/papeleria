@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CONTACTO, enlaceInstagram, enlaceWhatsApp } from "@/lib/contacto";
-import { PAGINAS, PAGINAS_PIE } from "@/lib/paginas";
+import { PAGINAS, PAGINAS_LEGALES, PAGINAS_PIE } from "@/lib/paginas";
 import { FormSuscripcion } from "./FormSuscripcion";
 
 export function Pie() {
@@ -49,7 +49,18 @@ export function Pie() {
             </ul>
           </div>
         </div>
-        <p className="pie__legal">© Alas de Ángel Papelería · Para escribir, soñar y volar.</p>
+        <div className="pie__legal">
+          <ul>
+            {PAGINAS_LEGALES.map(([href, nombre]) => (
+              <li key={href}>
+                <Link href={href} className={href === "/arrepentimiento" ? "pie__arrepentimiento" : undefined}>
+                  {nombre}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p>© Alas de Ángel Papelería · Para escribir, soñar y volar.</p>
+        </div>
       </div>
     </footer>
   );

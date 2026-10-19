@@ -39,15 +39,19 @@ const TEMAS: Tema[] = [
     preguntas: [
       [
         "¿Cómo hago un pedido?",
-        "Sumá lo que te guste a la bolsita y tocá “Enviar pedido por WhatsApp”. Se abre el chat con tu pedido ya escrito: ahí te confirmamos que haya stock, el total con el envío y cómo pagar.",
+        "Sumá lo que te guste a la bolsita y elegí: “Pagar con Mercado Pago” para pagar online en el momento, o “Enviar pedido por WhatsApp” si preferís coordinar con nosotras (se abre el chat con tu pedido ya escrito).",
       ],
       [
         "¿Qué medios de pago aceptan?",
-        "Transferencia bancaria y Mercado Pago. Te pasamos los datos por WhatsApp cuando confirmamos el pedido.",
+        "Online, con Mercado Pago: tarjeta de crédito, débito o dinero en cuenta. Si pedís por WhatsApp, también transferencia bancaria: te pasamos los datos por ahí.",
       ],
       [
         "¿Cuándo queda confirmado mi pedido?",
-        "Cuando se acredita el pago. Te avisamos por WhatsApp apenas lo vemos y empezamos a prepararlo.",
+        "Cuando se acredita el pago. Si pagaste online, en el momento: te llega un mail con el detalle y el link para seguir tu pedido. Si pediste por WhatsApp, te avisamos por ahí apenas lo vemos.",
+      ],
+      [
+        "¿Tienen cupones de descuento?",
+        "A veces, sobre todo para quienes se anotan en las novedades o nos siguen en Instagram. Si tenés uno, escribilo en la bolsita antes de pagar online y el descuento se aplica en el momento.",
       ],
       [
         "Me equivoqué en el pedido, ¿lo puedo cambiar?",
@@ -65,7 +69,7 @@ const TEMAS: Tema[] = [
     preguntas: [
       [
         "¿Hacen envíos?",
-        "Sí, a todo el país. El costo depende del destino y del tamaño del paquete, y te lo pasamos antes de que pagues.",
+        "Sí, a todo el país. Si pagás online, el costo del envío aparece en la bolsita antes de pagar; si pedís por WhatsApp, te lo pasamos por ahí.",
       ],
       [
         "¿Puedo retirarlo en persona?",
@@ -73,7 +77,7 @@ const TEMAS: Tema[] = [
       ],
       [
         "¿Cuánto tarda en llegar?",
-        "Lo despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo: te mandamos el código de seguimiento para que lo sigas.",
+        "Lo despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo: cuando sale, te mandamos un mail con el número de seguimiento.",
       ],
       [
         "¿Es para regalo? ¿Lo pueden envolver?",
@@ -87,7 +91,7 @@ const TEMAS: Tema[] = [
     preguntas: [
       [
         "¿Cómo recibo los archivos?",
-        "Por mail, apenas se acredita el pago. Si en un rato no te llegó, fijate en la carpeta de spam o promociones antes de escribirnos.",
+        "Por mail, apenas se acredita el pago: te llegan los PDF adjuntos. Si en un rato no te llegó, fijate en la carpeta de spam o promociones antes de escribirnos.",
       ],
       [
         "¿Puedo imprimirlos más de una vez?",
@@ -114,6 +118,10 @@ const TEMAS: Tema[] = [
       [
         "¿Puedo cambiar un producto?",
         `Sí, los productos físicos sin uso se pueden cambiar dentro de los diez días de recibidos. ${ABIERTAS.personalizados ? "Los personalizados y los descargables" : "Los descargables"} no tienen cambio, salvo que haya una falla nuestra.`,
+      ],
+      [
+        "Me arrepentí de la compra, ¿la puedo cancelar?",
+        "Sí, dentro de los 10 días corridos de recibida, desde el “Botón de arrepentimiento” que está al pie de todas las páginas. Te damos un código de trámite en el momento, el envío de vuelta corre por nuestra cuenta y te devolvemos el dinero. No aplica a los descargables.",
       ],
       [
         "Me llegó algo dañado, ¿qué hago?",
