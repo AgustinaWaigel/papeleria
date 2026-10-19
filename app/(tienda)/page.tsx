@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Franja, Seccion } from "@/components/Bloques";
 import { AlasAnimadas } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
+import { Ficha } from "@/components/Ficha";
 import { obtenerCatalogo } from "@/lib/catalogo";
 import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
 import { ABIERTAS, visible } from "@/lib/paginas";
@@ -89,6 +90,10 @@ export default async function Inicio() {
       </>
     );
 
+  // Los que se marcaron "En Inicio" en el panel; si no hay ninguno, los primeros del catálogo.
+  const destacados = catalogo.filter((p) => p.destacado);
+  const enInicio = (destacados.length > 0 ? destacados : catalogo).slice(0, 8);
+
   return (
     <>
       <DatosMarca />
@@ -114,10 +119,25 @@ export default async function Inicio() {
           </div>
           <div className="portada__dibujo">
             <AlasAnimadas />
-            <span className="nota-mano">cada hoja, un ala</span>
           </div>
         </div>
       </section>
+
+      <Seccion
+        nota="recién salidos del taller"
+        titulo="Lo que hay en la mesa"
+        accion={
+          <Link className="boton boton--claro" href={catalogo.some((p) => p.tipo === "fisico") ? "/papeleria" : "/descargables"}>
+            Ver todo
+          </Link>
+        }
+      >
+        <div className="grilla-fichas grilla-fichas--cuatro">
+          {enInicio.map((p, n) => (
+            <Ficha key={p.id} producto={p} orden={n} />
+          ))}
+        </div>
+      </Seccion>
 
       <Seccion nota="por dónde empezar" titulo="Cuatro estantes para revolver">
         <div className="estantes">

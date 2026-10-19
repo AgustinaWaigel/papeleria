@@ -229,6 +229,27 @@ a:hover { color: var(--color-tinta); }
   }
 }
 .portada .contenedor { position: relative; }
+
+/* El patrón dibujado a mano (alas, estrellas, corazones) de fondo en la portada y en los encabezados.
+   El PNG se usa como máscara: así toma el color de la marca y se puede ajustar sin tocar el dibujo. */
+.portada::before,
+.portadilla::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--color-lavanda);
+  opacity: 0.18;
+  -webkit-mask: url("/patron-alas.png") repeat 0 0 / 30rem auto;
+  mask: url("/patron-alas.png") repeat 0 0 / 30rem auto;
+}
+@media (max-width: 52rem) {
+  .portada::before,
+  .portadilla::before {
+    -webkit-mask-size: 22rem auto;
+    mask-size: 22rem auto;
+  }
+}
 .portada h1 { color: var(--color-nube); }
 .portada .nota-mano { color: var(--color-lavanda); }
 .portada__texto p { color: var(--color-lavanda-suave); }
@@ -248,12 +269,6 @@ a:hover { color: var(--color-tinta); }
 }
 .portada__texto p { font-size: var(--texto-l); max-width: 38rem; margin-block: var(--espacio-5) var(--espacio-6); }
 .portada__dibujo { position: relative; width: 100%; max-width: 22rem; justify-self: center; }
-.portada__dibujo .nota-mano {
-  position: absolute;
-  right: var(--espacio-4);
-  bottom: 0;
-  margin-bottom: 0;
-}
 @media (min-width: 52rem) {
   .portada__grilla { grid-template-columns: 1.7fr 1fr; min-height: 34rem; }
   .portada__dibujo { max-width: 24rem; justify-self: end; }
@@ -305,7 +320,8 @@ a:hover { color: var(--color-tinta); }
 
 /* ---------- Portada de páginas internas ---------- */
 
-.portadilla { background: var(--color-amanecer); color: var(--color-nube); border-bottom: var(--borde); padding-block: var(--espacio-8) var(--espacio-7); }
+.portadilla { position: relative; overflow: hidden; background: var(--color-amanecer); color: var(--color-nube); border-bottom: var(--borde); padding-block: var(--espacio-8) var(--espacio-7); }
+.portadilla .contenedor { position: relative; }
 .portadilla h1 { color: var(--color-lavanda); }
 .portadilla .nota-mano { color: var(--color-halo); }
 .portadilla a { color: var(--color-nube); }
@@ -479,6 +495,83 @@ a:hover { color: var(--color-tinta); }
 }
 .galeria__miniaturas button:hover { opacity: 1; }
 .galeria__miniaturas button[aria-pressed="true"] { opacity: 1; box-shadow: var(--sombra-sello); }
+
+/* La foto grande es un botón que abre el visor. */
+.galeria__abrir { display: block; width: 100%; padding: 0; font: inherit; cursor: zoom-in; }
+.galeria__abrir:focus-visible { outline: 3px solid var(--color-amanecer); outline-offset: 3px; }
+.galeria__lupa {
+  position: absolute;
+  right: var(--espacio-3);
+  bottom: var(--espacio-3);
+  padding: var(--espacio-1) var(--espacio-3);
+  font-size: var(--texto-xs);
+  color: var(--color-tinta);
+  background: var(--color-nube);
+  border: var(--borde);
+  border-radius: 999px;
+}
+
+/* El visor: la foto entera, sin recortar, lo más grande que entre en la pantalla.
+   Ocupa siempre el mismo lugar (no depende de que la foto haya cargado) y la foto queda sobre el fondo oscuro. */
+.visor {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  overflow: hidden;
+}
+.visor::backdrop { background: rgb(40 8 26 / 0.85); backdrop-filter: blur(3px); }
+.visor[open]::backdrop { animation: aparecer 200ms ease-out; }
+.visor__marco { position: absolute; inset: 1rem 5rem 3.5rem; }
+/* ".visor" adelante: si no, gana el "object-fit: cover" de .galeria img y la recorta. */
+.visor .visor__foto { object-fit: contain; }
+.visor__boton {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  font: inherit;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--color-tinta);
+  background: var(--color-nube);
+  border: var(--borde);
+  border-radius: 50%;
+  box-shadow: var(--sombra-sello);
+  cursor: pointer;
+}
+.visor__boton:focus-visible { outline: 3px solid var(--color-lavanda); outline-offset: 3px; }
+.visor__cerrar { top: 1rem; right: 1rem; font-size: 1.25rem; }
+.visor__anterior, .visor__siguiente { top: 50%; translate: 0 -50%; }
+.visor__anterior { left: 1rem; }
+.visor__siguiente { right: 1rem; }
+.visor__cuenta {
+  position: absolute;
+  bottom: 0.875rem;
+  left: 50%;
+  translate: -50% 0;
+  margin: 0;
+  padding: var(--espacio-1) var(--espacio-3);
+  font-size: var(--texto-s);
+  color: var(--color-tinta);
+  background: var(--color-nube);
+  border-radius: 999px;
+}
+/* En el celu las flechas bajan al pie, así la foto usa todo el ancho. */
+@media (max-width: 40rem) {
+  .visor__marco { inset: 4.5rem 0.5rem 4.75rem; }
+  .visor__cerrar { right: 0.75rem; }
+  .visor__anterior, .visor__siguiente { top: auto; bottom: 1rem; translate: none; }
+  .visor__anterior { left: 0.75rem; }
+  .visor__siguiente { right: 0.75rem; }
+  .visor__cuenta { bottom: 1.6rem; }
+}
 
 /* ---------- Filtros ---------- */
 
@@ -853,7 +946,6 @@ a:hover { color: var(--color-tinta); }
 .portada__texto > :nth-child(3) { animation-delay: 240ms; }
 .portada__texto > :nth-child(4) { animation-delay: 360ms; }
 .portada__dibujo { animation: despegar 900ms var(--mov-curva) 150ms backwards; }
-.portada__dibujo .nota-mano { animation: aparecer 600ms ease-out 1s backwards; }
 .portada .resalte {
   color: var(--color-amanecer-fuerte);
   background: linear-gradient(var(--color-halo), var(--color-halo)) no-repeat left 62% / 100% 80%;
