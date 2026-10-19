@@ -17,6 +17,30 @@ const aIdentificador = (texto: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+/* Lleva la foto a 1600 px de lado como máximo, en JPG: de varios MB a unos cientos de KB.
+   Si el navegador no la puede abrir (por ejemplo, una HEIC en Chrome), la deja como está. */
+const LADO_MAXIMO = 1600;
+async function achicarFoto(archivo: File): Promise<File> {
+  try {
+    const imagen = await createImageBitmap(archivo);
+    const escala = Math.min(1, LADO_MAXIMO / Math.max(imagen.width, imagen.height));
+    const lienzo = document.createElement("canvas");
+    lienzo.width = Math.round(imagen.width * escala);
+    lienzo.height = Math.round(imagen.height * escala);
+    const ctx = lienzo.getContext("2d");
+    if (!ctx) return archivo;
+    ctx.fillStyle = "#fff"; // las partes transparentes de un PNG quedan blancas y no negras
+    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+    imagen.close();
+    const blob = await new Promise<Blob | null>((listo) => lienzo.toBlob(listo, "image/jpeg", 0.85));
+    if (!blob || blob.size >= archivo.size) return archivo;
+    return new File([blob], archivo.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return archivo;
+  }
+}
+
 export function FormProducto({ producto: p, categorias: todasLasCategorias }: Props) {
   const [estado, accion, enviando] = useActionState(guardarProducto, undefined);
   const editando = Boolean(p);
@@ -24,7 +48,6 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
   // Lo que alimenta la vista previa.
   const [nombre, setNombre] = useState(p?.nombre ?? "");
   const [id, setId] = useState(p?.id ?? "");
-  const [idTocado, setIdTocado] = useState(editando);
   const [tipo, setTipo] = useState<TipoProducto>(p?.tipo ?? "fisico");
   const [precio, setPrecio] = useState(p ? String(p.precio) : "");
   const [anterior, setAnterior] = useState(p?.precioAnterior ? String(p.precioAnterior) : "");
@@ -35,6 +58,7 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
   const [color, setColor] = useState(p?.color ?? "lavanda");
   const [fotos, setFotos] = useState(p?.fotos ?? []);
   const [nuevas, setNuevas] = useState<string[]>([]);
+  const [achicando, setAchicando] = useState(false);
 
   const categorias = todasLasCategorias[tipo] ?? [];
   const portada = fotos[0] ?? nuevas[0];
@@ -53,9 +77,18 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
     <form
       className="editor"
       // Con onSubmit y no con action: así React no vacía el formulario si vuelve un error.
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         const datos = new FormData(e.currentTarget);
+        // Las fotos del celular pesan varios MB y Vercel corta los envíos de más de 4,5 MB:
+        // se achican acá antes de mandarlas.
+        const archivos = datos.getAll("fotos_nuevas").filter((f): f is File => f instanceof File && f.size > 0);
+        if (archivos.length > 0) {
+          setAchicando(true);
+          datos.delete("fotos_nuevas");
+          for (const archivo of archivos) datos.append("fotos_nuevas", await achicarFoto(archivo));
+          setAchicando(false);
+        }
         startTransition(() => accion(datos));
       }}
     >
@@ -74,30 +107,12 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
               value={nombre}
               onChange={(e) => {
                 setNombre(e.target.value);
-                if (!idTocado) setId(aIdentificador(e.target.value));
+                if (!editando) setId(aIdentificador(e.target.value));
               }}
             />
           </div>
-          <div className="campo">
-            <label htmlFor="f-id">Identificador (va en la dirección: /producto/{id || "…"})</label>
-            <input
-              type="text"
-              id="f-id"
-              name="id"
-              required
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              readOnly={editando}
-              aria-describedby="f-id-ayuda"
-              value={id}
-              onChange={(e) => {
-                setIdTocado(true);
-                setId(e.target.value);
-              }}
-            />
-            <span className="campo__ayuda" id="f-id-ayuda">
-              {editando ? "No se puede cambiar: rompería los enlaces que ya compartiste." : "Se arma solo con el nombre. Minúsculas y guiones."}
-            </span>
-          </div>
+          {/* La dirección del producto se arma sola con el nombre y no cambia al editar (rompería los enlaces). */}
+          <input type="hidden" name="id" value={id} />
           <div className="editor__par">
             <div className="campo">
               <label htmlFor="f-tipo">Sección</label>
@@ -255,7 +270,7 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
               </ul>
             )}
             <label htmlFor="f-fotos-nuevas" className="campo__ayuda">
-              Sumar fotos (JPG, PNG o WebP, hasta 5 MB cada una). Se agregan después de las que ya están.
+              Sumar fotos (JPG, PNG o WebP). Se achican solas al guardar y se agregan después de las que ya están.
             </label>
             <input
               type="file"
@@ -330,8 +345,8 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias }: Pr
           </p>
         )}
         <div className="editor__botones">
-          <button className="boton boton--ancho" type="submit" disabled={enviando}>
-            {enviando ? "Guardando…" : editando ? "Guardar cambios" : "Crear producto"}
+          <button className="boton boton--ancho" type="submit" disabled={enviando || achicando}>
+            {achicando ? "Preparando las fotos…" : enviando ? "Guardando…" : editando ? "Guardar cambios" : "Crear producto"}
           </button>
           <Link className="boton boton--claro boton--ancho" href="/admin">
             Volver sin guardar

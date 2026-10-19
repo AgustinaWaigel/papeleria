@@ -3,7 +3,9 @@ import { Franja, Seccion } from "@/components/Bloques";
 import { AlasAnimadas } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
 import { obtenerCatalogo } from "@/lib/catalogo";
+import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
 import { ABIERTAS, visible } from "@/lib/paginas";
+import { SITIO_URL } from "@/lib/sitio";
 
 const ESTANTES = [
   {
@@ -42,13 +44,54 @@ const PASOS = [
   ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
 ];
 
+/* Le dice a Google cómo se llama el sitio y quién está detrás, para que aparezca al buscar la marca
+   (con o sin tilde) y muestre "Alas de Ángel" como nombre del sitio en los resultados. */
+function DatosMarca() {
+  const datos = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITIO_URL}/#sitio`,
+        url: `${SITIO_URL}/`,
+        name: "Alas de Ángel Papelería",
+        alternateName: ["Alas de Ángel", "Alas de Angel", "Alas de Angel Papelería"],
+        inLanguage: "es-AR",
+        publisher: { "@id": `${SITIO_URL}/#marca` },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${SITIO_URL}/#marca`,
+        name: "Alas de Ángel Papelería",
+        alternateName: "Alas de Angel",
+        url: `${SITIO_URL}/`,
+        email: CONTACTO.email,
+        sameAs: [enlaceInstagram],
+      },
+    ],
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(datos).replace(/</g, "\\u003c") }}
+    />
+  );
+}
+
 export default async function Inicio() {
   const catalogo = await obtenerCatalogo();
   // Sin productos cargados, la tienda se muestra "en el taller".
-  if (catalogo.length === 0) return <EnConstruccion />;
+  if (catalogo.length === 0)
+    return (
+      <>
+        <DatosMarca />
+        <EnConstruccion />
+      </>
+    );
 
   return (
     <>
+      <DatosMarca />
       <section className="portada">
         <div className="contenedor portada__grilla">
           <div className="portada__texto">

@@ -67,8 +67,8 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
   const nombre = texto(datos, "nombre");
   const cat = texto(datos, "cat");
 
-  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) return { error: "El identificador va en minúsculas, sin espacios ni tildes (por ejemplo: cuaderno-pluma)." };
   if (!nombre) return { error: "Falta el nombre." };
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) return { error: "El nombre tiene que tener al menos una letra o un número." };
   if (!TIPOS.some(([t]) => t === tipo)) return { error: "Elegí en qué sección va." };
   if (!Number.isFinite(precio) || texto(datos, "precio") === "") return { error: "Falta el precio." };
   const categorias = (await obtenerCategorias())[tipo] ?? [];
@@ -122,7 +122,7 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
   } else {
     const { error } = await supabase.from("productos").insert(fila);
     if (error) {
-      return { error: error.code === "23505" ? `Ya hay un producto con el identificador "${id}".` : `No se pudo guardar: ${error.message}` };
+      return { error: error.code === "23505" ? `Ya hay un producto con ese nombre. Cambiale algo (por ejemplo, el tamaño o el color).` : `No se pudo guardar: ${error.message}` };
     }
   }
 
