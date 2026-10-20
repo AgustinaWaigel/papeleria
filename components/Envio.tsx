@@ -5,7 +5,7 @@ import { cotizarEnvio } from "@/app/(tienda)/acciones";
 import type { Renglon } from "@/lib/bolsita";
 import { precio } from "@/lib/contacto";
 import { costoEnvio, ENTREGAS, type AjustesEnvio, type Entrega } from "@/lib/seguimiento";
-import { nombreProvincia, numeroCP, PROVINCIAS, provinciaDeCP, zonaLocal, zonaPara } from "@/lib/zonas";
+import { nombreProvincia, numeroCP, PROVINCIAS, provinciaDeCP, SOLO_CRESPO, zonaLocal, zonaPara } from "@/lib/zonas";
 
 /* Cómo lo recibe quien compra: se elige en la bolsita, antes de pagar, y sirve tanto para pagar online
    como para mandar el pedido por WhatsApp. */
@@ -33,7 +33,7 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
   const [cotizacion, setCotizacion] = useState<{ clave: string; costo: number; texto: string } | null>(null);
   const clave = `${numeroCP(cp)}|${renglones.map((r) => `${r.id}x${r.cantidad}`).join(",")}|${montoProductos}`;
   useEffect(() => {
-    if (!cotizaCorreo || entrega !== "envio" || !numeroCP(cp) || local) return;
+    if (!cotizaCorreo || SOLO_CRESPO || entrega !== "envio" || !numeroCP(cp) || local) return;
     let vigente = true;
     const reloj = setTimeout(async () => {
       const r = await cotizarEnvio(renglones, cp, montoProductos).catch(() => ({}) as { costo?: number; texto?: string });
@@ -48,36 +48,45 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
   }, [cotizaCorreo, entrega, clave]);
   const delCorreo = !local && cotizacion?.clave === clave ? cotizacion : null;
 
+  // Con SOLO_CRESPO el envío se coordina por WhatsApp: no tiene precio en la bolsita ni se paga online.
+  const porWhatsApp = SOLO_CRESPO && entrega === "envio";
   const costo =
-    entrega !== "envio" ? 0 : delCorreo ? delCorreo.costo : destinoListo ? costoEnvio(envio, montoProductos, provincia, cp) : undefined;
+    entrega !== "envio" ? 0 : porWhatsApp ? null : delCorreo ? delCorreo.costo : destinoListo ? costoEnvio(envio, montoProductos, provincia, cp) : undefined;
 
   const texto =
     entrega !== "envio"
       ? ENTREGAS.find(([e]) => e === entrega)?.[2]
-      : !destinoListo
-        ? "Poné tu código postal y te decimos cuánto sale."
-        : [
-            costo === null
-              ? "El envío a tu zona se coordina por WhatsApp y se paga aparte."
-              : costo === 0
-                ? "¡Envío gratis!"
-                : delCorreo
-                  ? `${delCorreo.texto}: ${precio(delCorreo.costo)}.`
-                  : `Envío a ${zona?.nombre ?? nombreProvincia(provincia)}: ${precio(costo!)}.`,
-            envio.gratisDesde !== null && costo ? `Gratis desde ${precio(envio.gratisDesde)}.` : null,
-            envio.detalle,
-          ]
-            .filter(Boolean)
-            .join(" ");
+      : porWhatsApp
+        ? "Por ahora los envíos son solo dentro de Crespo y se coordinan por WhatsApp: mandanos el pedido y te pasamos el costo."
+        : !destinoListo
+          ? "Poné tu código postal y te decimos cuánto sale."
+          : [
+              costo === null
+                ? "El envío a tu zona se coordina por WhatsApp y se paga aparte."
+                : costo === 0
+                  ? "¡Envío gratis!"
+                  : delCorreo
+                    ? `${delCorreo.texto}: ${precio(delCorreo.costo)}.`
+                    : `Envío a ${zona?.nombre ?? nombreProvincia(provincia)}: ${precio(costo!)}.`,
+              envio.gratisDesde !== null && costo ? `Gratis desde ${precio(envio.gratisDesde)}.` : null,
+              envio.detalle,
+            ]
+              .filter(Boolean)
+              .join(" ");
 
-  return { costo, texto, destinoListo, listo: entrega !== "envio" || destinoListo };
+  return { costo, texto, destinoListo, porWhatsApp, listo: entrega !== "envio" || destinoListo };
 }
+
+/* Cómo se nombra el destino en el resumen y en el mensaje de WhatsApp. */
+export const textoDestino = (cp: string, provincia: string) =>
+  SOLO_CRESPO ? "Envío a domicilio en Crespo" : `Envío a CP ${cp} (${nombreProvincia(provincia)})`;
 
 /* Lo que va en el renglón "Envío" de las cuentas. */
 export const textoCosto = (costo: number | null | undefined) =>
   costo === undefined ? "poné tu CP" : costo === null ? "a coordinar" : costo === 0 ? "gratis" : precio(costo);
 
-/* Retiro o envío y, si es envío, código postal (la provincia se completa sola) y provincia. */
+/* Retiro o envío y, si es envío, código postal (la provincia se completa sola) y provincia.
+   Con SOLO_CRESPO el destino ya viene puesto (ver la bolsita) y no se pregunta. */
 export function ElegirEnvio({ eleccion, cambiar, texto }: { eleccion: EleccionEnvio; cambiar: (e: EleccionEnvio) => void; texto?: string }) {
   const opciones = ENTREGAS.filter(([e]) => e !== "digital");
   return (
@@ -88,12 +97,12 @@ export function ElegirEnvio({ eleccion, cambiar, texto }: { eleccion: EleccionEn
           {opciones.map(([valor, nombre]) => (
             <label key={valor} className="opcion">
               <input type="radio" name="entrega" value={valor} checked={eleccion.entrega === valor} onChange={() => cambiar({ ...eleccion, entrega: valor })} />
-              <span>{nombre}</span>
+              <span>{valor === "envio" && SOLO_CRESPO ? `${nombre} (solo Crespo)` : nombre}</span>
             </label>
           ))}
         </div>
       </fieldset>
-      {eleccion.entrega === "envio" && (
+      {eleccion.entrega === "envio" && !SOLO_CRESPO && (
         <div className="compra__par">
           <div className="campo">
             <label htmlFor="envio-cp">Código postal</label>

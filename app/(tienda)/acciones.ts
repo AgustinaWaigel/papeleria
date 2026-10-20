@@ -7,11 +7,11 @@
 import { randomInt } from "node:crypto";
 import { redirect } from "next/navigation";
 import type { PedidoCliente } from "@/lib/seguimiento";
-import { nombreProvincia, numeroCP, zonaLocal } from "@/lib/zonas";
+import { nombreProvincia, numeroCP, SOLO_CRESPO, zonaLocal } from "@/lib/zonas";
 import { obtenerAjustesEnvio } from "@/lib/catalogo";
 import { armarPaquete, correoConfigurado, cotizar } from "@/lib/correo";
 import { confirmarArrepentimiento } from "@/lib/mails";
-import { crearLinkDePago, descartarPedido, pagoOnlineConfigurado } from "@/lib/mercadopago";
+import { crearLinkDePago, descartarPedido, pagoOnlineActivo, pagoOnlineConfigurado } from "@/lib/mercadopago";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 import { clientePublico, clienteServicio } from "@/lib/supabase/servidor";
 
@@ -46,7 +46,7 @@ export type ResultadoPago = { url?: string; error?: string };
 
 /* "Pagar con Mercado Pago": guarda el pedido con los datos de quien compra y devuelve el link de pago. */
 export async function pagarOnline(items: { id: string; cantidad: number }[], datos: DatosCompra): Promise<ResultadoPago> {
-  if (!pagoOnlineConfigurado) return { error: "El pago online todavía no está activo. Mandanos el pedido por WhatsApp." };
+  if (!pagoOnlineActivo) return { error: "Por ahora los pedidos son por WhatsApp. Mandanos el pedido por ahí y coordinamos el pago." };
 
   const nombre = datos.nombre.trim();
   const email = datos.email.trim().toLowerCase();
@@ -61,6 +61,8 @@ export async function pagarOnline(items: { id: string; cantidad: number }[], dat
   const provincia = nombreProvincia(datos.provincia ?? null) ? datos.provincia! : null;
   if (datos.entrega === "envio" && !numeroCP(codigoPostal)) return { error: "Revisá el código postal: son 4 números (o el nuevo, tipo E3100ABC)." };
   if (datos.entrega === "envio" && !provincia) return { error: "Elegí la provincia." };
+  if (datos.entrega === "envio" && SOLO_CRESPO)
+    return { error: "Por ahora los envíos son solo dentro de Crespo y se coordinan por WhatsApp. Mandanos el pedido por ahí." };
 
   const codigo = "AA-" + Array.from({ length: 5 }, () => LETRAS_CODIGO[randomInt(LETRAS_CODIGO.length)]).join("");
   const { data: pedido, error } = await clientePublico().rpc("crear_pedido_online", {
@@ -123,6 +125,7 @@ export async function reintentarPago(datos: FormData) {
 /* El envío con Correo Argentino para lo que hay en la bolsita: la cotización más el recargo, o gratis si la
    compra llega al mínimo. null: no se pudo cotizar (se usa la zona). */
 async function costoCorreo(items: { id: string; cantidad: number }[], cp: string, montoProductos: number) {
+  if (SOLO_CRESPO) return null;
   try {
     // Un código postal con precio fijo (por ejemplo, Crespo) no va por correo: queda el de la zona.
     if (zonaLocal((await obtenerAjustesEnvio()).zonas, cp)) return null;

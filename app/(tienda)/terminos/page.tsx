@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { CONTACTO, enlaceWhatsApp } from "@/lib/contacto";
+import { pagoOnlineActivo } from "@/lib/mercadopago";
+import { SOLO_CRESPO } from "@/lib/zonas";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones",
@@ -36,18 +38,33 @@ export default function Terminos() {
           </p>
 
           <h2>Cómo se paga</h2>
-          <p>
-            Online con Mercado Pago (tarjeta de crédito, débito o dinero en cuenta), o por WhatsApp coordinando
-            transferencia o efectivo. Los pagos con Mercado Pago los procesa Mercado Pago: nosotras nunca vemos ni guardamos
-            los datos de tu tarjeta.
-          </p>
+          {pagoOnlineActivo ? (
+            <p>
+              Online con Mercado Pago (tarjeta de crédito, débito o dinero en cuenta), o por WhatsApp coordinando
+              transferencia o efectivo. Los pagos con Mercado Pago los procesa Mercado Pago: nosotras nunca vemos ni guardamos
+              los datos de tu tarjeta.
+            </p>
+          ) : (
+            <p>
+              Por ahora los pedidos se hacen por WhatsApp: desde la bolsita nos mandás tu pedido y coordinamos el pago por
+              transferencia o en efectivo.
+            </p>
+          )}
 
           <h2>Envíos y retiro</h2>
-          <p>
-            Podés retirar tu pedido (coordinamos por WhatsApp dónde y cuándo) o recibirlo en tu casa. El costo del envío se
-            muestra antes de pagar; si dice “a coordinar”, te lo pasamos por WhatsApp y se paga aparte. Cuando el pedido sale,
-            te avisamos por mail con el número de seguimiento. Los plazos de entrega dependen del correo.
-          </p>
+          {SOLO_CRESPO ? (
+            <p>
+              Podés retirar tu pedido (coordinamos por WhatsApp dónde y cuándo) o, si sos de Crespo, recibirlo en tu casa.
+              Por ahora los envíos son solo dentro de Crespo: el pedido con envío se manda por WhatsApp y ahí coordinamos el
+              costo, el pago y el día de entrega.
+            </p>
+          ) : (
+            <p>
+              Podés retirar tu pedido (coordinamos por WhatsApp dónde y cuándo) o recibirlo en tu casa. El costo del envío se
+              muestra antes de pagar; si dice “a coordinar”, te lo pasamos por WhatsApp y se paga aparte. Cuando el pedido sale,
+              te avisamos por mail con el número de seguimiento. Los plazos de entrega dependen del correo.
+            </p>
+          )}
 
           <h2>Descargables</h2>
           <p>

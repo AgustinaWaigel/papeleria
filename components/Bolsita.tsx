@@ -18,9 +18,9 @@ import {
   type ResumenProducto,
 } from "@/lib/bolsita";
 import { enlaceWhatsApp, precio } from "@/lib/contacto";
-import { nombreProvincia } from "@/lib/zonas";
+import { CRESPO, SOLO_CRESPO } from "@/lib/zonas";
 import type { AjustesEnvio } from "@/lib/seguimiento";
-import { ElegirEnvio, textoCosto, useEnvio, type EleccionEnvio } from "./Envio";
+import { ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
 import { FormCompra } from "./FormCompra";
 
 type Acciones = { abrir: () => void; sumar: (id: string) => void };
@@ -51,7 +51,9 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
 
   // Cómo lo recibe: se elige acá, antes de pagar (si todo es descargable, no hay nada que elegir).
   const soloDigital = items.length > 0 && items.every((r) => r.producto.tipo === "descargable");
-  const [eleccion, setEleccion] = useState<EleccionEnvio>({ entrega: "retiro", cp: "", provincia: "" });
+  const [eleccion, setEleccion] = useState<EleccionEnvio>(
+    SOLO_CRESPO ? { entrega: "retiro", ...CRESPO } : { entrega: "retiro", cp: "", provincia: "" },
+  );
   const eleccionReal: EleccionEnvio = soloDigital ? { ...eleccion, entrega: "digital" } : eleccion;
   const calculo = useEnvio({ items, envio, cotizaCorreo, eleccion: eleccionReal });
   // Lo que dice el mensaje de WhatsApp sobre la entrega.
@@ -61,7 +63,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
       ? { texto: "Lo retiro.", costo: 0 }
       : calculo.destinoListo
         ? {
-            texto: `Envío a CP ${eleccion.cp} (${nombreProvincia(eleccion.provincia)}): ${textoCosto(calculo.costo)}.`,
+            texto: `${textoDestino(eleccion.cp, eleccion.provincia)}: ${textoCosto(calculo.costo)}.`,
             costo: calculo.costo ?? 0,
           }
         : { texto: "Con envío a domicilio (a coordinar).", costo: 0 };
@@ -196,7 +198,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
                         <dd>{precio(total(items) + (calculo.costo ?? 0))}</dd>
                       </div>
                     </dl>
-                    {pagoOnline && (
+                    {pagoOnline && !calculo.porWhatsApp && (
                       <>
                         <button className="boton boton--ancho" type="button" disabled={!calculo.listo} onClick={() => setComprando(true)}>
                           Pagar con Mercado Pago

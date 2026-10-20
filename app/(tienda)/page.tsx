@@ -5,6 +5,7 @@ import { TallerPortada } from "@/components/EnElTaller";
 import { Ficha } from "@/components/Ficha";
 import { obtenerCatalogo } from "@/lib/catalogo";
 import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
+import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS, visible } from "@/lib/paginas";
 import { SITIO_URL } from "@/lib/sitio";
 
@@ -41,7 +42,9 @@ const ESTANTES = [
 
 const PASOS = [
   ["Llená tu bolsita", "Sumá lo que te guste: productos físicos y descargables pueden ir juntos en el mismo pedido."],
-  ["Pagá o escribinos", "Pagá online con Mercado Pago en el momento, o mandanos el pedido por WhatsApp y coordinamos el pago y el envío."],
+  pagoOnlineActivo
+    ? ["Pagá o escribinos", "Pagá online con Mercado Pago en el momento, o mandanos el pedido por WhatsApp y coordinamos el pago y el envío."]
+    : ["Escribinos", "Mandanos el pedido por WhatsApp desde la bolsita y coordinamos el pago y la entrega."],
   ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
 ];
 

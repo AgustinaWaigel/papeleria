@@ -35,6 +35,12 @@ export const PROVINCIAS: [letra: string, nombre: string][] = [
 
 export const nombreProvincia = (letra: string | null) => PROVINCIAS.find(([l]) => l === letra)?.[1] ?? null;
 
+/* Mientras se arreglan los envíos por correo, a domicilio solo llevamos dentro de Crespo y se coordina por
+   WhatsApp: la bolsita no pide código postal, el envío no se paga online (retirar sí) y no se cotiza con
+   Correo Argentino. Para volver a enviar a todo el país, pasalo a false. */
+export const SOLO_CRESPO = true;
+export const CRESPO = { cp: "3116", provincia: "E" };
+
 /* Los 4 números del código postal, venga como "3100", "E3100" o "E3100ABC". */
 export function numeroCP(cp: string) {
   const numeros = cp.toUpperCase().replace(/^[A-Z]/, "").match(/\d{4}/);

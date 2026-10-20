@@ -6,8 +6,7 @@ import { pagarOnline, validarCupon } from "@/app/(tienda)/acciones";
 import { total, type Renglon } from "@/lib/bolsita";
 import { precio } from "@/lib/contacto";
 import type { AjustesEnvio } from "@/lib/seguimiento";
-import { nombreProvincia } from "@/lib/zonas";
-import { textoCosto, useEnvio, type EleccionEnvio } from "./Envio";
+import { textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
 
 type Cupon = { codigo: string; descuento: number; texto: string };
 
@@ -45,7 +44,7 @@ export function FormCompra({ items, envio, cotizaCorreo, eleccion, volver }: Pro
 
   const textoEntrega =
     entrega === "envio"
-      ? `Envío a CP ${cp} (${nombreProvincia(provincia)})`
+      ? textoDestino(cp, provincia)
       : entrega === "retiro"
         ? "Lo retirás (coordinamos por WhatsApp)"
         : "Solo descargables: te llegan por mail";

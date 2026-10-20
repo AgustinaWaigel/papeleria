@@ -15,6 +15,12 @@ const API = "https://api.mercadopago.com";
 
 export const pagoOnlineConfigurado = Boolean(supabaseConfigurado && TOKEN && SUPABASE_SECRETA);
 
+/* Pausa del pago online: la bolsita ofrece solo WhatsApp y los textos de la tienda hablan de pedir y pagar
+   por ahí. Los pedidos ya hechos siguen andando (el aviso de Mercado Pago, el seguimiento, reintentar un pago).
+   Para volver a cobrar online, pasalo a false. */
+export const PAGO_ONLINE_PAUSADO = true;
+export const pagoOnlineActivo = pagoOnlineConfigurado && !PAGO_ONLINE_PAUSADO;
+
 async function api<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   const respuesta = await fetch(API + ruta, {
     ...opciones,

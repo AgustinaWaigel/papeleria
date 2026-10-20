@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
 import { enlaceWhatsApp } from "@/lib/contacto";
+import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS } from "@/lib/paginas";
+import { SOLO_CRESPO } from "@/lib/zonas";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
@@ -39,19 +41,27 @@ const TEMAS: Tema[] = [
     preguntas: [
       [
         "¿Cómo hago un pedido?",
-        "Sumá lo que te guste a la bolsita y elegí: “Pagar con Mercado Pago” para pagar online en el momento, o “Enviar pedido por WhatsApp” si preferís coordinar con nosotras (se abre el chat con tu pedido ya escrito).",
+        pagoOnlineActivo
+          ? "Sumá lo que te guste a la bolsita y elegí: “Pagar con Mercado Pago” para pagar online en el momento, o “Enviar pedido por WhatsApp” si preferís coordinar con nosotras (se abre el chat con tu pedido ya escrito)."
+          : "Sumá lo que te guste a la bolsita y tocá “Enviar pedido por WhatsApp”: se abre el chat con tu pedido ya escrito y ahí coordinamos el pago y la entrega.",
       ],
       [
         "¿Qué medios de pago aceptan?",
-        "Online, con Mercado Pago: tarjeta de crédito, débito o dinero en cuenta. Si pedís por WhatsApp, también transferencia bancaria: te pasamos los datos por ahí.",
+        pagoOnlineActivo
+          ? "Online, con Mercado Pago: tarjeta de crédito, débito o dinero en cuenta. Si pedís por WhatsApp, también transferencia bancaria: te pasamos los datos por ahí."
+          : "Transferencia bancaria o efectivo: cuando nos mandás el pedido por WhatsApp, te pasamos los datos por ahí.",
       ],
       [
         "¿Cuándo queda confirmado mi pedido?",
-        "Cuando se acredita el pago. Si pagaste online, en el momento: te llega un mail con el detalle y el link para seguir tu pedido. Si pediste por WhatsApp, te avisamos por ahí apenas lo vemos.",
+        pagoOnlineActivo
+          ? "Cuando se acredita el pago. Si pagaste online, en el momento: te llega un mail con el detalle y el link para seguir tu pedido. Si pediste por WhatsApp, te avisamos por ahí apenas lo vemos."
+          : "Cuando se acredita el pago: te avisamos por WhatsApp apenas lo vemos.",
       ],
       [
         "¿Tienen cupones de descuento?",
-        "A veces, sobre todo para quienes se anotan en las novedades o nos siguen en Instagram. Si tenés uno, escribilo en la bolsita antes de pagar online y el descuento se aplica en el momento.",
+        pagoOnlineActivo
+          ? "A veces, sobre todo para quienes se anotan en las novedades o nos siguen en Instagram. Si tenés uno, escribilo en la bolsita antes de pagar online y el descuento se aplica en el momento."
+          : "A veces, sobre todo para quienes se anotan en las novedades o nos siguen en Instagram. Si tenés uno, pasánoslo por WhatsApp junto con el pedido y te lo descontamos.",
       ],
       [
         "Me equivoqué en el pedido, ¿lo puedo cambiar?",
@@ -69,7 +79,9 @@ const TEMAS: Tema[] = [
     preguntas: [
       [
         "¿Hacen envíos?",
-        "Sí, a todo el país. Si pagás online, el costo del envío aparece en la bolsita antes de pagar; si pedís por WhatsApp, te lo pasamos por ahí.",
+        SOLO_CRESPO
+          ? "Por ahora, solo dentro de Crespo: elegí “Envío a domicilio” en la bolsita, mandanos el pedido por WhatsApp y ahí coordinamos el costo y el día. Muy pronto, también al resto del país."
+          : "Sí, a todo el país. Si pagás online, el costo del envío aparece en la bolsita antes de pagar; si pedís por WhatsApp, te lo pasamos por ahí.",
       ],
       [
         "¿Puedo retirarlo en persona?",
@@ -77,7 +89,9 @@ const TEMAS: Tema[] = [
       ],
       [
         "¿Cuánto tarda en llegar?",
-        "Lo despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo: cuando sale, te mandamos un mail con el número de seguimiento.",
+        SOLO_CRESPO
+          ? "Dentro de Crespo te lo llevamos nosotras: el día lo coordinamos por WhatsApp cuando nos mandás el pedido."
+          : "Lo despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo: cuando sale, te mandamos un mail con el número de seguimiento.",
       ],
       [
         "¿Es para regalo? ¿Lo pueden envolver?",
