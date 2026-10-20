@@ -5,7 +5,7 @@ import { cotizarEnvio } from "@/app/(tienda)/acciones";
 import type { Renglon } from "@/lib/bolsita";
 import { precio } from "@/lib/contacto";
 import { costoEnvio, ENTREGAS, type AjustesEnvio, type Entrega } from "@/lib/seguimiento";
-import { nombreProvincia, numeroCP, PROVINCIAS, provinciaDeCP, zonaPara } from "@/lib/zonas";
+import { nombreProvincia, numeroCP, PROVINCIAS, provinciaDeCP, zonaLocal, zonaPara } from "@/lib/zonas";
 
 /* Cómo lo recibe quien compra: se elige en la bolsita, antes de pagar, y sirve tanto para pagar online
    como para mandar el pedido por WhatsApp. */
@@ -28,10 +28,12 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
   const destinoListo = Boolean(numeroCP(cp) && provincia);
   const zona = destinoListo ? zonaPara(envio.zonas, provincia, cp) : null;
 
+  // Un código postal con precio fijo (por ejemplo, Crespo) no le pregunta al correo.
+  const local = zonaLocal(envio.zonas, cp);
   const [cotizacion, setCotizacion] = useState<{ clave: string; costo: number; texto: string } | null>(null);
   const clave = `${numeroCP(cp)}|${renglones.map((r) => `${r.id}x${r.cantidad}`).join(",")}|${montoProductos}`;
   useEffect(() => {
-    if (!cotizaCorreo || entrega !== "envio" || !numeroCP(cp)) return;
+    if (!cotizaCorreo || entrega !== "envio" || !numeroCP(cp) || local) return;
     let vigente = true;
     const reloj = setTimeout(async () => {
       const r = await cotizarEnvio(renglones, cp, montoProductos).catch(() => ({}) as { costo?: number; texto?: string });
@@ -44,7 +46,7 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
     // `clave` resume el código postal, la bolsita y el monto: no hace falta repetir cada uno.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cotizaCorreo, entrega, clave]);
-  const delCorreo = cotizacion?.clave === clave ? cotizacion : null;
+  const delCorreo = !local && cotizacion?.clave === clave ? cotizacion : null;
 
   const costo =
     entrega !== "envio" ? 0 : delCorreo ? delCorreo.costo : destinoListo ? costoEnvio(envio, montoProductos, provincia, cp) : undefined;

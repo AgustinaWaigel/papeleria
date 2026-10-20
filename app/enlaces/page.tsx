@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties, ReactNode } from "react";
 import { AlasAnimadas } from "@/components/Alas";
-import { CONTACTO, enlaceInstagram, enlaceWhatsApp } from "@/lib/contacto";
+import { CONTACTO, enlaceInstagram, enlaceTiktok, enlaceWhatsApp } from "@/lib/contacto";
+import { PAGINAS } from "@/lib/paginas";
 
-/* La página del QR de los cuadernos: tres botones grandes y nada más.
+/* La página de enlaces: la del QR de los cuadernos y la del link de la bio de Instagram y TikTok.
+   Por eso los textos no dan por hecho de dónde viene la persona.
    Vive fuera de (tienda) para que no tenga cabecera, pie ni bolsita. */
 
 export const metadata: Metadata = {
   title: "Enlaces",
-  description: "El catálogo, el Instagram y el WhatsApp de Alas de Ángel Papelería, a un toque.",
+  description: "El catálogo, el Instagram, el TikTok y el WhatsApp de Alas de Ángel Papelería, a un toque.",
 };
 
 function IconoCatalogo() {
@@ -30,6 +33,14 @@ function IconoInstagram() {
   );
 }
 
+function IconoTiktok() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+    </svg>
+  );
+}
+
 function IconoWhatsApp() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -38,7 +49,29 @@ function IconoWhatsApp() {
   );
 }
 
+function Flecha() {
+  return (
+    <svg className="enlace-grande__flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+/* Las redes y el WhatsApp: salen a otra app, así que abren en pestaña nueva. */
+const REDES: { clase: string; href: string; icono: ReactNode; nombre: string; detalle: string }[] = [
+  {
+    clase: "whatsapp",
+    href: enlaceWhatsApp("¡Hola Alas de Ángel! Quería hacerles una consulta:"),
+    icono: <IconoWhatsApp />,
+    nombre: "WhatsApp",
+    detalle: "Consultas, pedidos y personalizados",
+  },
+  { clase: "instagram", href: enlaceInstagram, icono: <IconoInstagram />, nombre: "Instagram", detalle: `@${CONTACTO.instagram}` },
+  { clase: "tiktok", href: enlaceTiktok, icono: <IconoTiktok />, nombre: "TikTok", detalle: `@${CONTACTO.tiktok}` },
+];
+
 export default function Enlaces() {
+  let n = 0;
   return (
     <main className="enlaces">
       <div className="enlaces__caja">
@@ -47,43 +80,52 @@ export default function Enlaces() {
         </div>
         <span className="nota-mano">papelería creativa</span>
         <h1>Alas de Ángel</h1>
-        <p>Gracias por elegir nuestros cuadernos. Mirá lo nuevo, seguinos o escribinos:</p>
+        <p className="enlaces__lema">Para escribir, soñar y volar.</p>
 
         <ul className="enlaces__lista">
-          <li>
+          <li style={{ "--n": n++ } as CSSProperties}>
             <Link className="enlace-grande enlace-grande--catalogo" href="/papeleria">
               <span className="enlace-grande__icono"><IconoCatalogo /></span>
-              Ver el catálogo
+              <span className="enlace-grande__texto">
+                Ver el catálogo
+                <small>Cuadernos, agendas y más</small>
+              </span>
+              <Flecha />
             </Link>
           </li>
-          <li>
-            <a className="enlace-grande enlace-grande--instagram" href={enlaceInstagram} target="_blank" rel="noopener">
-              <span className="enlace-grande__icono"><IconoInstagram /></span>
-              <span>
-                Instagram
-                <small>@{CONTACTO.instagram}</small>
-              </span>
-            </a>
-          </li>
-          <li>
-            <a
-              className="enlace-grande enlace-grande--whatsapp"
-              href={enlaceWhatsApp("¡Hola! Llegué desde el QR del cuaderno.")}
-              target="_blank"
-              rel="noopener"
-            >
-              <span className="enlace-grande__icono"><IconoWhatsApp /></span>
-              <span>
-                WhatsApp
-                <small>Consultas y pedidos</small>
-              </span>
-            </a>
-          </li>
+          {PAGINAS.length > 1 && (
+            <li style={{ "--n": n++ } as CSSProperties}>
+              <ul className="enlaces__secciones">
+                {PAGINAS.slice(1).map(([href, nombre]) => (
+                  <li key={href}>
+                    <Link href={href}>{nombre}</Link>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          )}
         </ul>
 
-        <Link className="enlaces__sitio" href="/">
-          Ir a la tienda completa
-        </Link>
+        <h2 className="enlaces__titulo">Seguinos y escribinos</h2>
+        <ul className="enlaces__lista">
+          {REDES.map((red) => (
+            <li key={red.clase} style={{ "--n": n++ } as CSSProperties}>
+              <a className={`enlace-grande enlace-grande--${red.clase}`} href={red.href} target="_blank" rel="noopener">
+                <span className="enlace-grande__icono">{red.icono}</span>
+                <span className="enlace-grande__texto">
+                  {red.nombre}
+                  <small>{red.detalle}</small>
+                </span>
+                <Flecha />
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <footer className="enlaces__pie">
+          <Link href="/">Ir a la tienda completa</Link>
+          <a href={`mailto:${CONTACTO.email}`}>{CONTACTO.email}</a>
+        </footer>
       </div>
     </main>
   );

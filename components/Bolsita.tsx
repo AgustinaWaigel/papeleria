@@ -13,6 +13,7 @@ import {
   suscribir,
   textoPedido,
   total,
+  vaciar,
   type Renglon,
   type ResumenProducto,
 } from "@/lib/bolsita";
@@ -46,6 +47,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
   const [aviso, setAviso] = useState({ texto: "", visible: false });
   const [nombre, setNombre] = useState("");
   const [comprando, setComprando] = useState(false); // con el formulario de pago online a la vista
+  const [pedidoEnviado, setPedidoEnviado] = useState<{ codigo: string; href: string } | null>(null); // recién mandado por WhatsApp
 
   // Cómo lo recibe: se elige acá, antes de pagar (si todo es descargable, no hay nada que elegir).
   const soloDigital = items.length > 0 && items.every((r) => r.producto.tipo === "descargable");
@@ -80,7 +82,14 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
       const producto = porId.get(id);
       if (!producto) return;
       const libre = lugarLibre(producto, bolsita[id] ?? 0);
-      if (libre > 0) cambiarCantidad(id, 1);
+      if (libre > 0) {
+        cambiarCantidad(id, 1);
+        // Se abre sola, así se ve lo que se sumó y el camino para pagar.
+        setPedidoEnviado(null);
+        setComprando(false);
+        setAbierta(true);
+        return;
+      }
       setAviso({
         texto: libre > 0 ? `${producto.nombre} ya está en tu bolsita` : `No nos quedan más de ${producto.nombre} por ahora`,
         visible: true,
@@ -108,7 +117,17 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
             </div>
 
             <ul className="bolsita__lista">
-              {items.length === 0 && (
+              {items.length === 0 && pedidoEnviado && (
+                <li className="bolsita__vacia">
+                  <span className="nota-mano">¡pedido enviado!</span>
+                  Te abrimos WhatsApp con tu pedido <strong>{pedidoEnviado.codigo}</strong>. Si no se abrió,{" "}
+                  <a href={pedidoEnviado.href} target="_blank" rel="noopener">
+                    tocá acá
+                  </a>
+                  .
+                </li>
+              )}
+              {items.length === 0 && !pedidoEnviado && (
                 <li className="bolsita__vacia">
                   <span className="nota-mano">todavía vacía</span>
                   Sumá algo desde{" "}
@@ -207,6 +226,12 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
                         const codigo = nuevoCodigo();
                         e.currentTarget.href = enlaceWhatsApp(textoPedido(items, codigo, nombre.trim(), envioWhatsApp));
                         registrarPedidoWeb(codigo, items.map((r) => ({ id: r.producto.id, cantidad: r.cantidad })), nombre.trim());
+                        // El pedido ya salió: la bolsita se vacía (después de que el navegador abra WhatsApp).
+                        const href = e.currentTarget.href;
+                        setTimeout(() => {
+                          vaciar();
+                          setPedidoEnviado({ codigo, href });
+                        }, 300);
                       }}
                     >
                       Enviar pedido por WhatsApp

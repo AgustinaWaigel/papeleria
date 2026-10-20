@@ -868,12 +868,15 @@ a:hover { color: var(--color-tinta); }
   transform: translateX(100%);
   visibility: hidden;
   transition: transform var(--mov-suave) var(--mov-curva), visibility var(--mov-suave);
+  /* Todo el cajón se desplaza junto (productos, envío y pago); la cabecera queda fija arriba. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .bolsita-abierta .velo { opacity: 1; visibility: visible; }
 .bolsita-abierta .bolsita { transform: none; visibility: visible; }
-.bolsita__cabeza { display: flex; align-items: center; justify-content: space-between; padding: var(--espacio-4) var(--espacio-5); border-bottom: var(--borde); }
+.bolsita__cabeza { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: var(--espacio-4) var(--espacio-5); background: var(--color-nube); border-bottom: var(--borde); }
 .bolsita__cabeza h2 { font-size: var(--texto-xl); }
-.bolsita__lista { flex: 1; overflow-y: auto; margin: 0; padding: var(--espacio-2) var(--espacio-5); list-style: none; }
+.bolsita__lista { flex: none; margin: 0; padding: var(--espacio-2) var(--espacio-5); list-style: none; }
 .bolsita__item { display: grid; grid-template-columns: 1fr auto; gap: var(--espacio-2) var(--espacio-4); padding-block: var(--espacio-4); border-bottom: var(--linea) dashed var(--color-renglon); }
 .bolsita__item strong { font-size: var(--texto-s); }
 .bolsita__item span { font-family: var(--fuente-titulo); }
@@ -890,12 +893,10 @@ a:hover { color: var(--color-tinta); }
 .bolsita__quitar { border: 0; padding: 0; font-size: var(--texto-xs); text-decoration: underline; color: var(--color-amanecer-fuerte); justify-self: end; }
 .bolsita__vacia { padding: var(--espacio-7) var(--espacio-5); text-align: center; color: var(--color-tinta-suave); }
 .bolsita__vacia .nota-mano { display: block; }
-.bolsita__pie { padding: var(--espacio-5); border-top: var(--borde); background: var(--color-cielo); }
+.bolsita__pie { flex: 1 0 auto; padding: var(--espacio-5); border-top: var(--borde); background: var(--color-cielo); }
 .bolsita__total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--espacio-4); font-weight: 700; }
 .bolsita__total span { font-family: var(--fuente-titulo); font-size: var(--texto-xl); font-weight: 400; }
 .bolsita__aviso { margin-top: var(--espacio-3); font-size: var(--texto-xs); color: var(--color-tinta-suave); }
-/* Con el formulario de compra el pie crece: que se pueda bajar sin tapar todo el cajón. */
-.bolsita__pie { max-height: 78dvh; overflow-y: auto; }
 .bolsita__o { display: flex; align-items: center; gap: var(--espacio-3); margin-block: var(--espacio-4); font-size: var(--texto-xs); color: var(--color-tinta-suave); }
 .bolsita__o::before, .bolsita__o::after { content: ""; flex: 1; border-top: var(--linea) dashed var(--color-renglon); }
 
@@ -1522,30 +1523,60 @@ a.tablero:hover { color: var(--color-tinta); translate: -2px -2px; box-shadow: v
 
 /* ---------- Movimiento reducido ---------- */
 
-/* ---------- Enlaces (la página del QR de los cuadernos) ---------- */
+/* ---------- Enlaces (la página del QR de los cuadernos y del link de la bio) ---------- */
 
-/* El mismo fondo vino con resplandor de la portada, a pantalla completa. */
+/* El mismo fondo vino con resplandor de la portada, a pantalla completa, con un par de destellos. */
 .enlaces {
+  position: relative;
+  overflow: hidden;
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: minmax(0, 26rem);
+  grid-template-columns: minmax(0, 28rem);
   place-content: center;
-  padding: var(--espacio-7) var(--espacio-4);
+  padding: var(--espacio-7) var(--espacio-4) var(--espacio-6);
   color: var(--color-nube);
   background:
-    radial-gradient(ellipse 80% 45% at 50% 18%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
+    radial-gradient(circle at 12% 88%, color-mix(in srgb, var(--color-lavanda) 35%, transparent), transparent 40%),
+    radial-gradient(ellipse 80% 45% at 50% 14%, color-mix(in srgb, var(--color-amanecer) 72%, white), transparent 70%),
     var(--color-amanecer);
 }
-.enlaces__caja { text-align: center; }
-.enlaces__alas { width: 13rem; margin-inline: auto; animation: despegar 900ms var(--mov-curva) backwards; }
-.enlaces .nota-mano { color: var(--color-lavanda); margin-block: var(--espacio-3) 0; }
+.enlaces__caja { position: relative; text-align: center; }
+.enlaces__alas { width: 12rem; margin-inline: auto; animation: despegar 900ms var(--mov-curva) backwards; }
+.enlaces .nota-mano { color: var(--color-lavanda); margin-block: var(--espacio-2) 0; }
 .enlaces h1 { font-size: var(--texto-2xl); color: var(--color-nube); }
-.enlaces__caja > p { color: var(--color-lavanda-suave); margin-block: var(--espacio-3) var(--espacio-6); }
+.enlaces__lema { color: var(--color-lavanda-suave); margin-block: var(--espacio-2) var(--espacio-6); }
+
+.enlaces__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  margin-block: var(--espacio-6) var(--espacio-4);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--texto-etiqueta);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-lavanda-suave);
+}
+.enlaces__titulo::before, .enlaces__titulo::after { content: ""; flex: 1; border-top: 1.5px dashed currentColor; opacity: 0.6; }
 
 .enlaces__lista { display: grid; gap: var(--espacio-4); list-style: none; margin: 0; padding: 0; }
-.enlaces__lista li { animation: subir 600ms var(--mov-curva) backwards; animation-delay: calc(250ms + var(--n, 0) * 110ms); }
-.enlaces__lista li:nth-child(2) { --n: 1; }
-.enlaces__lista li:nth-child(3) { --n: 2; }
+.enlaces__lista > li { animation: subir 600ms var(--mov-curva) backwards; animation-delay: calc(250ms + var(--n, 0) * 90ms); }
+
+/* Las otras secciones de la tienda, como etiquetas chicas debajo del catálogo. */
+.enlaces__secciones { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--espacio-2); list-style: none; margin: 0; padding: 0; }
+.enlaces__secciones a {
+  display: inline-block;
+  padding: var(--espacio-2) var(--espacio-4);
+  font-size: var(--texto-s);
+  font-weight: 600;
+  color: var(--color-nube);
+  text-decoration: none;
+  border: 1.5px solid rgb(255 255 255 / 0.55);
+  border-radius: var(--radio-pastilla);
+  background: rgb(255 255 255 / 0.1);
+  transition: background var(--mov-rapido) var(--mov-curva);
+}
+.enlaces__secciones a:hover { color: var(--color-nube); background: rgb(255 255 255 / 0.22); }
 
 /* Los botones grandes: pastilla con borde y sombra de sello, como los botones del sitio. */
 .enlace-grande {
@@ -1553,9 +1584,9 @@ a.tablero:hover { color: var(--color-tinta); translate: -2px -2px; box-shadow: v
   align-items: center;
   gap: var(--espacio-4);
   min-height: 4.5rem;
-  padding: var(--espacio-3) var(--espacio-5) var(--espacio-3) var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-4) var(--espacio-3) var(--espacio-3);
   font-family: var(--fuente-titulo);
-  font-size: 1.625rem;
+  font-size: 1.5rem;
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: 0.02em;
@@ -1569,7 +1600,8 @@ a.tablero:hover { color: var(--color-tinta); translate: -2px -2px; box-shadow: v
 }
 .enlace-grande:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--color-amanecer-fuerte); }
 .enlace-grande:active { transform: none; box-shadow: none; scale: 0.98; }
-.enlace-grande small { display: block; font-family: var(--fuente-texto); font-size: var(--texto-s); font-weight: 500; opacity: 0.9; }
+.enlace-grande__texto { flex: 1; min-width: 0; }
+.enlace-grande small { display: block; margin-top: 0.15em; font-family: var(--fuente-texto); font-size: var(--texto-s); font-weight: 500; letter-spacing: 0; opacity: 0.9; overflow-wrap: anywhere; }
 .enlace-grande__icono {
   display: grid;
   place-items: center;
@@ -1577,26 +1609,35 @@ a.tablero:hover { color: var(--color-tinta); translate: -2px -2px; box-shadow: v
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.25);
+  background: #fff;
 }
 .enlace-grande__icono svg { width: 1.6rem; height: 1.6rem; }
+.enlace-grande__flecha { flex: none; width: 1.25rem; height: 1.25rem; opacity: 0.75; transition: transform var(--mov-rapido) var(--mov-curva); }
+.enlace-grande:hover .enlace-grande__flecha { transform: translateX(3px); opacity: 1; }
 
-.enlace-grande--catalogo { background: var(--color-halo); color: var(--color-amanecer-fuerte); }
+/* El catálogo es el principal: más alto y con el sol de fondo. */
+.enlace-grande--catalogo { min-height: 5.25rem; font-size: 1.75rem; background: var(--color-halo); color: var(--color-amanecer-fuerte); }
 .enlace-grande--catalogo:hover { color: var(--color-amanecer-fuerte); }
-.enlace-grande--catalogo .enlace-grande__icono { background: var(--color-amanecer); color: var(--color-nube); }
+.enlace-grande--catalogo .enlace-grande__icono { width: 3.5rem; height: 3.5rem; background: var(--color-amanecer); color: var(--color-nube); }
+.enlace-grande--catalogo small { color: var(--color-tinta); }
 
-/* Instagram y WhatsApp con sus colores propios, para reconocerlos de un vistazo. */
+/* WhatsApp, Instagram y TikTok con sus colores propios, para reconocerlos de un vistazo. */
+.enlace-grande--whatsapp, .enlace-grande--whatsapp:hover { color: #fff; background: #1a9d4c; }
+.enlace-grande--whatsapp .enlace-grande__icono { color: #1a9d4c; }
 .enlace-grande--instagram, .enlace-grande--instagram:hover {
   color: #fff;
   background: radial-gradient(circle at 15% 110%, #fdf497 0%, #fd5949 35%, #d6249f 62%, #285aeb 100%);
   text-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
 }
-.enlace-grande--whatsapp, .enlace-grande--whatsapp:hover { color: #fff; background: #1a9d4c; }
-.enlace-grande--whatsapp .enlace-grande__icono { background: #fff; color: #1a9d4c; }
-.enlace-grande--instagram .enlace-grande__icono { background: #fff; color: #d6249f; }
+.enlace-grande--instagram .enlace-grande__icono { color: #d6249f; }
+.enlace-grande--tiktok, .enlace-grande--tiktok:hover { color: #fff; background: #111; }
+.enlace-grande--tiktok .enlace-grande__icono { color: #111; }
+.enlace-grande--tiktok .enlace-grande__icono svg { filter: drop-shadow(-1.5px -1px 0 #25f4ee) drop-shadow(1.5px 1px 0 #fe2c55); }
 
-.enlaces__sitio { display: inline-block; margin-top: var(--espacio-6); color: var(--color-nube); font-size: var(--texto-s); }
-.enlaces__sitio:hover { color: var(--color-halo); }
+.enlaces__pie { display: flex; flex-direction: column; align-items: center; gap: var(--espacio-2); margin-top: var(--espacio-7); font-size: var(--texto-s); }
+.enlaces__pie a { color: var(--color-nube); }
+.enlaces__pie a:hover { color: var(--color-halo); }
+.enlaces__pie a + a { color: var(--color-lavanda-suave); text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

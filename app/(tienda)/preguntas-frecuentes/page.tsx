@@ -73,7 +73,7 @@ const TEMAS: Tema[] = [
       ],
       [
         "¿Puedo retirarlo en persona?",
-        "Sí, estamos en Paraná, Entre Ríos. Coordinamos el día y el lugar por WhatsApp, sin costo.",
+        "Sí, estamos en Crespo, Entre Ríos. Coordinamos el día y el lugar por WhatsApp, sin costo. Y si sos de Crespo, también te lo llevamos a tu casa.",
       ],
       [
         "¿Cuánto tarda en llegar?",

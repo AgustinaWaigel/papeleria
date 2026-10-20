@@ -51,12 +51,12 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
   const encontrado = lista.findIndex(([estado]) => estado === p.estado);
   const actual = encontrado === -1 && pagado ? lista.length - 1 : encontrado;
   const pago = p.medio_pago === "Mercado Pago" ? textoPago(p.pago_estado) : null;
-  const pagoHecho = p.pago_estado === "approved" || p.pago_estado === "pending" || p.pago_estado === "in_process";
   const whatsapp = enlaceWhatsApp(`¡Hola Alas de Ángel! Te escribo por mi pedido ${p.codigo}.`);
 
   return (
     <>
-      {consulta.vaciar === "1" && pagoHecho && <VaciarBolsita />}
+      {/* Mercado Pago solo vuelve con vaciar=1 cuando el pago salió o quedó pendiente: la compra ya está hecha. */}
+      {consulta.vaciar === "1" && <VaciarBolsita />}
       <Portadilla nota={`pedido del ${fechaLinda(p.fecha)}`} titulo={p.codigo}>
         {p.cliente_nombre ? `¡Gracias, ${p.cliente_nombre}! ` : "¡Gracias! "}
         Guardá esta página: acá vas a ver cómo va tu pedido.

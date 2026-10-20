@@ -94,6 +94,14 @@ export function provinciaDeCP(cp: string) {
 
 export type Zona = { id: number; nombre: string; provincias: string[]; codigos_postales: string[]; costo: number | null; orden: number };
 
+/* Una zona que nombra este código postal y tiene precio (por ejemplo, Crespo): ese precio es fijo y
+   gana también sobre la cotización de Correo Argentino (son envíos que no van por correo). */
+export function zonaLocal(zonas: Zona[], cp: string) {
+  const numero = numeroCP(cp);
+  if (!numero) return null;
+  return [...zonas].sort((a, b) => a.orden - b.orden).find((z) => z.codigos_postales.includes(numero) && z.costo !== null) ?? null;
+}
+
 export function zonaPara(zonas: Zona[], provincia: string | null, cp: string) {
   const numero = numeroCP(cp);
   const ordenadas = [...zonas].sort((a, b) => a.orden - b.orden);

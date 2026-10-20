@@ -17,8 +17,8 @@ const CLAVE = process.env.CORREO_API_CLAVE ?? "";
 const EMAIL = process.env.CORREO_MICORREO_EMAIL ?? "";
 const CLAVE_MICORREO = process.env.CORREO_MICORREO_CLAVE ?? "";
 const CUSTOMER_ID = process.env.CORREO_CUSTOMER_ID ?? "";
-// Desde dónde despachás. La API igual cotiza desde la sucursal de tu cuenta MiCorreo, pero lo pide.
-export const CP_ORIGEN = process.env.CORREO_CP_ORIGEN ?? "3100";
+// Desde dónde despachás (Crespo). La API igual cotiza desde la sucursal de tu cuenta MiCorreo, pero lo pide.
+export const CP_ORIGEN = process.env.CORREO_CP_ORIGEN ?? "3116";
 
 export const correoConfigurado = Boolean(supabaseConfigurado && SUPABASE_SECRETA && USUARIO && CLAVE && (CUSTOMER_ID || (EMAIL && CLAVE_MICORREO)));
 export const ambienteCorreo = AMBIENTE;

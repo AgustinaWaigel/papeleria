@@ -7,7 +7,7 @@
 import { randomInt } from "node:crypto";
 import { redirect } from "next/navigation";
 import type { PedidoCliente } from "@/lib/seguimiento";
-import { nombreProvincia, numeroCP } from "@/lib/zonas";
+import { nombreProvincia, numeroCP, zonaLocal } from "@/lib/zonas";
 import { obtenerAjustesEnvio } from "@/lib/catalogo";
 import { armarPaquete, correoConfigurado, cotizar } from "@/lib/correo";
 import { confirmarArrepentimiento } from "@/lib/mails";
@@ -124,6 +124,8 @@ export async function reintentarPago(datos: FormData) {
    compra llega al mínimo. null: no se pudo cotizar (se usa la zona). */
 async function costoCorreo(items: { id: string; cantidad: number }[], cp: string, montoProductos: number) {
   try {
+    // Un código postal con precio fijo (por ejemplo, Crespo) no va por correo: queda el de la zona.
+    if (zonaLocal((await obtenerAjustesEnvio()).zonas, cp)) return null;
     const [cotizacion, ajustes] = await Promise.all([cotizar(cp, await armarPaquete(items.slice(0, 50))), obtenerAjustesEnvio()]);
     if (!cotizacion) return null;
     return ajustes.gratisDesde !== null && montoProductos >= ajustes.gratisDesde ? 0 : cotizacion.costo;
