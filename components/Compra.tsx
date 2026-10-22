@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useState, useSyncExternalStore, useTransition } from "react";
 import { pagarOnline, validarCupon } from "@/app/(tienda)/acciones";
-import { cambiarCantidad, lugarLibre, total, unidades } from "@/lib/bolsita";
+import { cambiarCantidad, lugarLibre, total, unidades, type EntregaPedido } from "@/lib/bolsita";
 import { enlaceWhatsApp, PLAZO_TALLER, precio } from "@/lib/contacto";
 import { PedirPorWhatsApp, useAjustesCompra, useRenglones } from "./Bolsita";
-import { ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
+import { destinoCorto, ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
 
 /* La compra online, paso por paso: 1) confirmar lo que hay en la bolsita, 2) cómo lo recibe y cuánto sale el
    envío, 3) los datos de quien compra y el pago, con el total final. Lo que muestra (descuento, envío, total)
@@ -123,13 +123,16 @@ export function Compra() {
       : `${textoDestino(eleccion.cp, eleccion.provincia)} · ${direccion.trim()}`;
 
   // Para el mensaje de WhatsApp, lo que ya se eligió de la entrega.
-  const entregaWhatsApp = soloDigital
-    ? undefined
+  const entregaWhatsApp: EntregaPedido = soloDigital
+    ? { tipo: "digital" }
     : eleccion.entrega === "retiro"
-      ? { texto: "Lo retiro.", costo: 0 }
-      : calculo.destinoListo
-        ? { texto: `${textoDestino(eleccion.cp, eleccion.provincia)}: ${textoCosto(calculo.costo)}.`, costo: calculo.costo ?? null }
-        : { texto: "Con envío a domicilio (a coordinar).", costo: 0 };
+      ? { tipo: "retiro" }
+      : {
+          tipo: "envio",
+          destino: calculo.destinoListo ? destinoCorto(eleccion.cp, eleccion.provincia) : undefined,
+          costo: calculo.costo,
+          direccion,
+        };
 
   return (
     <div className="compra-pagina">
@@ -193,7 +196,7 @@ export function Compra() {
                 </div>
               )}
               <p className="campo__ayuda paso__plazo">{PLAZO_TALLER}</p>
-              {conEnvio && !envioSinPrecio && (
+              {conEnvio && (
                 <div className="campo">
                   <label htmlFor="compra-direccion">Dirección</label>
                   <textarea

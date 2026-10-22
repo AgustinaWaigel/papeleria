@@ -14,13 +14,14 @@ import {
   textoPedido,
   total,
   vaciar,
+  type EntregaPedido,
   type Renglon,
   type ResumenProducto,
 } from "@/lib/bolsita";
 import { enlaceWhatsApp, precio } from "@/lib/contacto";
 import { CRESPO, SOLO_CRESPO } from "@/lib/zonas";
 import type { AjustesEnvio } from "@/lib/seguimiento";
-import { ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
+import { destinoCorto, ElegirEnvio, textoCosto, useEnvio, type EleccionEnvio } from "./Envio";
 
 type Acciones = { abrir: () => void; sumar: (id: string) => void };
 type AjustesCompra = { pagoOnline: boolean; envio: AjustesEnvio; cotizaCorreo: boolean };
@@ -36,27 +37,25 @@ export function useAjustesCompra() {
   return ajustes;
 }
 
-type Entrega = { texto: string; costo: number | null };
-
 /* "Enviar pedido por WhatsApp": abre el chat con el pedido escrito, lo guarda en el panel y vacía la bolsita. */
 export function PedirPorWhatsApp({ items, nombre, entrega, claro, alEnviar }: {
   items: Renglon[];
   nombre: string;
-  entrega?: Entrega;
+  entrega?: EntregaPedido;
   claro?: boolean;
   alEnviar: (pedido: { codigo: string; href: string }) => void;
 }) {
   return (
     <a
       className={claro ? "boton boton--claro boton--ancho" : "boton boton--ancho"}
-      href={enlaceWhatsApp(textoPedido(items, undefined, nombre.trim(), entrega))}
+      href={enlaceWhatsApp(textoPedido(items, { nombre: nombre.trim(), entrega }))}
       target="_blank"
       rel="noopener"
       onClick={(e) => {
         // El código se arma recién acá: el mensaje lo lleva y el panel lo muestra, así
         // se reconoce el pedido. Guardarlo no frena la apertura de WhatsApp.
         const codigo = nuevoCodigo();
-        e.currentTarget.href = enlaceWhatsApp(textoPedido(items, codigo, nombre.trim(), entrega));
+        e.currentTarget.href = enlaceWhatsApp(textoPedido(items, { codigo, nombre: nombre.trim(), entrega }));
         registrarPedidoWeb(codigo, items.map((r) => ({ id: r.producto.id, cantidad: r.cantidad })), nombre.trim());
         // El pedido ya salió: la bolsita se vacía (después de que el navegador abra WhatsApp).
         const href = e.currentTarget.href;
@@ -90,6 +89,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
   const [abierta, setAbierta] = useState(false);
   const [aviso, setAviso] = useState({ texto: "", visible: false });
   const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
   const [pedidoEnviado, setPedidoEnviado] = useState<{ codigo: string; href: string } | null>(null); // recién mandado por WhatsApp
 
   // Sin pago online, cómo lo recibe se elige acá, para el mensaje de WhatsApp (si todo es descargable, no hay
@@ -100,17 +100,19 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
   );
   const eleccionReal: EleccionEnvio = soloDigital ? { ...eleccion, entrega: "digital" } : eleccion;
   const calculo = useEnvio({ items, envio, cotizaCorreo, eleccion: eleccionReal });
-  // Lo que dice el mensaje de WhatsApp sobre la entrega.
-  const envioWhatsApp = soloDigital || pagoOnline
-    ? undefined
-    : eleccion.entrega === "retiro"
-      ? { texto: "Lo retiro.", costo: 0 }
-      : calculo.destinoListo
-        ? {
-            texto: `${textoDestino(eleccion.cp, eleccion.provincia)}: ${textoCosto(calculo.costo)}.`,
-            costo: calculo.costo ?? 0,
-          }
-        : { texto: "Con envío a domicilio (a coordinar).", costo: 0 };
+  // Lo que dice el mensaje de WhatsApp sobre la entrega (con pago online, se coordina en el chat).
+  const envioWhatsApp: EntregaPedido | undefined = soloDigital
+    ? { tipo: "digital" }
+    : pagoOnline
+      ? undefined
+      : eleccion.entrega === "retiro"
+        ? { tipo: "retiro" }
+        : {
+            tipo: "envio",
+            destino: calculo.destinoListo ? destinoCorto(eleccion.cp, eleccion.provincia) : undefined,
+            costo: calculo.costo,
+            direccion,
+          };
   const reloj = useRef<ReturnType<typeof setTimeout>>(undefined);
   const panel = useRef<HTMLElement>(null);
 
@@ -236,6 +238,19 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
                   <>
                     {/* Primero cómo lo recibe y cuánto sale: así el total del mensaje ya es el final. */}
                     {!soloDigital && <ElegirEnvio eleccion={eleccion} cambiar={setEleccion} texto={calculo.texto} />}
+                    {!soloDigital && eleccion.entrega === "envio" && (
+                      <div className="campo bolsita__nombre">
+                        <label htmlFor="bolsita-direccion">Dirección de entrega</label>
+                        <input
+                          type="text"
+                          id="bolsita-direccion"
+                          autoComplete="street-address"
+                          placeholder="Calle, número, piso y ciudad"
+                          value={direccion}
+                          onChange={(e) => setDireccion(e.target.value)}
+                        />
+                      </div>
+                    )}
                     <dl className="compra__cuentas">
                       {!soloDigital && (
                         <>

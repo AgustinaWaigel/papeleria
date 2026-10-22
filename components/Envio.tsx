@@ -107,6 +107,9 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
 export const textoDestino = (cp: string, provincia: string) =>
   SOLO_CRESPO ? "Envío a domicilio en Crespo" : `Envío a CP ${cp} (${nombreProvincia(provincia)})`;
 
+/* El destino en pocas palabras, para el mensaje de WhatsApp. */
+export const destinoCorto = (cp: string, provincia: string) => (SOLO_CRESPO ? "Crespo" : `CP ${cp}, ${nombreProvincia(provincia)}`);
+
 /* Lo que va en el renglón "Envío" de las cuentas. */
 export const textoCosto = (costo: number | null | undefined, cotizando = false) =>
   cotizando ? "calculando…" : costo === undefined ? "poné tu CP" : costo === null ? "a coordinar" : costo === 0 ? "gratis" : precio(costo);
