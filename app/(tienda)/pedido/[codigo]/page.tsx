@@ -45,7 +45,8 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
   const pagado = CONFIRMADOS.includes(p.estado);
   // Los PDF de los descargables le llegan por mail cuando el pedido queda pagado (ver lib/mails.ts).
   const descargables = new Set((await obtenerCatalogo()).filter((x) => x.tipo === "descargable").map((x) => x.id));
-  const conPdf = p.items.some((i) => i.id && descargables.has(i.id));
+  const pdfs = p.items.filter((i): i is typeof i & { id: string } => Boolean(i.id && descargables.has(i.id)));
+  const conPdf = pdfs.length > 0;
   const lista = pasos(p.entrega);
   // Si ya está más adelante que el último paso (un descargable marcado entregado), queda en el último.
   const encontrado = lista.findIndex(([estado]) => estado === p.estado);
@@ -118,9 +119,20 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
             {conPdf && pagado && (
               <div className="seguimiento__aviso seguimiento__aviso--bien" role="status">
                 <p>
-                  <strong>Te mandamos los PDF a tu mail.</strong> Si en unos minutos no lo ves, fijate en spam o promociones, o
-                  escribinos por WhatsApp.
+                  <strong>Tus descargables están listos.</strong> Bajalos desde acá cuando quieras (también te los mandamos por mail:
+                  si no lo ves, fijate en spam o promociones).
                 </p>
+                <ul className="seguimiento__pdfs">
+                  {pdfs.map((i) => (
+                    <li key={i.id}>
+                      <span>{i.nombre}</span>
+                      {/* Un link común (no next/link): la ruta devuelve el archivo, no una página. */}
+                      <a className="boton boton--chico" href={`/pedido/${p.codigo}/pdf/${encodeURIComponent(i.id)}?clave=${clave}`}>
+                        Descargar PDF
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 

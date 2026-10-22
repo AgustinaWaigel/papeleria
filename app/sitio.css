@@ -1025,6 +1025,8 @@ a:hover { color: var(--color-tinta); }
 .seguimiento__aviso--bien { background: var(--color-menta-suave); }
 .seguimiento__aviso--espera { background: var(--color-halo-suave); }
 .seguimiento__aviso--mal { color: var(--color-amanecer-fuerte); background: var(--color-lavanda-suave); }
+.seguimiento__pdfs { display: grid; gap: var(--espacio-2); width: 100%; margin: 0; padding: 0; list-style: none; }
+.seguimiento__pdfs li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--espacio-2) var(--espacio-4); padding: var(--espacio-3) var(--espacio-4); font-weight: 700; background: var(--color-nube); border: var(--borde); border-radius: var(--radio-m); }
 .seguimiento__subtitulo { margin-bottom: var(--espacio-3); font-size: var(--texto-xl); }
 .seguimiento__items { margin: 0; padding: 0; list-style: none; }
 .seguimiento__items li { display: flex; justify-content: space-between; gap: var(--espacio-4); padding-block: var(--espacio-3); border-bottom: var(--linea) dashed var(--color-renglon); }

@@ -3,7 +3,6 @@
    sirve para ver cómo quedan sin mandarlos. */
 
 import { CONTACTO, enlaceInstagram, PLAZO_TALLER, precio } from "./contacto";
-import { CABECERA_CID } from "./mail-cabecera";
 import { linkDeSeguimiento, type Entrega } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
 
@@ -32,9 +31,18 @@ const destacado = (etiqueta: string, valor: string) =>
 
 // ---------- Para quien compra ----------
 
-/* Los PDF de los descargables: los nombres de los adjuntos y, si alguno pesaba mucho, su link. */
-export function mailDescargables(p: PedidoMail, adjuntos: string[], links: { nombre: string; url: string }[]): Mail {
-  const intro = adjuntos.length > 0 ? "Gracias por tu compra. Te adjuntamos tus descargables:" : "Gracias por tu compra. Acá están tus descargables:";
+/* Un descargable dentro del mail: una tarjeta de color con su nombre y el botón para bajarlo. */
+const tarjetaPdf = ({ nombre, url }: { nombre: string; url: string }) =>
+  `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 14px; background: ${C.rosaSuave}; border: 2px solid ${C.tinta}; border-radius: 16px;"><tr><td style="padding: 18px 20px;">` +
+  `<span style="font-family: ${TEXTO}; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: ${C.bordo};">&#128196; PDF para imprimir</span><br>` +
+  `<strong style="display: block; margin: 4px 0 14px; font-family: ${TITULO}; font-size: 22px; line-height: 1.2; color: ${C.tinta};">${escapar(nombre)}</strong>` +
+  `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background: ${C.bordo}; border-radius: 999px;">` +
+  `<a href="${escapar(url)}" style="display: inline-block; padding: 12px 26px; font-family: ${TEXTO}; font-size: 16px; font-weight: bold; color: #FFFFFF; text-decoration: none;">Descargar PDF &darr;</a>` +
+  `</td></tr></table></td></tr></table>`;
+
+/* Los PDF de los descargables: cada uno en su tarjeta, con un botón que no vence (pasa por la tienda). */
+export function mailDescargables(p: PedidoMail, descargas: { nombre: string; url: string }[]): Mail {
+  const intro = descargas.length === 1 ? "¡Gracias por tu compra! Acá está tu descargable:" : "¡Gracias por tu compra! Acá están tus descargables:";
   return {
     subject: `Tus descargables de Alas de Ángel · pedido ${p.codigo}`,
     html: plantilla({
@@ -42,14 +50,10 @@ export function mailDescargables(p: PedidoMail, adjuntos: string[], links: { nom
       titulo: saludo(p.cliente_nombre),
       bloques: [
         parrafo(escapar(intro)),
-        pastillas([
-          ...adjuntos.map((a) => `<span style="font-size: 18px;">&#128206;</span>&nbsp; <strong>${escapar(a)}</strong>`),
-          ...links.map(
-            (l) =>
-              `<span style="font-size: 18px;">&#11015;&#65039;</span>&nbsp; <a href="${escapar(l.url)}" style="color: ${C.bordo}; font-weight: bold;">${escapar(l.nombre)}</a><br><span style="font-size: 13px; color: ${C.tintaSuave};">Pesa mucho para adjuntarlo: bajalo desde el link en los próximos 7 días.</span>`,
-          ),
-        ]),
-        parrafo(`Guardalos en tu compu o en el celular: los podés ${resaltado("imprimir todas las veces que quieras")}.`),
+        descargas.map(tarjetaPdf).join(""),
+        parrafo(
+          `Tocá <strong>Descargar PDF</strong> y guardalo en tu compu o en el celular: lo podés ${resaltado("imprimir todas las veces que quieras")}. El botón sigue andando aunque pase el tiempo, y también los encontrás en la página de tu pedido.`,
+        ),
       ],
       boton: verPedido(p),
     }),
@@ -57,10 +61,9 @@ export function mailDescargables(p: PedidoMail, adjuntos: string[], links: { nom
       saludo(p.cliente_nombre),
       "",
       intro,
-      ...adjuntos.map((a) => `• ${a}`),
-      ...links.map((l) => `• ${l.nombre} (bajalo desde acá en los próximos 7 días): ${l.url}`),
+      ...descargas.map((d) => `• ${d.nombre}: ${d.url}`),
       "",
-      "Los podés imprimir todas las veces que quieras.",
+      "Los podés imprimir todas las veces que quieras. También los encontrás en la página de tu pedido.",
       `Tu pedido ${p.codigo}: ${verPedido(p).url}`,
     ]),
   };
@@ -219,11 +222,13 @@ const textoPlano = (lineas: string[]) => [...lineas, "", "Cualquier cosa, respon
 
 /* Los colores de marca/tokens.css. Un mail no puede leer variables CSS: van escritos. */
 const C = { bordo: "#7F2350", nube: "#F6E7D4", rosa: "#F4A9CB", rosaSuave: "#FBDCE9", tinta: "#0B5E41", tintaSuave: "#2F6E55", lima: "#B9D53B", renglon: "#E3CDB6" };
-// Gmail no carga fuentes externas: si no están, quedan las de reemplazo (parecidas y seguras).
+// Sin fuentes externas (Gmail no las carga y suman para que un mail parezca spam): las de la marca si la
+// persona las tiene instaladas y, si no, las de reemplazo (parecidas y seguras).
 const TITULO = "'Baloo 2', 'Trebuchet MS', Arial, sans-serif";
 const TEXTO = "Karla, 'Segoe UI', Arial, sans-serif";
 const MANO = "'La Belle Aurore', 'Brush Script MT', cursive";
-// La dirección de la tienda en el pie del mail (desde localhost, la publicada).
+// La dirección de la tienda en el pie del mail y de donde sale la cabecera (public/mail-cabecera.png): desde
+// localhost, la publicada. La imagen va por link y no adjunta: un mail sin adjuntos cae menos en spam.
 const PUBLICO = SITIO_URL.startsWith("https://") ? SITIO_URL : "https://www.alasdeangel.com.ar";
 
 const parrafo = (html: string) => `<p style="margin: 0 0 18px; font-family: ${TEXTO}; font-size: 16px; line-height: 1.6; color: ${C.tinta};">${html}</p>`;
@@ -264,7 +269,6 @@ function plantilla({ nota, titulo, bloques, boton }: { nota: string; titulo: str
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Karla:wght@400;700&family=La+Belle+Aurore&display=swap" rel="stylesheet">
 <title>${escapar(titulo)}</title>
 </head>
 <body style="margin: 0; padding: 0; background: ${C.nube};">
@@ -272,7 +276,7 @@ function plantilla({ nota, titulo, bloques, boton }: { nota: string; titulo: str
 <tr><td align="center" style="padding: 24px 12px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; border-collapse: separate; background: #FFFBF5; border: 2px solid ${C.tinta}; border-radius: 24px; box-shadow: 6px 6px 0 ${C.tinta}; overflow: hidden;">
     <tr><td style="padding: 0; background: ${C.bordo}; border-bottom: 2px solid ${C.tinta}; border-radius: 22px 22px 0 0;">
-      <img src="cid:${CABECERA_CID}" width="560" alt="Alas de Ángel Papelería" style="display: block; width: 100%; height: auto; border: 0; border-radius: 22px 22px 0 0;">
+      <img src="${PUBLICO}/mail-cabecera.png" width="560" alt="Alas de Ángel Papelería" style="display: block; width: 100%; height: auto; border: 0; border-radius: 22px 22px 0 0;">
     </td></tr>
     <tr><td style="padding: 32px 28px 28px;">
       <div style="font-family: ${MANO}; font-size: 20px; color: ${C.bordo}; margin-bottom: 4px;">${escapar(nota)}</div>

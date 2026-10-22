@@ -1,7 +1,6 @@
 import "server-only";
 
 import nodemailer from "nodemailer";
-import { CABECERA_CID, CABECERA_PNG } from "./mail-cabecera";
 import { CONFIRMADOS, type EstadoPedido } from "./pedidos";
 import {
   mailArrepentimiento,
@@ -16,8 +15,9 @@ import {
   type PedidoMail,
 } from "./plantillas-mail";
 import { rutaProducto } from "./productos";
+import { linkDeDescarga } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
-import { BUCKET_DESCARGABLES, supabaseConfigurado } from "./supabase/config";
+import { supabaseConfigurado } from "./supabase/config";
 import { clienteServicio, SUPABASE_SECRETA } from "./supabase/servidor";
 
 /* Cuándo y a quién salen los mails de la tienda (lo que dicen está en lib/plantillas-mail.ts). Salen de la
@@ -30,11 +30,6 @@ const CLAVE = process.env.GMAIL_CLAVE_APP?.replace(/\s/g, "") ?? ""; // Google l
 const AVISOS = process.env.MAIL_AVISOS || USUARIO;
 
 export const mailConfigurado = Boolean(supabaseConfigurado && SUPABASE_SECRETA && USUARIO && CLAVE);
-
-// Gmail rechaza mails de más de 25 MB, y los adjuntos crecen un tercio al codificarse.
-// Lo que no entra va como link dentro del mismo mail.
-const LIMITE_ADJUNTOS = 17 * 1024 * 1024;
-const DURACION_LINK = 7 * 24 * 60 * 60; // segundos
 
 export type ResultadoMail = "enviado" | "ya-enviado" | "no-corresponde" | "sin-descargables" | "sin-mail" | "no-pagado" | "sin-configurar";
 
@@ -51,11 +46,10 @@ type Marca = "pdf_enviado_en" | "mail_confirmacion_en" | "mail_envio_en" | "mail
 const transporte = () =>
   nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user: USUARIO, pass: CLAVE } });
 
-type Adjunto = { filename: string; content: Buffer };
-// La cabecera viaja adentro de cada mail (la plantilla la muestra con "cid:").
-const cabecera = { filename: "alas-de-angel.png", content: Buffer.from(CABECERA_PNG, "base64"), cid: CABECERA_CID, contentDisposition: "inline" as const };
-const enviar = (to: string, mail: Mail, { attachments = [], ...extra }: { replyTo?: string; attachments?: Adjunto[] } = {}) =>
-  transporte().sendMail({ from: { name: "Alas de Ángel Papelería", address: USUARIO }, to, ...mail, ...extra, attachments: [cabecera, ...attachments] });
+// Sin adjuntos: la cabecera va por link y los PDF con un botón de descarga (los adjuntos suman para caer en spam,
+// y en spam Gmail los bloquea).
+const enviar = (to: string, mail: Mail, extra: { replyTo?: string } = {}) =>
+  transporte().sendMail({ from: { name: "Alas de Ángel Papelería", address: USUARIO }, to, ...mail, ...extra });
 
 async function leerPedido(codigo: string) {
   const { data } = await clienteServicio()
@@ -106,26 +100,9 @@ export async function enviarDescargables(codigo: string, { reenviar = false } = 
   const archivos = (await descargablesDe(pedido)).filter((d): d is { id: string; nombre: string; archivo: string } => Boolean(d.archivo));
   if (archivos.length === 0) return "sin-descargables";
 
-  return unaVez(codigo, "pdf_enviado_en", reenviar, async () => {
-    const supabase = clienteServicio();
-    const adjuntos: Adjunto[] = [];
-    const links: { nombre: string; url: string }[] = [];
-    let peso = 0;
-    for (const { nombre, archivo } of archivos) {
-      const nombreArchivo = `${nombre} - Alas de Angel.${archivo.split(".").pop() ?? "pdf"}`;
-      const { data: blob, error } = await supabase.storage.from(BUCKET_DESCARGABLES).download(archivo);
-      if (error || !blob) throw new Error(`No se pudo leer ${archivo}: ${error?.message}`);
-      if (peso + blob.size <= LIMITE_ADJUNTOS) {
-        adjuntos.push({ filename: nombreArchivo, content: Buffer.from(await blob.arrayBuffer()) });
-        peso += blob.size;
-      } else {
-        const { data: firmado } = await supabase.storage.from(BUCKET_DESCARGABLES).createSignedUrl(archivo, DURACION_LINK, { download: nombreArchivo });
-        if (!firmado) throw new Error(`No se pudo armar el link de ${archivo}`);
-        links.push({ nombre, url: firmado.signedUrl });
-      }
-    }
-    await enviar(pedido.cliente_email!, mailDescargables(pedido, adjuntos.map((a) => a.filename), links), { attachments: adjuntos });
-  });
+  // Cada PDF con su botón de descarga, que pasa por la tienda y no vence (ver linkDeDescarga).
+  const descargas = archivos.map(({ id, nombre }) => ({ nombre, url: linkDeDescarga(pedido.codigo, pedido.clave, id) }));
+  return unaVez(codigo, "pdf_enviado_en", reenviar, () => enviar(pedido.cliente_email!, mailDescargables(pedido, descargas)));
 }
 
 /* "¡Recibimos tu compra!". Si el pedido es solo de descargables no hace falta: el mail con los PDF ya es la

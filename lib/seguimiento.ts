@@ -7,6 +7,10 @@ import { zonaPara, type Zona } from "./zonas";
 /* La página donde quien compró ve su pedido. La clave es lo que la hace privada. */
 export const linkDeSeguimiento = (codigo: string, clave: string) => `${SITIO_URL}/pedido/${codigo}?clave=${clave}`;
 
+/* El botón "Descargar PDF" de un descargable del pedido (ver app/(tienda)/pedido/[codigo]/pdf/[producto]/route.ts). */
+export const linkDeDescarga = (codigo: string, clave: string, producto: string) =>
+  `${SITIO_URL}/pedido/${codigo}/pdf/${encodeURIComponent(producto)}?clave=${clave}`;
+
 /* El costo de envío a domicilio. Sin costo cargado (o sin supabase/07-envios-cupones-y-mas.sql), el envío
    se coordina por WhatsApp y se paga aparte. */
 // costo: el costo por defecto, para las zonas sin precio propio. zonas: por código postal y provincia (lib/zonas.ts).
