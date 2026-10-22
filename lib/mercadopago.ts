@@ -17,8 +17,8 @@ export const pagoOnlineConfigurado = Boolean(supabaseConfigurado && TOKEN && SUP
 
 /* Pausa del pago online: la bolsita ofrece solo WhatsApp y los textos de la tienda hablan de pedir y pagar
    por ahí. Los pedidos ya hechos siguen andando (el aviso de Mercado Pago, el seguimiento, reintentar un pago).
-   Para volver a cobrar online, pasalo a false. */
-export const PAGO_ONLINE_PAUSADO = true;
+   Para pausarlo, pasalo a true. */
+export const PAGO_ONLINE_PAUSADO = false;
 export const pagoOnlineActivo = pagoOnlineConfigurado && !PAGO_ONLINE_PAUSADO;
 
 async function api<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
