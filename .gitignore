@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# respaldo de Supabase (datos personales de clientes)
+/respaldo-supabase/
