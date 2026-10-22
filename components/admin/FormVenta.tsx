@@ -40,7 +40,7 @@ export function FormVenta({ productos, hoy }: { productos: OpcionProducto[]; hoy
 
   return (
     <form
-      className="editor"
+      className="venta"
       onSubmit={(e) => {
         e.preventDefault();
         const datos = new FormData(e.currentTarget);
@@ -49,140 +49,137 @@ export function FormVenta({ productos, hoy }: { productos: OpcionProducto[]; hoy
         startTransition(() => accion(datos));
       }}
     >
-      <div className="editor__campos">
-        <fieldset className="admin__grupo">
-          <legend>Qué se vendió</legend>
+      <fieldset className="admin__grupo">
+        <legend>Qué se vendió</legend>
+        <div className="campo">
+          <label htmlFor="v-sumar">Sumar un producto</label>
+          <select id="v-sumar" value="" onChange={(e) => sumar(e.target.value)}>
+            <option value="">Elegí del catálogo…</option>
+            {productos.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nombre} — {formato(p.precio)}
+                {p.stock !== undefined ? ` (stock: ${p.stock})` : ""}
+              </option>
+            ))}
+            <option value="otro">Otra cosa (no está en el catálogo)</option>
+          </select>
+        </div>
+
+        {renglones.length > 0 && (
+          <ul className="venta__renglones">
+            {renglones.map((r) => {
+              const stock = r.id ? porId.get(r.id)?.stock : undefined;
+              const pasado = stock !== undefined && Number(r.cantidad) > stock;
+              return (
+                <li key={r.clave} className="venta__renglon">
+                  {r.id ? (
+                    <strong>{r.nombre}</strong>
+                  ) : (
+                    <input
+                      type="text"
+                      aria-label="Qué se vendió"
+                      placeholder="Ej.: señalador de regalo"
+                      value={r.nombre}
+                      onChange={(e) => cambiar(r.clave, { nombre: e.target.value })}
+                      required
+                    />
+                  )}
+                  <label>
+                    <span>Cantidad</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={r.cantidad}
+                      onChange={(e) => cambiar(r.clave, { cantidad: e.target.value.replace(/\D/g, "") })}
+                    />
+                  </label>
+                  <label>
+                    <span>Precio c/u</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={r.precio}
+                      onChange={(e) => cambiar(r.clave, { precio: e.target.value.replace(/\D/g, "") })}
+                    />
+                  </label>
+                  <button type="button" className="admin__borrar" onClick={() => setRenglones((l) => l.filter((x) => x.clave !== r.clave))}>
+                    Sacar
+                  </button>
+                  {pasado && <small className="venta__aviso">Solo hay {stock} en stock: va a quedar en 0.</small>}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </fieldset>
+
+      <fieldset className="admin__grupo">
+        <legend>Datos de la venta</legend>
+        <div className="editor__par">
           <div className="campo">
-            <label htmlFor="v-sumar">Sumar un producto</label>
-            <select id="v-sumar" value="" onChange={(e) => sumar(e.target.value)}>
-              <option value="">Elegí del catálogo…</option>
-              {productos.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nombre} — {formato(p.precio)}
-                  {p.stock !== undefined ? ` (stock: ${p.stock})` : ""}
+            <label htmlFor="v-fecha">Fecha</label>
+            <input type="date" id="v-fecha" name="fecha" defaultValue={hoy} max={hoy} />
+          </div>
+          <div className="campo">
+            <label htmlFor="v-estado">Estado</label>
+            <select id="v-estado" name="estado" defaultValue="entregado" aria-describedby="v-estado-ayuda">
+              {ESTADOS.map(([valor, nombre]) => (
+                <option key={valor} value={valor}>
+                  {nombre}
                 </option>
               ))}
-              <option value="otro">Otra cosa (no está en el catálogo)</option>
             </select>
+            <span className="campo__ayuda" id="v-estado-ayuda">
+              Pagado, enviado o entregado descuentan el stock.
+            </span>
           </div>
-
-          {renglones.length > 0 && (
-            <ul className="venta__renglones">
-              {renglones.map((r) => {
-                const stock = r.id ? porId.get(r.id)?.stock : undefined;
-                const pasado = stock !== undefined && Number(r.cantidad) > stock;
-                return (
-                  <li key={r.clave} className="venta__renglon">
-                    {r.id ? (
-                      <strong>{r.nombre}</strong>
-                    ) : (
-                      <input
-                        type="text"
-                        aria-label="Qué se vendió"
-                        placeholder="Ej.: señalador de regalo"
-                        value={r.nombre}
-                        onChange={(e) => cambiar(r.clave, { nombre: e.target.value })}
-                        required
-                      />
-                    )}
-                    <label>
-                      <span>Cantidad</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={r.cantidad}
-                        onChange={(e) => cambiar(r.clave, { cantidad: e.target.value.replace(/\D/g, "") })}
-                      />
-                    </label>
-                    <label>
-                      <span>Precio c/u</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={r.precio}
-                        onChange={(e) => cambiar(r.clave, { precio: e.target.value.replace(/\D/g, "") })}
-                      />
-                    </label>
-                    <button type="button" className="admin__borrar" onClick={() => setRenglones((l) => l.filter((x) => x.clave !== r.clave))}>
-                      Sacar
-                    </button>
-                    {pasado && <small className="venta__aviso">Solo hay {stock} en stock: va a quedar en 0.</small>}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </fieldset>
-
-        <fieldset className="admin__grupo">
-          <legend>Datos de la venta</legend>
-          <div className="editor__par">
-            <div className="campo">
-              <label htmlFor="v-fecha">Fecha</label>
-              <input type="date" id="v-fecha" name="fecha" defaultValue={hoy} max={hoy} />
-            </div>
-            <div className="campo">
-              <label htmlFor="v-estado">Estado</label>
-              <select id="v-estado" name="estado" defaultValue="entregado" aria-describedby="v-estado-ayuda">
-                {ESTADOS.map(([valor, nombre]) => (
-                  <option key={valor} value={valor}>
-                    {nombre}
-                  </option>
-                ))}
-              </select>
-              <span className="campo__ayuda" id="v-estado-ayuda">
-                Pagado, enviado o entregado descuentan el stock.
-              </span>
-            </div>
-          </div>
-          <div className="editor__par">
-            <div className="campo">
-              <label htmlFor="v-medio">Medio de pago</label>
-              <input type="text" id="v-medio" name="medio_pago" list="medios-pago" placeholder="Efectivo, transferencia…" />
-              <datalist id="medios-pago">
-                {MEDIOS_PAGO.map((m) => (
-                  <option key={m} value={m} />
-                ))}
-              </datalist>
-            </div>
-            <div className="campo">
-              <label htmlFor="v-nombre">Cliente (opcional)</label>
-              <input type="text" id="v-nombre" name="cliente_nombre" />
-            </div>
-          </div>
-          <div className="campo">
-            <label htmlFor="v-contacto">WhatsApp, Instagram o mail (opcional)</label>
-            <input type="text" id="v-contacto" name="cliente_contacto" />
-          </div>
-          <div className="campo">
-            <label htmlFor="v-notas">Notas (opcional)</label>
-            <textarea id="v-notas" name="notas" rows={3} placeholder="Ej.: vendido en la feria de Palermo, envuelto para regalo" />
-          </div>
-        </fieldset>
-      </div>
-
-      <aside className="editor__vista" aria-label="Resumen de la venta">
-        <div className="tablero tablero--halo">
-          <span>Total</span>
-          <strong aria-live="polite">{formato(total)}</strong>
-          <small>
-            {renglones.reduce((s, r) => s + (Number(r.cantidad) || 0), 0)} unidades
-          </small>
         </div>
+        <div className="editor__par">
+          <div className="campo">
+            <label htmlFor="v-medio">Medio de pago</label>
+            <input type="text" id="v-medio" name="medio_pago" list="medios-pago" placeholder="Efectivo, transferencia…" />
+            <datalist id="medios-pago">
+              {MEDIOS_PAGO.map((m) => (
+                <option key={m} value={m} />
+              ))}
+            </datalist>
+          </div>
+          <div className="campo">
+            <label htmlFor="v-nombre">Cliente (opcional)</label>
+            <input type="text" id="v-nombre" name="cliente_nombre" />
+          </div>
+        </div>
+        <div className="campo">
+          <label htmlFor="v-contacto">WhatsApp, Instagram o mail (opcional)</label>
+          <input type="text" id="v-contacto" name="cliente_contacto" />
+        </div>
+        <div className="campo">
+          <label htmlFor="v-notas">Notas (opcional)</label>
+          <textarea id="v-notas" name="notas" rows={3} placeholder="Ej.: vendido en la feria de Palermo, envuelto para regalo" />
+        </div>
+      </fieldset>
+
+      {/* Al final del formulario y pegado al pie de la pantalla: el total y el botón siempre a mano. */}
+      <div className="venta__pie">
         {estado?.error && (
-          <p className="admin__error" role="alert">
+          <p className="admin__error venta__error" role="alert">
             {estado.error}
           </p>
         )}
-        <div className="editor__botones">
-          <button className="boton boton--ancho" type="submit" disabled={enviando || renglones.length === 0}>
-            {enviando ? "Guardando…" : "Registrar venta"}
-          </button>
-          <Link className="boton boton--claro boton--ancho" href="/admin/pedidos">
+        <div className="venta__total">
+          <span>Total</span>
+          <strong aria-live="polite">{formato(total)}</strong>
+          <small>{renglones.reduce((s, r) => s + (Number(r.cantidad) || 0), 0)} unidades</small>
+        </div>
+        <div className="venta__botones">
+          <Link className="boton boton--claro" href="/admin/pedidos">
             Volver sin guardar
           </Link>
+          <button className="boton" type="submit" disabled={enviando || renglones.length === 0}>
+            {enviando ? "Guardando…" : "Registrar venta"}
+          </button>
         </div>
-      </aside>
+      </div>
     </form>
   );
 }
