@@ -21,6 +21,10 @@ export const pagoOnlineConfigurado = Boolean(supabaseConfigurado && TOKEN && SUP
 export const PAGO_ONLINE_PAUSADO = false;
 export const pagoOnlineActivo = pagoOnlineConfigurado && !PAGO_ONLINE_PAUSADO;
 
+/* Cuánto queda reservado el uso de un cupón mientras se paga (el mismo rato que usos_cupon en
+   supabase/08-seguridad-pagos.sql). El link de pago de un pedido con cupón vence a la par. */
+export const MINUTOS_CUPON = 30;
+
 async function api<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   const respuesta = await fetch(API + ruta, {
     ...opciones,
@@ -70,6 +74,7 @@ export async function crearLinkDePago(pedido: PedidoCobro, comprador: { nombre?:
       ...(comprador.nombre && { payer: { name: comprador.nombre } }),
       back_urls: { success: `${vuelta}&vaciar=1`, pending: `${vuelta}&vaciar=1`, failure: vuelta },
       ...(publico && { auto_return: "approved", notification_url: `${SITIO_URL}/api/mercadopago` }),
+      ...(pedido.cupon && { expires: true, expiration_date_to: new Date(Date.now() + MINUTOS_CUPON * 60 * 1000).toISOString() }),
       statement_descriptor: "ALAS DE ANGEL",
     }),
   });

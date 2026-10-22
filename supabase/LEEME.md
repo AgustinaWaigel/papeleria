@@ -80,7 +80,7 @@ Para un pedido de WhatsApp o una venta a mano, cargá el mail del cliente en *Cl
 Corré `07-envios-cupones-y-mas.sql` en el SQL Editor. Suma:
 
 - **Envíos por zona** (panel → *Envíos*): quien paga online pone su código postal (la provincia se completa sola) y ve el costo de su zona antes de pagar; lo paga junto con el pedido. Vienen zonas pensadas para despachar desde Crespo: Crespo con precio fijo de $ 3.000 (lo llevás vos; no se cotiza con el correo), y Paraná, resto de Entre Ríos, Litoral, CABA/Buenos Aires/Córdoba y resto del país sin precio: cargalos mirando las tarifas de tu correo y actualizalos cuando suban. Una zona puede tener provincias y códigos postales puntuales (estos ganan). Sin precio, usa el *costo por defecto*; sin ninguno, se coordina por WhatsApp. También: desde cuánto es gratis y un texto para quien compra.
-- **Cupones** (panel → *Cupones*): porcentaje o monto fijo, con compra mínima, vencimiento y cantidad de usos opcionales. Se escriben en la bolsita al pagar online; un uso se cuenta cuando el pago se aprueba.
+- **Cupones** (panel → *Cupones*): porcentaje o monto fijo, con compra mínima, vencimiento y cantidad de usos opcionales. Se escriben en la página de compra, antes de pagar. Para el límite de usos cuentan los pedidos pagados y los que se están pagando: el uso queda reservado 30 minutos, y el link de pago de un pedido con cupón vence en ese rato.
 - **Mails automáticos** (con Gmail configurado, ver arriba): al cliente le llegan *Recibimos tu compra* cuando queda pagado, *Tu pedido está en camino* o *Listo para retirar* cuando lo pasás a *Enviado* (cargá antes el número de seguimiento) y los PDF de los descargables. A vos te llega un aviso por cada venta online (a `MAIL_AVISOS`, o a la misma casilla de Gmail). En cada pedido, *Mails al cliente* muestra cuáles salieron y deja reenviarlos.
 - **Avisame cuando vuelva**: en un producto agotado, quien quiera deja su mail; cuando le cargás stock desde el panel (o el Excel), le llega un aviso.
 - **Botón de arrepentimiento** (obligatorio, Res. 424/2020): está en el pie de todas las páginas. Quien lo usa recibe un código de trámite al instante y por mail; a vos te llega un aviso y lo ves en el panel → *Arrepentimientos*. Hay que responder dentro de las 24 horas.
@@ -98,6 +98,10 @@ Con la API **MiCorreo**, quien compra ve el precio real de Correo Argentino para
 La API **Paq.ar 2.0** (la de "agreement" y "API-Key") es otra cosa: es para clientes con contrato comercial y sirve para crear envíos e imprimir rótulos, no para cotizar.
 
 **Orden de los scripts:** `05` y `07` antes de publicar esta versión; `06-seguridad.sql`, después.
+
+### Seguridad del pago online
+
+Corré `08-seguridad-pagos.sql` **antes** de publicar la versión con la página de compra (`/comprar`): sin él, el pago online no arma pedidos. Hace que el pedido online solo lo pueda crear el servidor de la tienda (así nadie se saltea la cotización del envío), que un envío sin precio no se pueda pagar online y que los cupones con límite de usos no se puedan usar en varios pedidos a la vez.
 
 ## En producción
 

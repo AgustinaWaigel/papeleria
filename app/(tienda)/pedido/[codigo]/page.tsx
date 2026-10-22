@@ -95,6 +95,13 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
               </div>
             )}
 
+            {consulta.aviso === "cupon" && p.estado === "nuevo" && (
+              <p className="seguimiento__aviso seguimiento__aviso--mal" role="status">
+                El cupón de este pedido ya no tiene usos disponibles, así que no lo podemos volver a cobrar con el descuento.
+                Armá el pedido de nuevo desde la bolsita o escribinos por WhatsApp.
+              </p>
+            )}
+
             {conPdf && pagado && (
               <div className="seguimiento__aviso seguimiento__aviso--bien" role="status">
                 <p>
