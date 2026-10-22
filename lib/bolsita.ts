@@ -88,7 +88,8 @@ export type EntregaPedido =
   | { tipo: "digital" }
   | { tipo: "envio"; destino?: string; costo?: number | null; direccion?: string };
 
-/* El mensaje de WhatsApp con el pedido. Sin entrega elegida, se coordina en el chat. */
+/* El mensaje de WhatsApp con el pedido. Sin entrega elegida, se coordina en el chat.
+   Sin emojis: viajan en el link de WhatsApp y algunas versiones (la web, la de escritorio) los muestran como "�". */
 export function textoPedido(lista: Renglon[], { codigo, nombre, entrega }: { codigo?: string; nombre?: string; entrega?: EntregaPedido } = {}) {
   const subtotal = total(lista);
   const envio = entrega?.tipo === "envio" ? entrega : null;
@@ -97,18 +98,18 @@ export function textoPedido(lista: Renglon[], { codigo, nombre, entrega }: { cod
   const lineas = [
     nombre ? `¡Hola Alas de Ángel! Soy ${nombre} y quiero hacer este pedido:` : "¡Hola Alas de Ángel! Quiero hacer este pedido:",
     "",
-    ...(codigo ? [`🛍️ Pedido ${codigo}`] : []),
+    ...(codigo ? [`*Pedido ${codigo}*`] : []),
     ...lista.map(({ producto: p, cantidad: n }) => `• ${n} × ${p.nombre} — ${precio(p.precio * n)}`),
     "",
   ];
   if (envio) {
     lineas.push(
       `Productos: ${precio(subtotal)}`,
-      `🚚 Envío a domicilio${envio.destino ? ` (${envio.destino})` : ""}: ${costoEnvio === null ? "a coordinar" : costoEnvio === 0 ? "gratis" : precio(costoEnvio)}`,
-      ...(envio.direccion?.trim() ? [`📍 Dirección: ${envio.direccion.trim()}`] : []),
+      `Envío a domicilio${envio.destino ? ` (${envio.destino})` : ""}: ${costoEnvio === null ? "a coordinar" : costoEnvio === 0 ? "gratis" : precio(costoEnvio)}`,
+      ...(envio.direccion?.trim() ? [`Dirección: ${envio.direccion.trim()}`] : []),
     );
-  } else if (entrega?.tipo === "retiro") lineas.push("📦 Lo retiro en Crespo.");
-  else if (entrega?.tipo === "digital") lineas.push("📩 Son descargables: me llegan por mail.");
+  } else if (entrega?.tipo === "retiro") lineas.push("Lo retiro en Crespo.");
+  else if (entrega?.tipo === "digital") lineas.push("Son descargables: me llegan por mail.");
   else lineas.push("La entrega la coordinamos por acá.");
 
   lineas.push(
