@@ -55,6 +55,7 @@ export function Compra() {
 
   // El envío a domicilio se paga online solo si tiene precio (de la zona o del correo).
   const envioSinPrecio = conEnvio && calculo.destinoListo && !calculo.cotizando && calculo.costo === null;
+  const precioALaVista = conEnvio && calculo.destinoListo && !envioSinPrecio;
   const entregaLista =
     !conEnvio || (calculo.destinoListo && typeof calculo.costo === "number" && direccion.trim().length >= 6);
 
@@ -182,7 +183,15 @@ export function Compra() {
           <CabezaPaso numero={2} titulo="Entrega" hecho={paso > 2 && !soloDigital} cambiar={() => setPaso(2)} />
           {paso === 2 && (
             <>
-              <ElegirEnvio eleccion={eleccion} cambiar={setEleccion} texto={calculo.texto} />
+              {/* Con el destino puesto, el precio del envío va aparte y bien grande. */}
+              <ElegirEnvio eleccion={eleccion} cambiar={setEleccion} texto={precioALaVista ? undefined : calculo.texto} />
+              {precioALaVista && (
+                <div className="envio-precio" role="status">
+                  <span className="envio-precio__titulo">Costo del envío</span>
+                  <strong className="envio-precio__monto">{calculo.costo === 0 ? "¡Gratis!" : textoCosto(calculo.costo, calculo.cotizando)}</strong>
+                  {calculo.detalle && <span className="envio-precio__detalle">{calculo.detalle}</span>}
+                </div>
+              )}
               <p className="campo__ayuda paso__plazo">{PLAZO_TALLER}</p>
               {conEnvio && !envioSinPrecio && (
                 <div className="campo">
@@ -399,7 +408,7 @@ function Cuentas({ subtotal, descuento, conEnvio, envio, final }: { subtotal: nu
         </div>
       )}
       {conEnvio && (
-        <div>
+        <div className="compra__envio">
           <dt>Envío</dt>
           <dd>{envio}</dd>
         </div>

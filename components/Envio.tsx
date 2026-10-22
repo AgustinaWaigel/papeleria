@@ -89,7 +89,18 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
               .filter(Boolean)
               .join(" ");
 
-  return { costo, texto, destinoListo, cotizando, porWhatsApp, listo: entrega !== "envio" || destinoListo };
+  // Para mostrar el precio aparte, bien grande: de dónde sale, sin repetir el monto.
+  const detalle = cotizando
+    ? "Consultando a Correo Argentino…"
+    : [
+        delCorreo ? delCorreo.texto : zona ? `Envío a ${zona.nombre}` : null,
+        envio.gratisDesde !== null && costo ? `Gratis desde ${precio(envio.gratisDesde)}.` : null,
+        envio.detalle,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+  return { costo, texto, detalle, destinoListo, cotizando, porWhatsApp, listo: entrega !== "envio" || destinoListo };
 }
 
 /* Cómo se nombra el destino en el resumen y en el mensaje de WhatsApp. */

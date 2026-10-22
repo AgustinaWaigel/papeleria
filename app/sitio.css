@@ -977,6 +977,12 @@ a:hover { color: var(--color-tinta); }
 .paso .envio-elegir .campo input, .paso .envio-elegir .campo select, .paso .campo textarea { padding: var(--espacio-2) var(--espacio-3); }
 .paso .campo textarea { min-height: 0; }
 .paso__plazo { margin-bottom: var(--espacio-4); }
+.envio-precio { display: grid; gap: var(--espacio-1); margin-bottom: var(--espacio-4); padding: var(--espacio-4) var(--espacio-5); background: var(--color-halo-suave); border: var(--borde); border-radius: var(--radio-m); box-shadow: var(--sombra-sello); }
+.envio-precio__titulo { font-size: var(--texto-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.envio-precio__monto { font-family: var(--fuente-titulo); font-size: var(--texto-2xl); font-weight: 400; line-height: 1.1; color: var(--color-amanecer-fuerte); }
+.envio-precio__detalle { font-size: var(--texto-s); color: var(--color-tinta-suave); }
+.compra__envio { font-weight: 700; color: var(--color-amanecer-fuerte); }
+.compra__envio dd { font-size: var(--texto-m); }
 .paso form .seguimiento__aviso { margin-bottom: var(--espacio-4); font-size: var(--texto-s); }
 .compra-pagina__resumen { display: grid; gap: var(--espacio-3); padding: var(--espacio-5); background: var(--color-cielo); border: var(--borde); border-radius: var(--radio-l); }
 .compra-pagina__resumen h2 { font-size: var(--texto-l); }

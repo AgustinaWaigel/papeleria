@@ -13,7 +13,7 @@ export const enlaceWhatsApp = (texto: string) =>
 /* Cuánto lleva preparar un pedido con productos físicos. Se muestra antes de pagar, en el seguimiento, en el mail
    de confirmación, en las preguntas frecuentes y en los términos: si cambia, cambia en todos lados. */
 export const PLAZO_TALLER =
-  "Todo lo hacemos a mano, así que preparar tu pedido lleva de 5 a 10 días hábiles, según lo que lleve. Después sale el envío (o te avisamos para que lo retires).";
+  "Todo lo hacemos a mano: si lo que pediste no está en stock, prepararlo nos lleva de 2 a 15 días hábiles, según el pedido. Después sale el envío (o te avisamos para que lo retires).";
 
 export const enlaceInstagram =`https://instagram.com/${CONTACTO.instagram}`;
 
