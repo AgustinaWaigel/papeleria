@@ -983,7 +983,7 @@ a:hover { color: var(--color-tinta); }
 .envio-precio__detalle { font-size: var(--texto-s); color: var(--color-tinta-suave); }
 .compra__envio { font-weight: 700; color: var(--color-amanecer-fuerte); }
 .compra__envio dd { font-size: var(--texto-m); }
-.paso form .seguimiento__aviso { margin-bottom: var(--espacio-4); font-size: var(--texto-s); }
+.paso .seguimiento__aviso { margin-bottom: var(--espacio-4); font-size: var(--texto-s); }
 .compra-pagina__resumen { display: grid; gap: var(--espacio-3); padding: var(--espacio-5); background: var(--color-cielo); border: var(--borde); border-radius: var(--radio-l); }
 .compra-pagina__resumen h2 { font-size: var(--texto-l); }
 .compra-pagina__resumen .compra__cuentas { margin: 0; }

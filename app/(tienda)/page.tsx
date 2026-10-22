@@ -44,7 +44,7 @@ const PASOS = [
   ["Llená tu bolsita", "Sumá lo que te guste: productos físicos y descargables pueden ir juntos en el mismo pedido."],
   pagoOnlineActivo
     ? ["Pagá o escribinos", "Pagá online con Mercado Pago en el momento, o mandanos el pedido por WhatsApp y coordinamos el pago y el envío."]
-    : ["Escribinos", "Mandanos el pedido por WhatsApp desde la bolsita y coordinamos el pago y la entrega."],
+    : ["Mandanos tu pedido", "Elegí cómo lo recibís (te mostramos el costo del envío) y mandanos el pedido por WhatsApp: te pasamos los datos para la transferencia."],
   ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
 ];
 

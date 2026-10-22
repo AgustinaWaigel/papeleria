@@ -46,8 +46,9 @@ export default function Terminos() {
             </p>
           ) : (
             <p>
-              Por ahora los pedidos se hacen por WhatsApp: desde la bolsita nos mandás tu pedido y coordinamos el pago por
-              transferencia o en efectivo.
+              Los pedidos se hacen por WhatsApp: en la tienda armás tu pedido, ves el costo del envío y nos lo mandás. Te
+              pasamos los datos para pagar por transferencia (o en efectivo, si lo retirás) y el pedido queda confirmado
+              cuando se acredita el pago.
             </p>
           )}
 

@@ -43,7 +43,7 @@ const TEMAS: Tema[] = [
         "¿Cómo hago un pedido?",
         pagoOnlineActivo
           ? "Sumá lo que te guste a la bolsita y elegí: “Pagar con Mercado Pago” para pagar online en el momento, o “Enviar pedido por WhatsApp” si preferís coordinar con nosotras (se abre el chat con tu pedido ya escrito)."
-          : "Sumá lo que te guste a la bolsita y tocá “Enviar pedido por WhatsApp”: se abre el chat con tu pedido ya escrito y ahí coordinamos el pago y la entrega.",
+          : "Sumá lo que te guste a la bolsita y tocá “Continuar compra”. Elegí si lo retirás o te lo mandamos (te mostramos el costo del envío) y tocá “Enviar pedido por WhatsApp”: se abre el chat con tu pedido ya escrito y te pasamos los datos para la transferencia.",
       ],
       [
         "¿Qué medios de pago aceptan?",
@@ -81,7 +81,9 @@ const TEMAS: Tema[] = [
         "¿Hacen envíos?",
         SOLO_CRESPO
           ? "Por ahora, solo dentro de Crespo: elegí “Envío a domicilio” en la bolsita, mandanos el pedido por WhatsApp y ahí coordinamos el costo y el día. Muy pronto, también al resto del país."
-          : "Sí, a todo el país. Si pagás online, el costo del envío aparece en la bolsita antes de pagar; si pedís por WhatsApp, te lo pasamos por ahí.",
+          : pagoOnlineActivo
+            ? "Sí, a todo el país. Si pagás online, el costo del envío aparece antes de pagar; si pedís por WhatsApp, te lo pasamos por ahí."
+            : "Sí, a todo el país. Cuando ponés tu código postal te mostramos el costo del envío, y va incluido en el pedido que nos mandás por WhatsApp.",
       ],
       [
         "¿Puedo retirarlo en persona?",

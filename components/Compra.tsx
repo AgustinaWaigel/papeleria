@@ -21,7 +21,8 @@ const useMontado = () => useSyncExternalStore(sinCambios, () => true, () => fals
 
 export function Compra() {
   const items = useRenglones();
-  const { envio, cotizaCorreo } = useAjustesCompra();
+  // Sin pago online, el último paso manda el pedido por WhatsApp y el pago se coordina por transferencia.
+  const { envio, cotizaCorreo, pagoOnline } = useAjustesCompra();
   const montado = useMontado();
 
   const [paso, setPaso] = useState<Paso>(1);
@@ -53,11 +54,13 @@ export function Compra() {
     setErrorCupon("Cambió tu pedido: volvé a aplicar el cupón.");
   }
 
-  // El envío a domicilio se paga online solo si tiene precio (de la zona o del correo).
-  const envioSinPrecio = conEnvio && calculo.destinoListo && !calculo.cotizando && calculo.costo === null;
+  // El envío a domicilio se paga online solo si tiene precio (de la zona o del correo). Por WhatsApp, sin precio
+  // queda "a coordinar".
+  const envioSinPrecio = pagoOnline && conEnvio && calculo.destinoListo && !calculo.cotizando && calculo.costo === null;
   const precioALaVista = conEnvio && calculo.destinoListo && !envioSinPrecio;
   const entregaLista =
-    !conEnvio || (calculo.destinoListo && typeof calculo.costo === "number" && direccion.trim().length >= 6);
+    !conEnvio ||
+    (calculo.destinoListo && !calculo.cotizando && (typeof calculo.costo === "number" || !pagoOnline) && direccion.trim().length >= 6);
 
   if (!montado) return <p className="compra-pagina__cargando">Abriendo tu bolsita…</p>;
 
@@ -224,10 +227,35 @@ export function Compra() {
           {paso > 2 && <p className="paso__resumen">{textoEntrega}</p>}
         </li>
 
-        {/* ---------- 3. Tus datos y pago ---------- */}
+        {/* ---------- 3. Tus datos y pago (o el pedido por WhatsApp) ---------- */}
         <li className={`paso${paso === 3 ? " paso--actual" : " paso--despues"}`}>
-          <CabezaPaso numero={3} titulo="Tus datos y pago" />
-          {paso === 3 && (
+          <CabezaPaso numero={3} titulo={pagoOnline ? "Tus datos y pago" : "Mandanos tu pedido"} />
+          {paso === 3 && !pagoOnline && (
+            <div>
+              <div className="campo">
+                <label htmlFor="compra-nombre">Tu nombre</label>
+                <input
+                  type="text"
+                  id="compra-nombre"
+                  autoComplete="name"
+                  value={datos.nombre}
+                  onChange={(e) => setDatos({ ...datos, nombre: e.target.value })}
+                />
+              </div>
+              <Cuentas subtotal={subtotal} descuento={0} conEnvio={conEnvio} envio={textoCosto(calculo.costo, calculo.cotizando)} final={final} />
+              {!soloDigital && <AvisoPlazo antes="mandar el pedido" />}
+              <PedirPorWhatsApp items={items} nombre={datos.nombre} entrega={entregaWhatsApp} alEnviar={setEnviado} />
+              <p className="bolsita__aviso">
+                Se abre WhatsApp con tu pedido escrito{conEnvio ? ", con el envío y la dirección" : ""}. Te respondemos con los datos para
+                la transferencia: el pedido queda confirmado cuando se acredita el pago. Al mandarlo aceptás los{" "}
+                <Link href="/terminos" target="_blank">
+                  términos y condiciones
+                </Link>
+                .
+              </p>
+            </div>
+          )}
+          {paso === 3 && pagoOnline && (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -320,17 +348,7 @@ export function Compra() {
 
               <Cuentas subtotal={subtotal} descuento={descuento} conEnvio={conEnvio} envio={textoCosto(calculo.costo, calculo.cotizando)} final={final} />
 
-              {!soloDigital && (
-                <div className="seguimiento__aviso seguimiento__aviso--espera">
-                  <p>
-                    <strong>Antes de pagar:</strong> {PLAZO_TALLER} Si lo necesitás para una fecha o tenés alguna duda,{" "}
-                    <a href={enlaceWhatsApp("¡Hola Alas de Ángel! Tengo una consulta sobre los tiempos de mi pedido.")} target="_blank" rel="noopener">
-                      escribinos por WhatsApp
-                    </a>{" "}
-                    antes de comprar.
-                  </p>
-                </div>
-              )}
+              {!soloDigital && <AvisoPlazo antes="pagar" />}
 
               {error && (
                 <p className="compra__error" role="alert">
@@ -372,11 +390,30 @@ export function Compra() {
           envio={paso > 1 || calculo.destinoListo ? textoCosto(calculo.costo, calculo.cotizando) : "en el paso 2"}
           final={final}
         />
-        <p className="bolsita__aviso">
-          ¿Preferís coordinar por WhatsApp? Mandanos el pedido por ahí y arreglamos el pago y la entrega.
-        </p>
-        <PedirPorWhatsApp items={items} nombre={datos.nombre} entrega={paso > 1 ? entregaWhatsApp : undefined} claro alEnviar={setEnviado} />
+        {pagoOnline && (
+          <>
+            <p className="bolsita__aviso">
+              ¿Preferís coordinar por WhatsApp? Mandanos el pedido por ahí y arreglamos el pago y la entrega.
+            </p>
+            <PedirPorWhatsApp items={items} nombre={datos.nombre} entrega={paso > 1 ? entregaWhatsApp : undefined} claro alEnviar={setEnviado} />
+          </>
+        )}
       </aside>
+    </div>
+  );
+}
+
+/* Cuánto lleva prepararlo, justo antes del último botón. */
+function AvisoPlazo({ antes }: { antes: string }) {
+  return (
+    <div className="seguimiento__aviso seguimiento__aviso--espera">
+      <p>
+        <strong>Antes de {antes}:</strong> {PLAZO_TALLER} Si lo necesitás para una fecha o tenés alguna duda,{" "}
+        <a href={enlaceWhatsApp("¡Hola Alas de Ángel! Tengo una consulta sobre los tiempos de mi pedido.")} target="_blank" rel="noopener">
+          escribinos por WhatsApp
+        </a>
+        .
+      </p>
     </div>
   );
 }

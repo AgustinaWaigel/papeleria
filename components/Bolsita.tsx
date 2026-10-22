@@ -19,9 +19,7 @@ import {
   type ResumenProducto,
 } from "@/lib/bolsita";
 import { enlaceWhatsApp, precio } from "@/lib/contacto";
-import { CRESPO, SOLO_CRESPO } from "@/lib/zonas";
 import type { AjustesEnvio } from "@/lib/seguimiento";
-import { destinoCorto, ElegirEnvio, textoCosto, useEnvio, type EleccionEnvio } from "./Envio";
 
 type Acciones = { abrir: () => void; sumar: (id: string) => void };
 type AjustesCompra = { pagoOnline: boolean; envio: AjustesEnvio; cotizaCorreo: boolean };
@@ -88,31 +86,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
   const ajustesCompra = useMemo(() => ({ pagoOnline, envio, cotizaCorreo }), [pagoOnline, envio, cotizaCorreo]);
   const [abierta, setAbierta] = useState(false);
   const [aviso, setAviso] = useState({ texto: "", visible: false });
-  const [nombre, setNombre] = useState("");
-  const [direccion, setDireccion] = useState("");
-  const [pedidoEnviado, setPedidoEnviado] = useState<{ codigo: string; href: string } | null>(null); // recién mandado por WhatsApp
-
-  // Sin pago online, cómo lo recibe se elige acá, para el mensaje de WhatsApp (si todo es descargable, no hay
-  // nada que elegir). Con pago online se elige en la página de compra.
   const soloDigital = items.length > 0 && items.every((r) => r.producto.tipo === "descargable");
-  const [eleccion, setEleccion] = useState<EleccionEnvio>(
-    SOLO_CRESPO ? { entrega: "retiro", ...CRESPO } : { entrega: "retiro", cp: "", provincia: "" },
-  );
-  const eleccionReal: EleccionEnvio = soloDigital ? { ...eleccion, entrega: "digital" } : eleccion;
-  const calculo = useEnvio({ items, envio, cotizaCorreo, eleccion: eleccionReal });
-  // Lo que dice el mensaje de WhatsApp sobre la entrega (con pago online, se coordina en el chat).
-  const envioWhatsApp: EntregaPedido | undefined = soloDigital
-    ? { tipo: "digital" }
-    : pagoOnline
-      ? undefined
-      : eleccion.entrega === "retiro"
-        ? { tipo: "retiro" }
-        : {
-            tipo: "envio",
-            destino: calculo.destinoListo ? destinoCorto(eleccion.cp, eleccion.provincia) : undefined,
-            costo: calculo.costo,
-            direccion,
-          };
   const reloj = useRef<ReturnType<typeof setTimeout>>(undefined);
   const panel = useRef<HTMLElement>(null);
 
@@ -132,8 +106,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
       const libre = lugarLibre(producto, bolsita[id] ?? 0);
       if (libre > 0) {
         cambiarCantidad(id, 1);
-        // Se abre sola, así se ve lo que se sumó y el camino para pagar.
-        setPedidoEnviado(null);
+        // Se abre sola, así se ve lo que se sumó y el camino para seguir.
         setAbierta(true);
         return;
       }
@@ -165,17 +138,7 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
             </div>
 
             <ul className="bolsita__lista">
-              {items.length === 0 && pedidoEnviado && (
-                <li className="bolsita__vacia">
-                  <span className="nota-mano">¡pedido enviado!</span>
-                  Te abrimos WhatsApp con tu pedido <strong>{pedidoEnviado.codigo}</strong>. Si no se abrió,{" "}
-                  <a href={pedidoEnviado.href} target="_blank" rel="noopener">
-                    tocá acá
-                  </a>
-                  .
-                </li>
-              )}
-              {items.length === 0 && !pedidoEnviado && (
+              {items.length === 0 && (
                 <li className="bolsita__vacia">
                   <span className="nota-mano">todavía vacía</span>
                   Sumá algo desde{" "}
@@ -218,67 +181,20 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
 
             {items.length > 0 && (
               <div className="bolsita__pie">
-                {pagoOnline ? (
-                  <>
-                    {/* La entrega, el envío y el pago se ven en la página de compra, paso por paso. */}
-                    <p className="bolsita__total">
-                      Subtotal <span>{precio(total(items))}</span>
-                    </p>
-                    <Link className="boton boton--ancho" href="/comprar" onClick={cerrar}>
-                      Continuar compra
-                    </Link>
-                    <p className="bolsita__aviso">
-                      {soloDigital ? "Pagás con Mercado Pago y los PDF te llegan por mail." : "En el siguiente paso elegís cómo lo recibís y ves el costo del envío."}
-                    </p>
-                    <p className="bolsita__o">
-                      <span>o</span>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    {/* Primero cómo lo recibe y cuánto sale: así el total del mensaje ya es el final. */}
-                    {!soloDigital && <ElegirEnvio eleccion={eleccion} cambiar={setEleccion} texto={calculo.texto} />}
-                    {!soloDigital && eleccion.entrega === "envio" && (
-                      <div className="campo bolsita__nombre">
-                        <label htmlFor="bolsita-direccion">Dirección de entrega</label>
-                        <input
-                          type="text"
-                          id="bolsita-direccion"
-                          autoComplete="street-address"
-                          placeholder="Calle, número, piso y ciudad"
-                          value={direccion}
-                          onChange={(e) => setDireccion(e.target.value)}
-                        />
-                      </div>
-                    )}
-                    <dl className="compra__cuentas">
-                      {!soloDigital && (
-                        <>
-                          <div>
-                            <dt>Productos</dt>
-                            <dd>{precio(total(items))}</dd>
-                          </div>
-                          {eleccion.entrega === "envio" && (
-                            <div>
-                              <dt>Envío</dt>
-                              <dd>{textoCosto(calculo.costo, calculo.cotizando)}</dd>
-                            </div>
-                          )}
-                        </>
-                      )}
-                      <div className="compra__total">
-                        <dt>Total</dt>
-                        <dd>{precio(total(items) + (calculo.costo ?? 0))}</dd>
-                      </div>
-                    </dl>
-                  </>
-                )}
-                <div className="campo bolsita__nombre">
-                  <label htmlFor="bolsita-nombre">Tu nombre (opcional)</label>
-                  <input type="text" id="bolsita-nombre" autoComplete="given-name" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-                </div>
-                <PedirPorWhatsApp items={items} nombre={nombre} entrega={envioWhatsApp} claro={pagoOnline} alEnviar={setPedidoEnviado} />
-                <p className="bolsita__aviso">Se abre WhatsApp con tu pedido escrito. Ahí coordinamos el pago{soloDigital ? "" : " y la entrega"}.</p>
+                {/* La entrega, el envío y el pago (o el pedido por WhatsApp) se ven en la página de compra, paso por paso. */}
+                <p className="bolsita__total">
+                  Subtotal <span>{precio(total(items))}</span>
+                </p>
+                <Link className="boton boton--ancho" href="/comprar" onClick={cerrar}>
+                  Continuar compra
+                </Link>
+                <p className="bolsita__aviso">
+                  {soloDigital
+                    ? pagoOnline
+                      ? "Pagás con Mercado Pago y los PDF te llegan por mail."
+                      : "En el siguiente paso nos mandás el pedido por WhatsApp."
+                    : "En el siguiente paso elegís cómo lo recibís y ves el costo del envío."}
+                </p>
               </div>
             )}
           </aside>
