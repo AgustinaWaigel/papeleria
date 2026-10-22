@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Portadilla, Seccion } from "@/components/Bloques";
-import { CONTACTO, enlaceWhatsApp } from "@/lib/contacto";
+import { CONTACTO, enlaceWhatsApp, PLAZO_TALLER } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { SOLO_CRESPO } from "@/lib/zonas";
 
@@ -52,6 +52,7 @@ export default function Terminos() {
           )}
 
           <h2>Envíos y retiro</h2>
+          <p>{PLAZO_TALLER} Los descargables no tienen espera: te llegan por mail apenas se acredita el pago.</p>
           {SOLO_CRESPO ? (
             <p>
               Podés retirar tu pedido (coordinamos por WhatsApp dónde y cuándo) o, si sos de Crespo, recibirlo en tu casa.

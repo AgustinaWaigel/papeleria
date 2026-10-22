@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useSyncExternalStore, useTransition } from "react";
 import { pagarOnline, validarCupon } from "@/app/(tienda)/acciones";
 import { cambiarCantidad, lugarLibre, total, unidades } from "@/lib/bolsita";
-import { precio } from "@/lib/contacto";
+import { enlaceWhatsApp, PLAZO_TALLER, precio } from "@/lib/contacto";
 import { PedirPorWhatsApp, useAjustesCompra, useRenglones } from "./Bolsita";
 import { ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
 
@@ -183,6 +183,7 @@ export function Compra() {
           {paso === 2 && (
             <>
               <ElegirEnvio eleccion={eleccion} cambiar={setEleccion} texto={calculo.texto} />
+              <p className="campo__ayuda paso__plazo">{PLAZO_TALLER}</p>
               {conEnvio && !envioSinPrecio && (
                 <div className="campo">
                   <label htmlFor="compra-direccion">Dirección</label>
@@ -306,6 +307,18 @@ export function Compra() {
               </div>
 
               <Cuentas subtotal={subtotal} descuento={descuento} conEnvio={conEnvio} envio={textoCosto(calculo.costo, calculo.cotizando)} final={final} />
+
+              {!soloDigital && (
+                <div className="seguimiento__aviso seguimiento__aviso--espera">
+                  <p>
+                    <strong>Antes de pagar:</strong> {PLAZO_TALLER} Si lo necesitás para una fecha o tenés alguna duda,{" "}
+                    <a href={enlaceWhatsApp("¡Hola Alas de Ángel! Tengo una consulta sobre los tiempos de mi pedido.")} target="_blank" rel="noopener">
+                      escribinos por WhatsApp
+                    </a>{" "}
+                    antes de comprar.
+                  </p>
+                </div>
+              )}
 
               {error && (
                 <p className="compra__error" role="alert">

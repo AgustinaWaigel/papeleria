@@ -976,6 +976,8 @@ a:hover { color: var(--color-tinta); }
 .paso__precio { font-family: var(--fuente-titulo); white-space: nowrap; }
 .paso .envio-elegir .campo input, .paso .envio-elegir .campo select, .paso .campo textarea { padding: var(--espacio-2) var(--espacio-3); }
 .paso .campo textarea { min-height: 0; }
+.paso__plazo { margin-bottom: var(--espacio-4); }
+.paso form .seguimiento__aviso { margin-bottom: var(--espacio-4); font-size: var(--texto-s); }
 .compra-pagina__resumen { display: grid; gap: var(--espacio-3); padding: var(--espacio-5); background: var(--color-cielo); border: var(--borde); border-radius: var(--radio-l); }
 .compra-pagina__resumen h2 { font-size: var(--texto-l); }
 .compra-pagina__resumen .compra__cuentas { margin: 0; }

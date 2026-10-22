@@ -10,7 +10,12 @@ export const CONTACTO = {
 export const enlaceWhatsApp = (texto: string) =>
   `https://wa.me/${CONTACTO.whatsapp}?text=${encodeURIComponent(texto)}`;
 
-export const enlaceInstagram = `https://instagram.com/${CONTACTO.instagram}`;
+/* Cuánto lleva preparar un pedido con productos físicos. Se muestra antes de pagar, en el seguimiento, en el mail
+   de confirmación, en las preguntas frecuentes y en los términos: si cambia, cambia en todos lados. */
+export const PLAZO_TALLER =
+  "Todo lo hacemos a mano, así que preparar tu pedido lleva de 5 a 10 días hábiles, según lo que lleve. Después sale el envío (o te avisamos para que lo retires).";
+
+export const enlaceInstagram =`https://instagram.com/${CONTACTO.instagram}`;
 
 export const enlaceTiktok = `https://www.tiktok.com/@${CONTACTO.tiktok}`;
 

@@ -170,7 +170,8 @@ export async function cotizarEnvio(items: Item[], cp: string, montoProductos: nu
   const c = await cotizacionCorreo(limpiarItems(items), cp);
   if (!c) return {};
   const { gratisDesde } = await obtenerAjustesEnvio();
-  const dias = c.diasMin && c.diasMax ? ` · llega en ${c.diasMin} a ${c.diasMax} días hábiles` : "";
+  // Lo que tarda el correo, que se suma a lo que lleva preparar el pedido (PLAZO_TALLER).
+  const dias = c.diasMin && c.diasMax ? ` · el correo tarda ${c.diasMin} a ${c.diasMax} días hábiles desde que lo despachamos` : "";
   return { costo: gratisDesde !== null && montoProductos >= gratisDesde ? 0 : c.costo, texto: `${c.servicio} a domicilio${dias}` };
 }
 

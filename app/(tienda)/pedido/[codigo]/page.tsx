@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { reintentarPago } from "../../acciones";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { VaciarBolsita } from "@/components/VaciarBolsita";
-import { enlaceWhatsApp, precio } from "@/lib/contacto";
+import { enlaceWhatsApp, PLAZO_TALLER, precio } from "@/lib/contacto";
 import { pagoOnlineConfigurado, sincronizarPago } from "@/lib/mercadopago";
 import { obtenerCatalogo } from "@/lib/catalogo";
 import { CONFIRMADOS, fechaLinda } from "@/lib/pedidos";
@@ -100,6 +100,19 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
                 El cupón de este pedido ya no tiene usos disponibles, así que no lo podemos volver a cobrar con el descuento.
                 Armá el pedido de nuevo desde la bolsita o escribinos por WhatsApp.
               </p>
+            )}
+
+            {/* Pagado y todavía en el taller: cuánto lleva prepararlo. */}
+            {p.estado === "pagado" && p.entrega !== "digital" && (
+              <div className="seguimiento__aviso seguimiento__aviso--espera" role="status">
+                <p>
+                  <strong>Ya estamos con tu pedido.</strong> {PLAZO_TALLER} Si tenés alguna duda,{" "}
+                  <a href={whatsapp} target="_blank" rel="noopener">
+                    escribinos por WhatsApp
+                  </a>
+                  .
+                </p>
+              </div>
             )}
 
             {conPdf && pagado && (

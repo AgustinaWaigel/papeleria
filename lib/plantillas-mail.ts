@@ -2,7 +2,7 @@
    No manda nada ni lee la base: recibe los datos y arma el mail. Lo usa lib/mails.ts para mandarlos, y
    sirve para ver cómo quedan sin mandarlos. */
 
-import { CONTACTO, enlaceInstagram, precio } from "./contacto";
+import { CONTACTO, enlaceInstagram, PLAZO_TALLER, precio } from "./contacto";
 import { CABECERA_CID } from "./mail-cabecera";
 import { linkDeSeguimiento, type Entrega } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
@@ -74,6 +74,8 @@ export function mailConfirmacion(p: PedidoMail, conDescargables: boolean): Mail 
       : p.entrega === "retiro"
         ? "Lo preparamos y te escribimos por WhatsApp para coordinar dónde y cuándo retirarlo."
         : "Lo preparamos y te escribimos para coordinar la entrega.";
+  // Este mail sale solo si el pedido lleva algo físico (ver enviarConfirmacion en lib/mails.ts).
+  const plazo = `${PLAZO_TALLER} Si tenés alguna duda o lo necesitás para una fecha, respondé este mail o escribinos por WhatsApp.`;
   return {
     subject: `¡Recibimos tu compra! · pedido ${p.codigo}`,
     html: plantilla({
@@ -82,6 +84,7 @@ export function mailConfirmacion(p: PedidoMail, conDescargables: boolean): Mail 
       bloques: [
         parrafo("¡Gracias por tu compra! Ya recibimos el pago. Esto es lo que llevás:"),
         detalle(p),
+        parrafo(plazo),
         parrafo(sigue),
         ...(conDescargables ? [parrafo("Los descargables te llegan en otro mail, con los PDF adjuntos.")] : []),
       ],
@@ -93,6 +96,7 @@ export function mailConfirmacion(p: PedidoMail, conDescargables: boolean): Mail 
       "¡Gracias por tu compra! Ya recibimos el pago.",
       ...lineasDetalle(p),
       "",
+      plazo,
       sigue.replace(/<[^>]+>/g, ""),
       `Tu pedido: ${verPedido(p).url}`,
     ]),
