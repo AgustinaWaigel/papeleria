@@ -82,7 +82,9 @@ export async function armarPaquete(items: { id: string; cantidad: number }[]) {
   // Los descargables no pesan.
   const peso = items.reduce((s, i) => {
     const p = porId.get(i.id);
-    return p && p.tipo !== "descargable" ? s + (p.peso_gramos ?? caja.peso_por_defecto) * i.cantidad : s;
+    // Las mismas cantidades que acepta la base (1 a 99), así un número raro no achica el paquete.
+    const cantidad = Math.min(Math.max(Math.floor(i.cantidad) || 1, 1), 99);
+    return p && p.tipo !== "descargable" ? s + (p.peso_gramos ?? caja.peso_por_defecto) * cantidad : s;
   }, 0);
   return { peso: Math.min(Math.max(Math.round(peso), 1), 50000), alto: caja.caja_alto, ancho: caja.caja_ancho, largo: caja.caja_largo, recargo: caja.envio_recargo };
 }

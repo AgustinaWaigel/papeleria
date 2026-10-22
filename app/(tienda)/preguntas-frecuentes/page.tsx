@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
-import { enlaceWhatsApp } from "@/lib/contacto";
+import { enlaceWhatsApp, PLAZO_TALLER } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS } from "@/lib/paginas";
 import { SOLO_CRESPO } from "@/lib/zonas";
@@ -90,8 +90,8 @@ const TEMAS: Tema[] = [
       [
         "¿Cuánto tarda en llegar?",
         SOLO_CRESPO
-          ? "Dentro de Crespo te lo llevamos nosotras: el día lo coordinamos por WhatsApp cuando nos mandás el pedido."
-          : "Lo despachamos dentro de los tres días hábiles de acreditado el pago. Después depende del correo: cuando sale, te mandamos un mail con el número de seguimiento.",
+          ? `${PLAZO_TALLER} Dentro de Crespo te lo llevamos nosotras: el día lo coordinamos por WhatsApp.`
+          : `${PLAZO_TALLER} El correo tarda unos días más según adónde va: cuando sale, te mandamos un mail con el número de seguimiento. Si lo necesitás para una fecha, escribinos por WhatsApp antes de comprar.`,
       ],
       [
         "¿Es para regalo? ¿Lo pueden envolver?",

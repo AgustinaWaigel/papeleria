@@ -82,11 +82,40 @@ export function nuevoCodigo() {
   return "AA-" + Array.from(azar, (n) => letras[n % letras.length]).join("");
 }
 
-/* envio: cómo lo recibe y cuánto sale (costo null: se coordina), elegido en la bolsita. */
-export function textoPedido(lista: Renglon[], codigo?: string, nombre?: string, envio?: { texto: string; costo: number | null }) {
-  const lineas = lista.map(({ producto: p, cantidad: n }) => `• ${n} × ${p.nombre} — ${precio(p.precio * n)}`);
-  const saludo = nombre ? `¡Hola Alas de Ángel! Soy ${nombre} y quiero hacer este pedido` : "¡Hola Alas de Ángel! Quiero hacer este pedido";
-  const pie = codigo ? `\n\nCódigo de pedido: ${codigo}` : "";
-  const entrega = envio ? `\n${envio.texto}` : "";
-  return `${saludo}:\n\n${lineas.join("\n")}${entrega}\n\nTotal: ${precio(total(lista) + (envio?.costo ?? 0))}${pie}`;
+/* Cómo lo recibe, para el mensaje. En un envío, costo null o undefined: se coordina por WhatsApp. */
+export type EntregaPedido =
+  | { tipo: "retiro" }
+  | { tipo: "digital" }
+  | { tipo: "envio"; destino?: string; costo?: number | null; direccion?: string };
+
+/* El mensaje de WhatsApp con el pedido. Sin entrega elegida, se coordina en el chat.
+   Sin emojis: viajan en el link de WhatsApp y algunas versiones (la web, la de escritorio) los muestran como "�". */
+export function textoPedido(lista: Renglon[], { codigo, nombre, entrega }: { codigo?: string; nombre?: string; entrega?: EntregaPedido } = {}) {
+  const subtotal = total(lista);
+  const envio = entrega?.tipo === "envio" ? entrega : null;
+  const costoEnvio = typeof envio?.costo === "number" ? envio.costo : null;
+
+  const lineas = [
+    nombre ? `¡Hola Alas de Ángel! Soy ${nombre} y quiero hacer este pedido:` : "¡Hola Alas de Ángel! Quiero hacer este pedido:",
+    "",
+    ...(codigo ? [`*Pedido ${codigo}*`] : []),
+    ...lista.map(({ producto: p, cantidad: n }) => `• ${n} × ${p.nombre} — ${precio(p.precio * n)}`),
+    "",
+  ];
+  if (envio) {
+    lineas.push(
+      `Productos: ${precio(subtotal)}`,
+      `Envío a domicilio${envio.destino ? ` (${envio.destino})` : ""}: ${costoEnvio === null ? "a coordinar" : costoEnvio === 0 ? "gratis" : precio(costoEnvio)}`,
+      ...(envio.direccion?.trim() ? [`Dirección: ${envio.direccion.trim()}`] : []),
+    );
+  } else if (entrega?.tipo === "retiro") lineas.push("Lo retiro en Crespo.");
+  else if (entrega?.tipo === "digital") lineas.push("Son descargables: me llegan por mail.");
+  else lineas.push("La entrega la coordinamos por acá.");
+
+  lineas.push(
+    `*Total: ${precio(subtotal + (costoEnvio ?? 0))}*${envio && costoEnvio === null ? " + envío" : ""}`,
+    "",
+    "¿Me confirman y me pasan los datos para pagar? ¡Gracias!",
+  );
+  return lineas.join("\n");
 }
