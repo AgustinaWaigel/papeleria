@@ -117,6 +117,10 @@ const TEMAS: Tema[] = [
         "¿Necesito algún programa especial?",
         "No. Son PDF: se abren en cualquier compu o celular. Los que dicen “editable” se completan con el lector de PDF gratuito de Adobe.",
       ],
+      [
+        "¿Qué diferencia hay entre el PDF y el editable en Canva?",
+        "El PDF viene listo para imprimir tal cual. El editable en Canva te deja cambiar textos, colores y fotos: te llega un PDF con el botón para abrir tu copia de la plantilla en Canva, y la usás con una cuenta gratis. Cuando la terminás, la descargás o la imprimís las veces que quieras.",
+      ],
     ],
   },
   {

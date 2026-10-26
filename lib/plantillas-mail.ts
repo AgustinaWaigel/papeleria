@@ -74,6 +74,67 @@ export function mailDescargables(p: PedidoMail, descargas: { nombre: string; url
   };
 }
 
+/* El regalo por anotarse en las novedades: el descargable con su botón (que no vence). */
+export function mailRegalo(nombre: string, url: string): Mail {
+  return {
+    subject: `Tu regalo de Alas de Ángel: ${nombre}`,
+    html: plantilla({
+      nota: "gracias por sumarte",
+      titulo: "¡Acá está tu regalo!",
+      bloques: [
+        parrafo("Gracias por anotarte en las novedades. Como prometimos, te regalamos este descargable:"),
+        tarjetaPdf({ nombre, url }),
+        parrafo(
+          `Bajalo e imprimilo ${resaltado("todas las veces que quieras")}. Si es tu primera vez, en la <a href="${GUIA_IMPRIMIR}" style="color: ${C.bordo}; font-weight: bold;">guía para imprimir</a> te contamos qué papel usar.`,
+        ),
+        parrafo("Te vamos a escribir poquito: cuando salga algo nuevo o haya una oferta que valga la pena."),
+      ],
+    }),
+    text: textoPlano([
+      "¡Hola! Gracias por anotarte en las novedades. Acá está tu regalo:",
+      "",
+      `• ${nombre}: ${url}`,
+      "",
+      `Cómo imprimirlo: ${GUIA_IMPRIMIR}`,
+    ]),
+  };
+}
+
+export type DatosPresupuesto = {
+  codigo: string;
+  nombre: string;
+  email: string;
+  telefono: string;
+  tipo: string;
+  organizacion: string;
+  detalle: string;
+  fecha: string;
+};
+
+/* A quien pidió presupuesto: que lo recibimos y qué sigue. */
+export function mailPresupuesto(d: DatosPresupuesto): Mail {
+  return {
+    subject: `Recibimos tu pedido de presupuesto ${d.codigo}`,
+    html: plantilla({
+      nota: "pedidos por mayor",
+      titulo: saludo(d.nombre),
+      bloques: [
+        parrafo("Recibimos tu pedido y lo estamos mirando. En uno o dos días hábiles te escribimos con el precio y los tiempos."),
+        destacado("Tu número de pedido", d.codigo),
+        pastillas([escapar(d.detalle).replace(/\n/g, "<br>")]),
+      ],
+    }),
+    text: textoPlano([
+      saludo(d.nombre),
+      "",
+      "Recibimos tu pedido y lo estamos mirando. En uno o dos días hábiles te escribimos con el precio y los tiempos.",
+      `Tu número de pedido: ${d.codigo}`,
+      "",
+      d.detalle,
+    ]),
+  };
+}
+
 /* "¡Recibimos tu compra!": el detalle, el total y qué sigue. */
 export function mailConfirmacion(p: PedidoMail, conDescargables: boolean): Mail {
   const sigue =
@@ -210,6 +271,19 @@ export function mailAvisoArrepentimiento(d: DatosArrepentimiento): Mail {
       "Hay que responderle dentro de las 24 horas.",
     ],
     `${SITIO_URL}/admin/arrepentimientos`,
+  );
+}
+
+/* Alguien pidió presupuesto para un pedido por mayor. */
+export function mailAvisoPresupuesto(d: DatosPresupuesto, tipo: string): Mail {
+  return mailAviso(
+    `Pedido de presupuesto ${d.codigo} (${tipo})`,
+    [
+      `${d.nombre}${d.organizacion ? ` (${d.organizacion})` : ""} · ${d.email}${d.telefono ? ` · ${d.telefono}` : ""}`,
+      ...(d.fecha ? [`Para: ${d.fecha}`] : []),
+      d.detalle,
+    ],
+    `${SITIO_URL}/admin/presupuestos`,
   );
 }
 

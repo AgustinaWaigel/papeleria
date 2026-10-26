@@ -1,7 +1,7 @@
 import { ProveedorBolsita } from "@/components/Bolsita";
 import { Cabecera } from "@/components/Cabecera";
 import { Pie } from "@/components/Pie";
-import { obtenerAjustesEnvio, obtenerCatalogo, obtenerSecciones } from "@/lib/catalogo";
+import { obtenerAjustesEnvio, obtenerCatalogo, obtenerRegalo, obtenerSecciones } from "@/lib/catalogo";
 import { correoConfigurado } from "@/lib/correo";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { tieneEtiqueta } from "@/lib/productos";
@@ -21,7 +21,7 @@ export default async function LayoutTienda({ children }: { children: React.React
       <ProveedorBolsita catalogo={resumen} pagoOnline={pagoOnlineActivo} envio={await obtenerAjustesEnvio()} cotizaCorreo={correoConfigurado}>
         <Cabecera secciones={conProductos} />
         <main id="contenido">{children}</main>
-        <Pie />
+        <Pie regalo={(await obtenerRegalo())?.nombre} />
       </ProveedorBolsita>
     </>
   );

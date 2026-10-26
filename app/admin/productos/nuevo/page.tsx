@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FormProducto } from "@/components/admin/FormProducto";
 import { SinSupabase } from "@/components/admin/SinSupabase";
-import { exigirAdmin } from "@/lib/admin";
+import { exigirAdmin, otrosDescargables } from "@/lib/admin";
 import { obtenerCategorias, obtenerSecciones } from "@/lib/catalogo";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 
@@ -16,6 +16,8 @@ async function Contenido() {
   const { error: sinEtiquetas } = await supabase.from("productos").select("etiquetas").limit(1);
   const secciones = sinEtiquetas ? [] : await obtenerSecciones();
   const { error: sinPorCantidad } = await supabase.from("productos").select("por_cantidad").limit(1);
+  const { error: sinMuestras } = await supabase.from("productos").select("muestras").limit(1);
+  const { error: sinFormato } = await supabase.from("productos").select("formato").limit(1);
   return (
     <>
       <div className="admin__encabezado">
@@ -29,6 +31,8 @@ async function Contenido() {
         conPdf={!sinPdf}
         conPeso={!sinPeso}
         conPorCantidad={!sinPorCantidad}
+        conMuestras={!sinMuestras}
+        formatos={sinFormato ? undefined : { descargables: await otrosDescargables(supabase) }}
         etiquetas={sinEtiquetas ? undefined : { secciones: secciones.map((s) => [s.id, s.nombre]) }}
       />
     </>

@@ -47,7 +47,21 @@ export type Producto = {
   precioAnterior?: number; // si es mayor que precio, está en oferta
   etiquetas?: string[];
   porCantidad?: Escala[]; // descuentos llevando varias unidades (supabase/10-precio-por-cantidad.sql)
+  muestras?: string[]; // fotos de las hojas de adentro (supabase/11-muestras-regalo-fotos-presupuestos.sql)
+  formato?: Formato; // de un descargable: PDF para imprimir o editable en Canva (mismo script)
+  otraVersion?: string; // el mismo descargable en el otro formato
 };
+
+export type Formato = "pdf" | "canva";
+
+export const FORMATOS: [Formato, string][] = [
+  ["pdf", "PDF para imprimir"],
+  ["canva", "Editable en Canva"],
+];
+
+/* Cómo llega un descargable editable en Canva (va en lugar del texto de entrega de los descargables). */
+export const ENTREGA_CANVA =
+  "Te llega por mail un PDF con el botón para abrir tu plantilla en Canva: la editás con una cuenta gratis y la descargás o imprimís las veces que quieras.";
 
 /* Llevando `cantidad` o más unidades, cada una sale `descuento` % menos. */
 export type Escala = { cantidad: number; descuento: number };
@@ -71,6 +85,10 @@ export const limpiarEscalas = (escalas: Escala[]) =>
     .slice(0, 6);
 
 export type Categorias = Partial<Record<TipoProducto, [id: string, nombre: string][]>>;
+
+/* En las grillas, un descargable con dos formatos aparece una sola vez (el PDF): el de Canva se elige en su página. */
+export const unoPorFormato = (productos: Producto[]) =>
+  productos.filter((p) => !(p.formato === "canva" && p.otraVersion && productos.some((o) => o.id === p.otraVersion)));
 
 export const agotado = (p: Pick<Producto, "stock">) => p.stock === 0;
 export const enOferta = (p: Pick<Producto, "precio" | "precioAnterior">) => (p.precioAnterior ?? 0) > p.precio;
@@ -197,6 +215,13 @@ export const TIPOS: [TipoProducto, string][] = [
 ];
 
 export const rutaProducto = (id: string) => `/producto/${id}`;
+
+/* Sin tildes ni mayúsculas: "Agenda" encuentra "agenda" y "lapiz" encuentra "lápiz". */
+export const normalizar = (texto: string) =>
+  texto
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
 
 /* "Vuelta al cole" → "vuelta-al-cole": así se comparan las etiquetas con las secciones y se arma la dirección. */
 export const idEtiqueta = (texto: string) =>

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { borrarSuscriptor } from "../tienda-acciones";
 import { BotonConfirmar } from "@/components/admin/BotonConfirmar";
 import { CopiarMails } from "@/components/admin/CopiarMails";
+import { FormRegalo } from "@/components/admin/FormRegalo";
 import { SinSupabase } from "@/components/admin/SinSupabase";
 import { exigirAdmin } from "@/lib/admin";
 import { supabaseConfigurado } from "@/lib/supabase/config";
@@ -11,7 +12,11 @@ export const metadata: Metadata = { title: "Suscriptores" };
 
 async function Contenido() {
   const { supabase } = await exigirAdmin();
-  const { data, error } = await supabase.from("suscriptores").select("email, creado_en").order("creado_en", { ascending: false });
+  const [{ data, error }, { data: ajustes, error: sinRegalo }, { data: descargables }] = await Promise.all([
+    supabase.from("suscriptores").select("email, creado_en").order("creado_en", { ascending: false }),
+    supabase.from("ajustes").select("regalo_producto").maybeSingle(),
+    supabase.from("productos").select("id, nombre").eq("tipo", "descargable").not("archivo", "is", null).order("nombre"),
+  ]);
   const suscriptores = data ?? [];
 
   return (
@@ -28,6 +33,13 @@ async function Contenido() {
         Se anotan desde el pie de la tienda. Para mandarles algo, copiá los mails y pegalos en CCO (copia oculta) de tu
         correo, o importalos en un servicio como Mailchimp o Brevo.
       </p>
+      {/* Sin supabase/11-muestras-regalo-fotos-presupuestos.sql la columna no existe: no se muestra. */}
+      {!sinRegalo && (
+        <FormRegalo
+          descargables={(descargables ?? []).map((d) => [d.id as string, d.nombre as string])}
+          actual={ajustes?.regalo_producto ?? null}
+        />
+      )}
       <div className="admin__tabla-marco">
         <table className="admin__tabla">
           <thead>

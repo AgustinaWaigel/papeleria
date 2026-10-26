@@ -10,8 +10,21 @@ import { FormAvisoStock } from "@/components/FormAvisoStock";
 import { FormResena } from "@/components/FormResena";
 import { Galeria } from "@/components/Galeria";
 import { Precio } from "@/components/Precio";
-import { obtenerCatalogo, obtenerProducto, obtenerResenas, type Resena } from "@/lib/catalogo";
-import { Dibujo, SECCIONES, agotado, rutaProducto, rutaSeccion, type Producto } from "@/lib/productos";
+import { AsiLoUsan } from "@/components/AsiLoUsan";
+import { PorDentro } from "@/components/PorDentro";
+import { obtenerCatalogo, obtenerFotosClientas, obtenerProducto, obtenerResenas, type Resena } from "@/lib/catalogo";
+import { precio as precioTexto } from "@/lib/contacto";
+import {
+  Dibujo,
+  ENTREGA_CANVA,
+  FORMATOS,
+  SECCIONES,
+  agotado,
+  rutaProducto,
+  rutaSeccion,
+  unoPorFormato,
+  type Producto,
+} from "@/lib/productos";
 import { SITIO_URL } from "@/lib/sitio";
 
 export async function generateStaticParams() {
@@ -67,14 +80,19 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
   const p = await obtenerProducto((await params).id);
   if (!p) notFound();
 
-  const resenas = await obtenerResenas(p.id);
+  const [resenas, todasLasFotos] = await Promise.all([obtenerResenas(p.id), obtenerFotosClientas()]);
+  const fotosClientas = todasLasFotos.filter((f) => f.producto_id === p.id);
   const promedio = resenas.length > 0 ? resenas.reduce((s, r) => s + r.puntaje, 0) / resenas.length : 0;
   const seccion = SECCIONES[p.tipo];
   const caracteristicas = p.caracteristicas ?? p.detalle?.split(" · ") ?? [];
   const marca = sello(p);
+  const catalogo = await obtenerCatalogo();
+  // El mismo descargable en el otro formato (PDF para imprimir o editable en Canva), si está en la tienda.
+  const otra = p.otraVersion ? catalogo.find((o) => o.id === p.otraVersion) : undefined;
+  const formatos = otra ? [p, otra].sort((a, b) => Number(a.formato === "canva") - Number(b.formato === "canva")) : [];
   // Primero los de la misma categoría, después el resto del mismo tipo.
-  const parecidos = (await obtenerCatalogo())
-    .filter((o) => o.tipo === p.tipo && o.id !== p.id)
+  const parecidos = unoPorFormato(catalogo)
+    .filter((o) => o.tipo === p.tipo && o.id !== p.id && o.id !== otra?.id)
     .sort((a, b) => Number(b.cat === p.cat) - Number(a.cat === p.cat))
     .slice(0, 4);
 
@@ -110,6 +128,26 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
               </div>
               <p className="producto__bajada">{p.desc}</p>
 
+              {formatos.length > 0 && (
+                <nav className="formatos" aria-label="Formato">
+                  <span className="por-cantidad__titulo">Formato</span>
+                  <div className="filtros">
+                    {formatos.map((f) => (
+                      <Link
+                        key={f.id}
+                        className="filtro"
+                        href={rutaProducto(f.id)}
+                        aria-current={f.id === p.id ? "true" : undefined}
+                        replace
+                        scroll={false}
+                      >
+                        {FORMATOS.find(([id]) => id === (f.formato ?? "pdf"))?.[1]} · {precioTexto(f.precio)}
+                      </Link>
+                    ))}
+                  </div>
+                </nav>
+              )}
+
               {p.porCantidad && !agotado(p) ? (
                 <ElegirCantidad producto={p} />
               ) : (
@@ -119,8 +157,8 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
                 <FormAvisoStock productoId={p.id} />
               ) : (
                 <p className="producto__entrega">
-                  {seccion.entrega}
-                  {p.tipo === "descargable" && (
+                  {p.formato === "canva" ? ENTREGA_CANVA : seccion.entrega}
+                  {p.tipo === "descargable" && p.formato !== "canva" && (
                     <>
                       {" "}
                       <Link href="/como-imprimir">Cómo imprimirlo</Link>.
@@ -170,6 +208,18 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
           </div>
         </div>
       </section>
+
+      {p.muestras && (
+        <Seccion nota="antes de comprarlo" titulo="Mirá por dentro" bajada="Algunas hojas de muestra. Tocá una para verla entera.">
+          <PorDentro muestras={p.muestras} nombre={p.nombre} />
+        </Seccion>
+      )}
+
+      {fotosClientas.length > 0 && (
+        <Seccion cielo nota="fotos de quienes ya lo tienen" titulo="Así lo usan">
+          <AsiLoUsan fotos={fotosClientas} />
+        </Seccion>
+      )}
 
       <section className="seccion resenas" id="resenas">
         <div className="contenedor">

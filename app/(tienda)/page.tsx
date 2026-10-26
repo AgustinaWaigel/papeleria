@@ -3,11 +3,12 @@ import { Franja, Seccion } from "@/components/Bloques";
 import { AlasAnimadas } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
 import { Ficha } from "@/components/Ficha";
-import { obtenerCatalogo, obtenerSecciones } from "@/lib/catalogo";
+import { AsiLoUsan } from "@/components/AsiLoUsan";
+import { obtenerCatalogo, obtenerFotosClientas, obtenerSecciones } from "@/lib/catalogo";
 import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS, visible } from "@/lib/paginas";
-import { tieneEtiqueta } from "@/lib/productos";
+import { tieneEtiqueta, unoPorFormato } from "@/lib/productos";
 import { SITIO_URL } from "@/lib/sitio";
 
 const ESTANTES = [
@@ -96,8 +97,9 @@ export default async function Inicio() {
 
   // Los que se marcaron "En Inicio" en el panel; si no hay ninguno, los primeros del catálogo.
   const destacados = catalogo.filter((p) => p.destacado);
-  const enInicio = (destacados.length > 0 ? destacados : catalogo).slice(0, 8);
+  const enInicio = unoPorFormato(destacados.length > 0 ? destacados : catalogo).slice(0, 8);
   const secciones = (await obtenerSecciones()).filter((s) => catalogo.some((p) => tieneEtiqueta(p, s.id)));
+  const fotosClientas = await obtenerFotosClientas();
 
   return (
     <>
@@ -156,6 +158,21 @@ export default async function Inicio() {
         </Seccion>
       )}
 
+      {ABIERTAS.listas && (
+      <Seccion>
+        <Franja
+          titulo="¿Tenés la lista de útiles del cole?"
+          accion={
+            <Link className="boton" href="/listas-escolares">
+              Armar mi lista
+            </Link>
+          }
+        >
+          Pegala tal cual te la mandaron y te armamos la bolsita con todo lo que tenemos, para tu hijo o para todo el grado.
+        </Franja>
+      </Seccion>
+      )}
+
       <Seccion nota="por dónde empezar" titulo="Cuatro estantes para revolver">
         <div className="estantes">
           {ESTANTES.map((e) => (
@@ -172,6 +189,12 @@ export default async function Inicio() {
           ))}
         </div>
       </Seccion>
+
+      {fotosClientas.length > 0 && (
+        <Seccion nota="fotos de nuestras clientas" titulo="Así lo usan">
+          <AsiLoUsan fotos={fotosClientas.slice(0, 8)} conProducto={new Map(catalogo.map((p) => [p.id, p.nombre]))} />
+        </Seccion>
+      )}
 
       <Seccion cielo nota="así de simple" titulo="Cómo comprar">
         <ol className="pasos">

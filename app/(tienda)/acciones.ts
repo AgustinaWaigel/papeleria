@@ -9,9 +9,10 @@ import { redirect } from "next/navigation";
 import { MAXIMO_POR_PRODUCTO } from "@/lib/bolsita";
 import type { PedidoCliente } from "@/lib/seguimiento";
 import { nombreProvincia, numeroCP, provinciaDeCP, SOLO_CRESPO, zonaLocal } from "@/lib/zonas";
-import { obtenerAjustesEnvio } from "@/lib/catalogo";
+import { obtenerAjustesEnvio, obtenerRegalo } from "@/lib/catalogo";
+import { TIPOS_PRESUPUESTO } from "@/lib/contacto";
 import { armarPaquete, correoConfigurado, cotizar } from "@/lib/correo";
-import { confirmarArrepentimiento } from "@/lib/mails";
+import { confirmarArrepentimiento, confirmarPresupuesto, enviarRegalo } from "@/lib/mails";
 import { crearLinkDePago, descartarPedido, MINUTOS_CUPON, pagoOnlineActivo, pagoOnlineConfigurado } from "@/lib/mercadopago";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 import { clientePublico, clienteServicio } from "@/lib/supabase/servidor";
@@ -226,6 +227,38 @@ export async function pedirArrepentimiento(_: EstadoPublico, datos: FormData): P
   return { ok: "Registramos tu pedido de arrepentimiento.", codigo };
 }
 
+/* "Pedidos por mayor": guarda el pedido de presupuesto y devuelve el código al instante. */
+export async function pedirPresupuesto(_: EstadoPublico, datos: FormData): Promise<EstadoPublico & { codigo?: string }> {
+  if (texto(datos, "sitio")) return { ok: "¡Listo!" };
+  if (!supabaseConfigurado) return { error: "Escribinos por WhatsApp y lo armamos por ahí." };
+  const campos = {
+    nombre: texto(datos, "nombre"),
+    email: texto(datos, "email").toLowerCase(),
+    telefono: texto(datos, "telefono"),
+    tipo: texto(datos, "tipo"),
+    organizacion: texto(datos, "organizacion"),
+    detalle: texto(datos, "detalle"),
+    fecha: texto(datos, "fecha"),
+  };
+  if (campos.nombre.length < 2) return { error: "Contanos tu nombre." };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(campos.email)) return { error: "Revisá el mail: ahí te mandamos el presupuesto." };
+  if (campos.detalle.length < 5) return { error: "Contanos qué necesitás y cuántos." };
+
+  const { data: codigo, error } = await clientePublico().rpc("crear_presupuesto", {
+    p_nombre: campos.nombre,
+    p_email: campos.email,
+    p_telefono: campos.telefono,
+    p_tipo: campos.tipo,
+    p_organizacion: campos.organizacion,
+    p_detalle: campos.detalle,
+    p_fecha: campos.fecha,
+  });
+  if (error || !codigo) return { error: "No pudimos guardarlo. Mandanos el pedido por WhatsApp y lo vemos por ahí." };
+  const tipo = TIPOS_PRESUPUESTO.find(([t]) => t === campos.tipo)?.[1] ?? "Otro";
+  await confirmarPresupuesto({ codigo, ...campos }, tipo).catch((e) => console.error("No se pudo mandar el mail del presupuesto:", e));
+  return { ok: "¡Recibimos tu pedido!", codigo };
+}
+
 export async function dejarResena(_: EstadoPublico, datos: FormData): Promise<EstadoPublico> {
   // Campo trampa: invisible para las personas, los robots lo llenan.
   if (texto(datos, "sitio")) return { ok: "¡Gracias!" };
@@ -253,7 +286,15 @@ export async function suscribirse(_: EstadoPublico, datos: FormData): Promise<Es
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "Ese mail no parece completo." };
 
   const { error } = await clientePublico().from("suscriptores").insert({ email });
-  // 23505: ya estaba anotado. Para quien se suscribe da lo mismo.
+  // 23505: ya estaba anotado. Para quien se suscribe da lo mismo (y el regalo no se vuelve a mandar).
   if (error && error.code !== "23505") return { error: "No pudimos anotarte. Probá de nuevo en un rato." };
+  if (!error && (await obtenerRegalo())) {
+    try {
+      await enviarRegalo(email);
+      return { ok: "¡Listo! Te mandamos tu regalo por mail (si no lo ves, fijate en spam o promociones)." };
+    } catch (e) {
+      console.error("No se pudo mandar el regalo de suscripción:", e);
+    }
+  }
   return { ok: "¡Listo! Te avisamos cuando salga algo nuevo." };
 }

@@ -6,7 +6,8 @@ import { guardarProducto } from "@/app/admin/acciones";
 import { agregarCategoria } from "@/app/admin/tienda-acciones";
 import { Precio } from "@/components/Precio";
 import { precio as formato } from "@/lib/contacto";
-import { COLORES, Dibujo, NOMBRES_DIBUJO, TIPOS, idEtiqueta, type Categorias, type Escala, type Producto, type TipoProducto } from "@/lib/productos";
+import { achicarFotosDe } from "@/lib/fotos";
+import { COLORES, Dibujo, FORMATOS, NOMBRES_DIBUJO, TIPOS, idEtiqueta, type Categorias, type Escala, type Producto, type TipoProducto } from "@/lib/productos";
 import { BUCKET_DESCARGABLES } from "@/lib/supabase/config";
 import { clienteNavegador } from "@/lib/supabase/navegador";
 
@@ -19,7 +20,101 @@ type Props = {
   // Con supabase/09-secciones-y-etiquetas.sql: las secciones, para sumarlas con un toque.
   etiquetas?: { secciones: [id: string, nombre: string][] };
   conPorCantidad?: boolean; // la base ya tiene la columna (supabase/10-precio-por-cantidad.sql)
+  conMuestras?: boolean; // la base ya tiene la columna (supabase/11-muestras-regalo-fotos-presupuestos.sql)
+  // Con el mismo script: los otros descargables, para unir el PDF y el editable en Canva.
+  formatos?: { descargables: [id: string, nombre: string][] };
 };
+
+/* PDF para imprimir o editable en Canva, y cuál es el mismo descargable en el otro formato. */
+function CampoFormato({ producto: p, descargables }: { producto?: Props["producto"]; descargables: [id: string, nombre: string][] }) {
+  const otros = descargables.filter(([id]) => id !== p?.id);
+  return (
+    <fieldset className="admin__grupo">
+      <legend>Formato</legend>
+      <input type="hidden" name="con_formato" value="1" />
+      <div className="opciones">
+        {FORMATOS.map(([valor, nombre]) => (
+          <label key={valor} className="opcion">
+            <input type="radio" name="formato" value={valor} defaultChecked={(p?.formato ?? "pdf") === valor} />
+            <span>{nombre}</span>
+          </label>
+        ))}
+      </div>
+      <p className="campo__ayuda">
+        Editable en Canva: subí como PDF una hoja con el botón al «Enlace de plantilla» de Canva (Compartir → Enlace de
+        plantilla) y las instrucciones para usarla.
+      </p>
+      <div className="campo">
+        <label htmlFor="f-otra-version">El mismo producto en el otro formato</label>
+        <select id="f-otra-version" name="otra_version" defaultValue={p?.otraVersion ?? ""} aria-describedby="f-otra-version-ayuda">
+          <option value="">No tiene</option>
+          {otros.map(([id, nombre]) => (
+            <option key={id} value={id}>
+              {nombre}
+            </option>
+          ))}
+        </select>
+        <span className="campo__ayuda" id="f-otra-version-ayuda">
+          Cargá cada formato como un producto aparte (con su precio y su PDF) y unilos acá: en la tienda se elige el formato
+          en la página del producto, y el catálogo muestra uno solo.
+        </span>
+      </div>
+    </fieldset>
+  );
+}
+
+/* "Mirá por dentro": fotos de las hojas de adentro. Las que quedan van como `muestras`, las nuevas como archivos. */
+function CampoMuestras({ iniciales }: { iniciales: string[] }) {
+  const [muestras, setMuestras] = useState(iniciales);
+  const [nuevas, setNuevas] = useState<string[]>([]);
+  useEffect(() => () => nuevas.forEach((url) => URL.revokeObjectURL(url)), [nuevas]);
+
+  return (
+    <fieldset className="admin__grupo">
+      <legend>Páginas de muestra</legend>
+      <input type="hidden" name="con_muestras" value="1" />
+      <p className="campo__ayuda">
+        Fotos o capturas de las hojas de adentro (de un descargable o de un cuaderno). En la tienda aparecen como «Mirá por
+        dentro». Conviene que no se lea todo: mostrá una parte, o ponele una marca de agua.
+      </p>
+      {muestras.length > 0 && (
+        <ul className="editor__fotos">
+          {muestras.map((m, n) => (
+            <li key={m}>
+              <input type="hidden" name="muestras" value={m} />
+              {/* eslint-disable-next-line @next/next/no-img-element -- vista previa del panel */}
+              <img src={m} alt={`Muestra ${n + 1}`} />
+              <button type="button" onClick={() => setMuestras((lista) => lista.filter((x) => x !== m))}>
+                Sacar
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <label htmlFor="f-muestras-nuevas" className="campo__ayuda">
+        Sumar hojas (JPG, PNG o WebP). Se achican solas al guardar.
+      </label>
+      <input
+        type="file"
+        id="f-muestras-nuevas"
+        name="muestras_nuevas"
+        accept="image/jpeg,image/png,image/webp,image/avif"
+        multiple
+        onChange={(e) => setNuevas(Array.from(e.target.files ?? [], (f) => URL.createObjectURL(f)))}
+      />
+      {nuevas.length > 0 && (
+        <ul className="editor__fotos editor__fotos--nuevas">
+          {nuevas.map((url) => (
+            <li key={url}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- vista previa local */}
+              <img src={url} alt="Muestra nueva" />
+            </li>
+          ))}
+        </ul>
+      )}
+    </fieldset>
+  );
+}
 
 /* x10, x20…: desde qué cantidad y cuánto descuenta cada unidad. Muestra cuánto queda con el precio de arriba. */
 function CampoPorCantidad({ iniciales, precio }: { iniciales: Escala[]; precio: number }) {
@@ -95,30 +190,6 @@ const aIdentificador = (texto: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-
-/* Lleva la foto a 1600 px de lado como máximo, en JPG: de varios MB a unos cientos de KB.
-   Si el navegador no la puede abrir (por ejemplo, una HEIC en Chrome), la deja como está. */
-const LADO_MAXIMO = 1600;
-async function achicarFoto(archivo: File): Promise<File> {
-  try {
-    const imagen = await createImageBitmap(archivo);
-    const escala = Math.min(1, LADO_MAXIMO / Math.max(imagen.width, imagen.height));
-    const lienzo = document.createElement("canvas");
-    lienzo.width = Math.round(imagen.width * escala);
-    lienzo.height = Math.round(imagen.height * escala);
-    const ctx = lienzo.getContext("2d");
-    if (!ctx) return archivo;
-    ctx.fillStyle = "#fff"; // las partes transparentes de un PNG quedan blancas y no negras
-    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
-    ctx.drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
-    imagen.close();
-    const blob = await new Promise<Blob | null>((listo) => lienzo.toBlob(listo, "image/jpeg", 0.85));
-    if (!blob || blob.size >= archivo.size) return archivo;
-    return new File([blob], archivo.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
-  } catch {
-    return archivo;
-  }
-}
 
 const NUEVA = "__nueva"; // la opción "+ Nueva categoría…" de la lista
 
@@ -211,7 +282,16 @@ function CampoEtiquetas({ iniciales, secciones }: { iniciales: string[]; seccion
   );
 }
 
-export function FormProducto({ producto: p, categorias: todasLasCategorias, conPdf, conPeso = false, etiquetas, conPorCantidad = false }: Props) {
+export function FormProducto({
+  producto: p,
+  categorias: todasLasCategorias,
+  conPdf,
+  conPeso = false,
+  etiquetas,
+  conPorCantidad = false,
+  conMuestras = false,
+  formatos,
+}: Props) {
   const [estado, accion, enviando] = useActionState(guardarProducto, undefined);
   const editando = Boolean(p);
 
@@ -277,11 +357,10 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias, conP
         const datos = new FormData(e.currentTarget);
         // Las fotos del celular pesan varios MB y Vercel corta los envíos de más de 4,5 MB:
         // se achican acá antes de mandarlas.
-        const archivos = datos.getAll("fotos_nuevas").filter((f): f is File => f instanceof File && f.size > 0);
-        if (archivos.length > 0) {
+        const campos = ["fotos_nuevas", "muestras_nuevas"];
+        if (campos.some((c) => datos.getAll(c).some((f) => f instanceof File && f.size > 0))) {
           setAchicando(true);
-          datos.delete("fotos_nuevas");
-          for (const archivo of archivos) datos.append("fotos_nuevas", await achicarFoto(archivo));
+          await achicarFotosDe(datos, campos);
           setAchicando(false);
         }
         // El PDF va directo del navegador al bucket privado (puede pesar decenas de MB);
@@ -529,6 +608,8 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias, conP
           </div>
         </fieldset>
 
+        {tipo === "descargable" && formatos && <CampoFormato producto={p} descargables={formatos.descargables} />}
+
         {tipo === "descargable" && conPdf && (
           <fieldset className="admin__grupo">
             <legend>El PDF</legend>
@@ -620,6 +701,8 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias, conP
             </div>
           </fieldset>
         </fieldset>
+
+        {conMuestras && <CampoMuestras iniciales={p?.muestras ?? []} />}
       </div>
 
       <aside className="editor__vista" aria-label="Vista previa">
@@ -633,8 +716,7 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias, conP
               <Dibujo nombre={dibujo} color={color} />
             )}
           </div>
-          {tipo === "descargable" && <span className="ficha__etiqueta">Llega por mail</span>}
-          <h3>{nombre || "Nombre del producto"}</h3>
+          {tipo === "descargable" && <span className="ficha__etiqueta">Llega por mail</span>}          <h3>{nombre || "Nombre del producto"}</h3>
           {detalle && <p className="ficha__detalle">{detalle}</p>}
           <p className="ficha__desc">{resumen || "La descripción corta aparece acá."}</p>
           <div className="ficha__pie">

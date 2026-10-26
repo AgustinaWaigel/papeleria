@@ -2,15 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import type { Producto } from "@/lib/productos";
+import { normalizar, type Producto } from "@/lib/productos";
 import { Ficha } from "./Ficha";
-
-/* Sin tildes ni mayúsculas: "Agenda" encuentra "agenda" y "lapiz" encuentra "lápiz". */
-const normalizar = (texto: string) =>
-  texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
 
 export function Buscador({ productos, etiquetas }: { productos: Producto[]; etiquetas: Record<string, string> }) {
   const [busqueda, setBusqueda] = useState(useSearchParams().get("q") ?? "");

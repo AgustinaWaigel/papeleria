@@ -1,9 +1,10 @@
 "use server";
 
-/* Acciones del panel para categorías, secciones, reseñas y suscriptores. */
+/* Acciones del panel para categorías, secciones, fotos de clientas, regalo, presupuestos, reseñas y suscriptores. */
 
 import { refresh, updateTag } from "next/cache";
-import { exigirAdmin } from "@/lib/admin";
+import { exigirAdmin, rutaEnBucket, subirFotos } from "@/lib/admin";
+import { BUCKET_FOTOS } from "@/lib/supabase/config";
 import { ambienteCorreo, armarPaquete, correoConfigurado, cotizar } from "@/lib/correo";
 import { clienteServicio } from "@/lib/supabase/servidor";
 import { numeroCP } from "@/lib/zonas";
@@ -141,6 +142,71 @@ export async function borrarSeccion(_: Estado, datos: FormData): Promise<Estado>
   updateTag(TAGS.secciones);
   refresh();
   return undefined;
+}
+
+// ---------- Fotos de clientas ("Así lo usan") ----------
+
+const SIN_TABLA_11 = "¿Corriste supabase/11-muestras-regalo-fotos-presupuestos.sql?";
+
+export async function subirFotoClienta(_: Estado, datos: FormData): Promise<Estado> {
+  const { supabase } = await exigirAdmin();
+  const fotos = datos.getAll("foto").filter((f) => f instanceof File && f.size > 0);
+  if (fotos.length === 0) return { error: "Elegí al menos una foto." };
+  const subidas = await subirFotos(supabase, "clientas", fotos);
+  if ("error" in subidas) return subidas;
+
+  // "@usuaria" o un nombre: tal cual lo escriban, sin espacios de más.
+  const autora = texto(datos, "autora").slice(0, 60) || null;
+  const producto = texto(datos, "producto") || null;
+  const { error } = await supabase.from("fotos_clientas").insert(subidas.map((foto) => ({ foto, autora, producto_id: producto })));
+  if (error) {
+    const rutas = subidas.map(rutaEnBucket).filter((r): r is string => Boolean(r));
+    if (rutas.length > 0) await supabase.storage.from(BUCKET_FOTOS).remove(rutas);
+    return { error: `No se pudo guardar: ${error.message}. ${SIN_TABLA_11}` };
+  }
+
+  updateTag(TAGS.clientas);
+  refresh();
+  return { ok: subidas.length === 1 ? "Listo: la foto ya se ve en la tienda." : `Listo: ${subidas.length} fotos ya se ven en la tienda.` };
+}
+
+export async function borrarFotoClienta(datos: FormData) {
+  const { supabase } = await exigirAdmin();
+  const id = Number(texto(datos, "id"));
+  const { data } = await supabase.from("fotos_clientas").select("foto").eq("id", id).maybeSingle();
+  await supabase.from("fotos_clientas").delete().eq("id", id);
+  const ruta = data?.foto ? rutaEnBucket(data.foto) : null;
+  if (ruta) await supabase.storage.from(BUCKET_FOTOS).remove([ruta]);
+  updateTag(TAGS.clientas);
+  refresh();
+}
+
+// ---------- Regalo al suscribirse ----------
+
+export async function guardarRegalo(_: Estado, datos: FormData): Promise<Estado> {
+  const { supabase } = await exigirAdmin();
+  const { error } = await supabase.from("ajustes").update({ regalo_producto: texto(datos, "producto") || null }).eq("id", true);
+  if (error) return { error: `No se pudo guardar: ${error.message}. ${SIN_TABLA_11}` };
+  updateTag(TAGS.ajustes);
+  refresh();
+  return { ok: texto(datos, "producto") ? "Listo: a quien se anote le llega el regalo por mail." : "Listo: ya no hay regalo." };
+}
+
+// ---------- Presupuestos (pedidos por mayor) ----------
+
+export async function atenderPresupuesto(datos: FormData) {
+  const { supabase } = await exigirAdmin();
+  await supabase
+    .from("presupuestos")
+    .update({ estado: datos.get("atendido") === "true" ? "atendido" : "nuevo" })
+    .eq("id", Number(texto(datos, "id")));
+  refresh();
+}
+
+export async function borrarPresupuesto(datos: FormData) {
+  const { supabase } = await exigirAdmin();
+  await supabase.from("presupuestos").delete().eq("id", Number(texto(datos, "id")));
+  refresh();
 }
 
 // ---------- Reseñas ----------

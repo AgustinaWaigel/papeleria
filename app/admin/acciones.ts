@@ -2,7 +2,7 @@
 
 import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { exigirAdmin } from "@/lib/admin";
+import { exigirAdmin, rutaEnBucket, subirFotos, unirFormatos } from "@/lib/admin";
 import { avisarStock } from "@/lib/mails";
 import { TAGS, obtenerCategorias, type FilaProducto } from "@/lib/catalogo";
 import { leerExcel } from "@/lib/excel";
@@ -61,8 +61,6 @@ function escalasDelFormulario(datos: FormData) {
   return limpiarEscalas(datos.getAll("escala_cantidad").map((c, n) => ({ cantidad: Number(c), descuento: descuentos[n] })));
 }
 
-const MARCA_BUCKET = `/storage/v1/object/public/${BUCKET_FOTOS}/`;
-const rutaEnBucket = (url: string) => (url.includes(MARCA_BUCKET) ? decodeURIComponent(url.split(MARCA_BUCKET)[1]) : null);
 
 export async function guardarProducto(_: Estado, datos: FormData): Promise<Estado> {
   const { supabase } = await exigirAdmin();
@@ -73,6 +71,7 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
   const precio = Number(texto(datos, "precio").replace(/\D/g, ""));
   const nombre = texto(datos, "nombre");
   const cat = texto(datos, "cat");
+  const otraVersion = tipo === "descargable" ? texto(datos, "otra_version") : "";
 
   if (!nombre) return { error: "Falta el nombre." };
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) return { error: "El nombre tiene que tener al menos una letra o un número." };
@@ -86,18 +85,13 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
   const rutaPdf = texto(datos, "archivo") || null;
   if (rutaPdf && !rutaPdf.startsWith(`${id}/`)) return { error: "El PDF no corresponde a este producto. Volvé a elegirlo." };
 
-  // Fotos: las que quedaron (en el orden elegido) y después las nuevas.
+  // Fotos: las que quedaron (en el orden elegido) y después las nuevas. Lo mismo con las hojas de muestra.
   const quedan = datos.getAll("fotos").map(String).filter(Boolean);
-  const nuevas = datos.getAll("fotos_nuevas").filter((f): f is File => f instanceof File && f.size > 0);
-  const subidas: string[] = [];
-  for (const archivo of nuevas) {
-    if (!archivo.type.startsWith("image/")) return { error: `"${archivo.name}" no es una imagen.` };
-    const extension = archivo.name.split(".").pop()?.toLowerCase() || "jpg";
-    const ruta = `${id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
-    const { error } = await supabase.storage.from(BUCKET_FOTOS).upload(ruta, archivo, { contentType: archivo.type });
-    if (error) return { error: `No se pudo subir "${archivo.name}": ${error.message}` };
-    subidas.push(supabase.storage.from(BUCKET_FOTOS).getPublicUrl(ruta).data.publicUrl);
-  }
+  const subidas = await subirFotos(supabase, id, datos.getAll("fotos_nuevas"));
+  if ("error" in subidas) return subidas;
+  const quedanMuestras = datos.getAll("muestras").map(String).filter(Boolean);
+  const muestrasSubidas = await subirFotos(supabase, `${id}/muestras`, datos.getAll("muestras_nuevas"));
+  if ("error" in muestrasSubidas) return muestrasSubidas;
 
   const fila: Omit<FilaProducto, "orden"> & { orden: number } = {
     id,
@@ -124,6 +118,13 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
     ...(datos.has("con_etiquetas") && { etiquetas: oNull(limpiarEtiquetas(datos.getAll("etiquetas").map(String))) }),
     // Lo mismo con el precio por cantidad (supabase/10-precio-por-cantidad.sql).
     ...(datos.has("con_por_cantidad") && { por_cantidad: oNull(escalasDelFormulario(datos)) }),
+    // Y con las hojas de muestra (supabase/11-muestras-regalo-fotos-presupuestos.sql).
+    ...(datos.has("con_muestras") && { muestras: oNull([...quedanMuestras, ...muestrasSubidas]) }),
+    // Y con el formato de los descargables (mismo script): PDF o Canva, y el otro formato del mismo producto.
+    ...(datos.has("con_formato") && {
+      formato: texto(datos, "formato") === "canva" ? ("canva" as const) : ("pdf" as const),
+      otra_version: (otraVersion && otraVersion !== id ? otraVersion : null),
+    }),
     // El PDF ya lo subió el navegador al bucket privado: acá llega dónde quedó.
     // Solo si el formulario trajo el campo (la columna existe desde supabase/04-pagos-online.sql).
     ...(datos.has("archivo") && { archivo: tipo === "descargable" ? rutaPdf : null }),
@@ -133,8 +134,12 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
     const { data: antes } = await supabase.from("productos").select("*").eq("id", id).single();
     const { error } = await supabase.from("productos").update(fila).eq("id", id);
     if (error) return { error: `No se pudo guardar: ${error.message}` };
-    // Las fotos que se sacaron del producto también se borran del bucket.
-    const sacadas = ((antes?.fotos as string[] | null) ?? []).filter((f) => !quedan.includes(f)).map(rutaEnBucket);
+    if (datos.has("con_formato")) await unirFormatos(supabase, id, fila.otra_version ?? null, antes?.otra_version ?? null);
+    // Las fotos (y hojas de muestra) que se sacaron del producto también se borran del bucket.
+    const sacadas = [
+      ...((antes?.fotos as string[] | null) ?? []).filter((f) => !quedan.includes(f)),
+      ...(datos.has("con_muestras") ? ((antes?.muestras as string[] | null) ?? []).filter((f) => !quedanMuestras.includes(f)) : []),
+    ].map(rutaEnBucket);
     const rutas = sacadas.filter((r): r is string => Boolean(r));
     if (rutas.length > 0) await supabase.storage.from(BUCKET_FOTOS).remove(rutas);
     // Si se cambió el PDF, el viejo se borra.
@@ -146,6 +151,7 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
     if (error) {
       return { error: error.code === "23505" ? `Ya hay un producto con ese nombre. Cambiale algo (por ejemplo, el tamaño o el color).` : `No se pudo guardar: ${error.message}` };
     }
+    if (datos.has("con_formato")) await unirFormatos(supabase, id, fila.otra_version ?? null, null);
   }
 
   updateTag(TAGS.catalogo);
@@ -158,7 +164,7 @@ export async function borrarProducto(datos: FormData) {
 
   const { data: antes } = await supabase.from("productos").select("*").eq("id", id).single();
   await supabase.from("productos").delete().eq("id", id);
-  const rutas = ((antes?.fotos as string[] | null) ?? []).map(rutaEnBucket).filter((r): r is string => Boolean(r));
+  const rutas = [...((antes?.fotos as string[] | null) ?? []), ...((antes?.muestras as string[] | null) ?? [])].map(rutaEnBucket).filter((r): r is string => Boolean(r));
   if (rutas.length > 0) await supabase.storage.from(BUCKET_FOTOS).remove(rutas);
   if (antes?.archivo) await supabase.storage.from(BUCKET_DESCARGABLES).remove([antes.archivo]);
 

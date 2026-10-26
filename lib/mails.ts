@@ -5,17 +5,21 @@ import { CONFIRMADOS, type EstadoPedido } from "./pedidos";
 import {
   mailArrepentimiento,
   mailAvisoArrepentimiento,
+  mailAvisoPresupuesto,
   mailConfirmacion,
   mailDescargables,
   mailEnvio,
+  mailPresupuesto,
+  mailRegalo,
   mailStock,
   mailVenta,
   type DatosArrepentimiento,
+  type DatosPresupuesto,
   type Mail,
   type PedidoMail,
 } from "./plantillas-mail";
 import { rutaProducto } from "./productos";
-import { linkDeDescarga } from "./seguimiento";
+import { linkDeDescarga, linkDeRegalo } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
 import { supabaseConfigurado } from "./supabase/config";
 import { clienteServicio, SUPABASE_SECRETA } from "./supabase/servidor";
@@ -161,6 +165,38 @@ export async function confirmarArrepentimiento(datos: DatosArrepentimiento) {
   if (!mailConfigurado) return;
   await enviar(datos.email, mailArrepentimiento(datos));
   if (AVISOS) await enviar(AVISOS, mailAvisoArrepentimiento(datos), { replyTo: datos.email });
+}
+
+/* El regalo por anotarse en las novedades (si hay uno elegido en el panel). Una sola vez por suscriptor. */
+export async function enviarRegalo(email: string) {
+  if (!mailConfigurado) return;
+  const supabase = clienteServicio();
+  const { data: ajustes } = await supabase.from("ajustes").select("regalo_producto").maybeSingle();
+  if (!ajustes?.regalo_producto) return;
+  const { data: producto } = await supabase.from("productos").select("nombre, archivo").eq("id", ajustes.regalo_producto).maybeSingle();
+  if (!producto?.archivo) return;
+  // Se marca antes de mandarlo, como los mails de los pedidos: así no sale dos veces.
+  const { data: suscriptor } = await supabase
+    .from("suscriptores")
+    .update({ regalo_enviado_en: new Date().toISOString() })
+    .eq("email", email)
+    .is("regalo_enviado_en", null)
+    .select("clave")
+    .maybeSingle();
+  if (!suscriptor) return;
+  try {
+    await enviar(email, mailRegalo(producto.nombre, linkDeRegalo(email, suscriptor.clave)));
+  } catch (e) {
+    await supabase.from("suscriptores").update({ regalo_enviado_en: null }).eq("email", email);
+    throw e;
+  }
+}
+
+/* Pedido por mayor: la confirmación para quien lo pidió y el aviso para la tienda. */
+export async function confirmarPresupuesto(datos: DatosPresupuesto, tipo: string) {
+  if (!mailConfigurado) return;
+  await enviar(datos.email, mailPresupuesto(datos));
+  if (AVISOS) await enviar(AVISOS, mailAvisoPresupuesto(datos, tipo), { replyTo: datos.email });
 }
 
 // ---------- Para la tienda ----------

@@ -15,6 +15,14 @@ export const enlaceWhatsApp = (texto: string) =>
 export const PLAZO_TALLER =
   "Todo lo hacemos a mano: si lo que pediste no está en stock, prepararlo nos lleva de 2 a 15 días hábiles, según el pedido. Después sale el envío (o te avisamos para que lo retires).";
 
+/* Para quién es un pedido por mayor (el formulario de /pedidos-por-mayor y el panel de presupuestos). */
+export const TIPOS_PRESUPUESTO: [tipo: string, nombre: string][] = [
+  ["emprendimiento", "Emprendimiento"],
+  ["escuela", "Escuela o docente"],
+  ["evento", "Evento o souvenirs"],
+  ["otro", "Otro"],
+];
+
 export const enlaceInstagram =`https://instagram.com/${CONTACTO.instagram}`;
 
 export const enlaceTiktok = `https://www.tiktok.com/@${CONTACTO.tiktok}`;

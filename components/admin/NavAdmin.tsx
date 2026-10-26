@@ -11,7 +11,9 @@ const SECCIONES: [href: string, nombre: string][] = [
   ["/admin/secciones", "Secciones"],
   ["/admin/cupones", "Cupones"],
   ["/admin/envios", "Envíos"],
+  ["/admin/presupuestos", "Presupuestos"],
   ["/admin/resenas", "Reseñas"],
+  ["/admin/clientas", "Así lo usan"],
   ["/admin/suscriptores", "Suscriptores"],
   ["/admin/arrepentimientos", "Arrepentimientos"],
 ];

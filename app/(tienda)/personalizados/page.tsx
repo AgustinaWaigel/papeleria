@@ -35,8 +35,8 @@ export default function Personalizados() {
         titulo="También hacemos pedidos especiales"
         bajada="Souvenirs de cumpleaños, regalos de egresados, cuadernos con el logo de tu emprendimiento o agendas para todo un equipo. Contanos la idea y la armamos juntas."
         accion={
-          <Link className="boton" href="/contacto">
-            Contanos tu idea
+          <Link className="boton" href="/pedidos-por-mayor">
+            Pedir presupuesto
           </Link>
         }
       />

@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { Ficha } from "@/components/Ficha";
 import { obtenerCatalogo, obtenerSecciones } from "@/lib/catalogo";
-import { idEtiqueta, tieneEtiqueta } from "@/lib/productos";
+import { idEtiqueta, tieneEtiqueta, unoPorFormato } from "@/lib/productos";
 
 /* Una sección del menú "Productos" (tabla secciones) o una etiqueta suelta: en los dos casos, todos los
    productos que la llevan, sean de papelería o descargables. */
 async function buscarSeccion(id: string) {
   const [catalogo, secciones] = await Promise.all([obtenerCatalogo(), obtenerSecciones()]);
-  const productos = catalogo.filter((p) => tieneEtiqueta(p, id));
+  const productos = unoPorFormato(catalogo.filter((p) => tieneEtiqueta(p, id)));
   const seccion = secciones.find((s) => s.id === id);
   // Una etiqueta sin sección se llama como la escribieron en el producto.
   const nombre = seccion?.nombre ?? productos.flatMap((p) => p.etiquetas ?? []).find((e) => idEtiqueta(e) === id);

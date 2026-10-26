@@ -11,6 +11,7 @@ import {
   type Categorias,
   type ColorProducto,
   type Escala,
+  type Formato,
   type NombreDibujo,
   type Producto,
   type TipoProducto,
@@ -18,7 +19,14 @@ import {
 import type { AjustesEnvio } from "./seguimiento";
 import type { Zona } from "./zonas";
 
-export const TAGS = { catalogo: "productos", categorias: "categorias", secciones: "secciones", resenas: "resenas", ajustes: "ajustes" } as const;
+export const TAGS = {
+  catalogo: "productos",
+  categorias: "categorias",
+  secciones: "secciones",
+  resenas: "resenas",
+  ajustes: "ajustes",
+  clientas: "fotos-clientas",
+} as const;
 
 /* Una fila de la tabla tal como la devuelve Supabase (ver supabase/*.sql). */
 export type FilaProducto = {
@@ -44,6 +52,9 @@ export type FilaProducto = {
   peso_gramos?: number | null; // para cotizar con Correo Argentino (supabase/07-envios-cupones-y-mas.sql)
   etiquetas?: string[] | null; // supabase/09-secciones-y-etiquetas.sql
   por_cantidad?: Escala[] | null; // supabase/10-precio-por-cantidad.sql
+  muestras?: string[] | null; // supabase/11-muestras-regalo-fotos-presupuestos.sql
+  formato?: Formato | null; // mismo script
+  otra_version?: string | null; // mismo script
 };
 
 const lista = (valor: string[] | null) => (valor && valor.length > 0 ? valor : undefined);
@@ -68,13 +79,16 @@ export function desdeFila(f: FilaProducto): Producto {
     caracteristicas: lista(f.caracteristicas),
     etiquetas: lista(f.etiquetas ?? null),
     porCantidad: f.por_cantidad && f.por_cantidad.length > 0 ? f.por_cantidad : undefined,
+    muestras: lista(f.muestras ?? null),
+    formato: f.formato ?? undefined,
+    otraVersion: f.otra_version ?? undefined,
   };
 }
 
-/* Lo que la tienda muestra de cada producto. Las mismas columnas que supabase/06-seguridad.sql (y 09, 10) deja leer
-   con la clave pública: si sumás una columna que la tienda tiene que ver, va en los dos lados. */
+/* Lo que la tienda muestra de cada producto. Las mismas columnas que supabase/06-seguridad.sql (y 09 a 11) deja
+   leer con la clave pública: si sumás una columna que la tienda tiene que ver, va en los dos lados. */
 const COLUMNAS_PUBLICAS =
-  "id, tipo, cat, nombre, resumen, detalle, precio, precio_anterior, stock, dibujo, color, destacado, contenido, fotos, descripcion, caracteristicas, etiquetas, por_cantidad, orden, activo";
+  "id, tipo, cat, nombre, resumen, detalle, precio, precio_anterior, stock, dibujo, color, destacado, contenido, fotos, descripcion, caracteristicas, etiquetas, por_cantidad, muestras, formato, otra_version, orden, activo";
 
 export async function obtenerCatalogo(): Promise<Producto[]> {
   "use cache";
@@ -172,6 +186,43 @@ export async function obtenerAjustesEnvio(): Promise<AjustesEnvio> {
   }
   cacheLife("days");
   return { costo: data.envio_costo, gratisDesde: data.envio_gratis_desde, detalle: data.envio_detalle, zonas: (zonas ?? []) as Zona[] };
+}
+
+/* El descargable que se regala al suscribirse (supabase/11-muestras-regalo-fotos-presupuestos.sql), o null. */
+export async function obtenerRegalo(): Promise<{ id: string; nombre: string } | null> {
+  "use cache";
+  cacheTag(TAGS.ajustes, TAGS.catalogo);
+  if (!supabaseConfigurado) {
+    cacheLife("max");
+    return null;
+  }
+  const { data, error } = await clientePublico().from("ajustes").select("regalo_producto").maybeSingle();
+  // Sin la columna (todavía no se corrió el script) se reintenta en minutos.
+  if (error) cacheLife("minutes");
+  else cacheLife("days");
+  if (!data?.regalo_producto) return null;
+  const producto = (await obtenerCatalogo()).find((p) => p.id === data.regalo_producto);
+  return producto ? { id: producto.id, nombre: producto.nombre } : null;
+}
+
+/* "Así lo usan": las fotos de clientas, de un producto o todas (las más nuevas primero). */
+export type FotoClienta = { id: number; foto: string; autora: string | null; producto_id: string | null };
+
+export async function obtenerFotosClientas(): Promise<FotoClienta[]> {
+  "use cache";
+  cacheTag(TAGS.clientas);
+  if (!supabaseConfigurado) {
+    cacheLife("max");
+    return [];
+  }
+  const { data, error } = await clientePublico()
+    .from("fotos_clientas")
+    .select("id, foto, autora, producto_id")
+    .order("orden")
+    .order("creado_en", { ascending: false });
+  if (error) cacheLife("minutes");
+  else cacheLife("days");
+  return (data as FotoClienta[] | null) ?? [];
 }
 
 export type Resena = { id: number; nombre: string; texto: string; puntaje: number; creado_en: string };

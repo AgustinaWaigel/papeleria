@@ -1,5 +1,5 @@
 import { obtenerCatalogo, obtenerCategorias } from "@/lib/catalogo";
-import type { TipoProducto } from "@/lib/productos";
+import { unoPorFormato, type TipoProducto } from "@/lib/productos";
 import { Catalogo } from "./Catalogo";
 import { TallerAviso } from "./EnElTaller";
 import { Ficha } from "./Ficha";
@@ -8,7 +8,7 @@ import { Ficha } from "./Ficha";
 
 export async function Estanteria({ tipo }: { tipo: TipoProducto }) {
   const [catalogo, categorias] = await Promise.all([obtenerCatalogo(), obtenerCategorias()]);
-  const productos = catalogo.filter((p) => p.tipo === tipo);
+  const productos = unoPorFormato(catalogo.filter((p) => p.tipo === tipo));
   if (productos.length === 0) return <TallerAviso />;
   // Solo las categorías que tienen algo: un filtro que da cero no ayuda.
   const conProductos = (categorias[tipo] ?? []).filter(([id]) => productos.some((p) => p.cat === id));

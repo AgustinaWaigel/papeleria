@@ -119,6 +119,20 @@ Corré `10-precio-por-cantidad.sql` después del `09` y **antes** de publicar la
 - El máximo por producto pasa de 99 a 999 unidades.
 - En *Registrar una venta* el precio lo ponés vos: si vendés de a muchos en persona, cargá el precio con el descuento.
 
+## Muestras, regalo, fotos de clientas y pedidos por mayor
+
+Corré `11-muestras-regalo-fotos-presupuestos.sql` después del `10` y **antes** de publicar la versión que lo usa. Suma:
+
+- **Páginas de muestra** (en cada producto, *Páginas de muestra*): fotos de las hojas de adentro. En la tienda aparecen como *Mirá por dentro* y se abren enteras. Conviene mostrar una parte o ponerles marca de agua.
+- **PDF o editable en Canva** (en cada descargable, *Formato*): cargá cada formato como un producto aparte, con su precio y su PDF, y unilos en *El mismo producto en el otro formato*. En la tienda, la página del producto muestra los dos formatos con su precio para elegir, y el catálogo muestra uno solo («También editable en Canva»). El PDF del de Canva es una hoja con el botón al *Enlace de plantilla* de Canva (*Compartir → Enlace de plantilla*) y las instrucciones.
+- **Regalo al anotarse** (panel → *Suscriptores*): elegís un descargable con PDF cargado. A quien se suscribe le llega por mail con un botón para bajarlo (no vence) y el formulario del pie lo anuncia. Necesita el mail de Gmail configurado.
+- **Así lo usan** (panel → *Así lo usan*): fotos de clientas, con su usuario y el producto que se ve. Salen en la página del producto y en Inicio. Pedí permiso antes de subirlas.
+- **Pedidos por mayor** (`/pedidos-por-mayor`, panel → *Presupuestos*): emprendimientos, escuelas y eventos piden presupuesto. Reciben un número al instante y un mail; a vos te llega un aviso.
+
+Sin base de datos también hay dos cosas nuevas: **Personalizados**, que ya está abierta (`ABIERTAS.personalizados` en `lib/paginas.ts`), y **Listas escolares** (`/listas-escolares`: se pega la lista de útiles y se arma la bolsita), que está hecha pero guardada para más adelante: para abrirla, poné `listas: true` en `ABIERTAS`.
+
+**Orden de los scripts nuevos:** `09`, `10` y `11`, en ese orden y antes de publicar. Sin el `09` y el `10` la tienda no ve el catálogo; sin el `11`, tampoco (pide la columna `muestras`).
+
 ## En producción
 
 Cargá las mismas dos variables (`NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) en tu hosting antes de hacer el build: también configuran qué dominio de imágenes acepta `next/image`. Sumá `NEXT_PUBLIC_SITIO_URL` con tu dominio (por ejemplo `https://www.alasdeangel.com.ar`) para que el sitemap y los links que se comparten apunten bien; en Vercel se toma solo.

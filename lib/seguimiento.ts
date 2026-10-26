@@ -11,6 +11,10 @@ export const linkDeSeguimiento = (codigo: string, clave: string) => `${SITIO_URL
 export const linkDeDescarga = (codigo: string, clave: string, producto: string) =>
   `${SITIO_URL}/pedido/${codigo}/pdf/${encodeURIComponent(producto)}?clave=${clave}`;
 
+/* El botón del mail de regalo por suscribirse: pasa por la tienda (app/regalo/route.ts), así no vence. */
+export const linkDeRegalo = (email: string, clave: string) =>
+  `${SITIO_URL}/regalo?mail=${encodeURIComponent(email)}&clave=${clave}`;
+
 /* El costo de envío a domicilio. Sin costo cargado (o sin supabase/07-envios-cupones-y-mas.sql), el envío
    se coordina por WhatsApp y se paga aparte. */
 // costo: el costo por defecto, para las zonas sin precio propio. zonas: por código postal y provincia (lib/zonas.ts).

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FormProducto } from "@/components/admin/FormProducto";
 import { SinSupabase } from "@/components/admin/SinSupabase";
-import { exigirAdmin } from "@/lib/admin";
+import { exigirAdmin, otrosDescargables } from "@/lib/admin";
 import { desdeFila, obtenerCategorias, obtenerSecciones, type FilaProducto } from "@/lib/catalogo";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 
@@ -53,6 +53,8 @@ async function Contenido({ params }: Pick<PageProps<"/admin/productos/[id]">, "p
         conPdf={"archivo" in fila}
         conPeso={"peso_gramos" in fila}
         conPorCantidad={"por_cantidad" in fila}
+        conMuestras={"muestras" in fila}
+        formatos={"formato" in fila ? { descargables: await otrosDescargables(supabase) } : undefined}
         etiquetas={"etiquetas" in fila ? { secciones: (await obtenerSecciones()).map((s) => [s.id, s.nombre]) } : undefined}
       />
     </>

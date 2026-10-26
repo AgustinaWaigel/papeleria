@@ -3,11 +3,11 @@ import { CONTACTO, enlaceInstagram, enlaceWhatsApp } from "@/lib/contacto";
 import { PAGINAS, PAGINAS_LEGALES, PAGINAS_PIE } from "@/lib/paginas";
 import { FormSuscripcion } from "./FormSuscripcion";
 
-export function Pie() {
+export function Pie({ regalo }: { regalo?: string | null }) {
   return (
     <footer className="pie">
       <div className="contenedor">
-        <FormSuscripcion />
+        <FormSuscripcion regalo={regalo} />
         <div className="pie__grilla">
           <p className="pie__lema">Para escribir, soñar y volar.</p>
           <div>

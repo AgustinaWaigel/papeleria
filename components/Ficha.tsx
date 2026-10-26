@@ -34,12 +34,13 @@ export function Ficha({ producto: p, orden = 0 }: { producto: Producto; orden?: 
         )}
       </Link>
       {marca && <span className={`sello ${marca.clase}`}>{marca.texto}</span>}
-      {p.tipo === "descargable" && <span className="ficha__etiqueta">Llega por mail</span>}
+      {p.tipo === "descargable" && <span className="ficha__etiqueta">{p.formato === "canva" ? "Editable en Canva" : "Llega por mail"}</span>}
       <h3>
         <Link href={ruta}>{p.nombre}</Link>
       </h3>
       {p.detalle && <p className="ficha__detalle">{p.detalle}</p>}
       <p className="ficha__desc">{p.desc}</p>
+      {p.otraVersion && p.formato !== "canva" && <p className="ficha__cantidad">También editable en Canva</p>}
       {p.porCantidad && (
         <p className="ficha__cantidad">
           Llevando {p.porCantidad[0].cantidad}: {p.porCantidad[0].descuento} % off
