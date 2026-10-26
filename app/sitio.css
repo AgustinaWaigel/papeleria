@@ -872,29 +872,22 @@ a:hover { color: var(--color-tinta); }
 .opcion input:checked + span { background: var(--color-tinta); color: var(--color-nube); font-weight: 700; }
 .opcion input:focus-visible + span { outline: var(--linea-foco) solid var(--color-amanecer); outline-offset: var(--espacio-1); }
 
-/* ---------- Armador de personalizados ---------- */
+/* ---------- Pedido de personalizados ---------- */
 
-.armador { display: grid; gap: var(--espacio-7); }
+.personalizado { display: grid; gap: var(--espacio-7); }
 @media (min-width: 52rem) {
-  .armador { grid-template-columns: 1fr 1.1fr; align-items: start; }
-  .armador__vista { position: sticky; top: var(--espacio-9); }
+  .personalizado { grid-template-columns: 1fr 1.3fr; align-items: start; }
+  .personalizado__ideas { position: sticky; top: var(--espacio-9); }
 }
-.armador__vista {
+.personalizado__ideas {
   padding: var(--espacio-6);
   background: var(--color-cielo);
   border: var(--borde);
   border-radius: var(--radio-l);
-  text-align: center;
 }
-.armador__vista svg { width: min(100%, 17rem); margin-inline: auto; filter: drop-shadow(var(--sombra-sello)); }
-.armador__vista .tapa { fill: var(--c); transition: fill var(--mov-suave) var(--mov-curva); }
-.armador__vista .borde-tapa { stroke: var(--color-tinta); stroke-width: var(--trazo-dibujo); }
-.armador__vista .linea-tapa { fill: none; stroke: var(--sobre); stroke-width: var(--trazo-dibujo); }
-.armador__vista .sobre-tapa { fill: var(--sobre); stroke: none; }
-.armador__vista .motivo { fill: var(--sobre); stroke: none; }
-.armador__vista .motivo .sin { fill: none; stroke: var(--c); stroke-width: var(--trazo-dibujo); stroke-linecap: round; }
-.armador__vista .nombre-tapa { fill: var(--sobre); font-family: var(--fuente-titulo); font-size: 22px; }
-.armador__resumen { margin-top: var(--espacio-5); font-size: var(--texto-s); color: var(--color-tinta-suave); }
+.personalizado__ideas h2 { font-size: var(--texto-l); margin-bottom: var(--espacio-3); }
+.personalizado__ideas ul { display: grid; gap: var(--espacio-2); margin: 0 0 var(--espacio-4); padding-left: var(--espacio-5); }
+.personalizado__ideas p { font-size: var(--texto-s); color: var(--color-tinta-suave); }
 
 /* ---------- Franja de cierre ---------- */
 

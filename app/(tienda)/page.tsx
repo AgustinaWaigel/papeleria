@@ -30,8 +30,8 @@ const ESTANTES = [
     href: "/personalizados",
     pestana: "A tu medida",
     titulo: "Personalizados",
-    texto: "Elegí el color de la tapa, el dibujo y el nombre. Mirás cómo queda antes de pedirlo.",
-    ir: "Armar el mío",
+    texto: "Contanos tu idea, con tu nombre y tu estilo, y te lo hacemos a mano. Antes, te mostramos una muestra.",
+    ir: "Contar mi idea",
   },
   {
     href: "/packs-regalo",
@@ -213,11 +213,11 @@ export default async function Inicio() {
             titulo="¿Lo querés con tu nombre?"
             accion={
               <Link className="boton" href="/personalizados">
-                Armar mi personalizado
+                Pedir mi personalizado
               </Link>
             }
           >
-            Armá tu cuaderno o agenda: elegís color, dibujo e interior, y ves cómo queda antes de pedirlo.
+            Contanos cómo te imaginás tu cuaderno o agenda y te lo hacemos a mano. Antes de hacerlo, te mostramos una muestra.
           </Franja>
         </Seccion>
       )}
@@ -247,11 +247,11 @@ function EnConstruccion() {
             titulo="¿No querés esperar?"
             accion={
               <Link className="boton" href="/personalizados">
-                Armar mi personalizado
+                Pedir mi personalizado
               </Link>
             }
           >
-            Los personalizados ya se pueden pedir: elegís color, dibujo e interior, y nos lo mandás por WhatsApp.
+            Los personalizados ya se pueden pedir: contanos tu idea y nos llega por WhatsApp.
           </Franja>
         </Seccion>
       )}

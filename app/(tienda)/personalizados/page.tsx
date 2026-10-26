@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Proximamente } from "@/components/EnElTaller";
 import { ABIERTAS } from "@/lib/paginas";
-import { Armador } from "@/components/Armador";
+import { PedidoPersonalizado } from "@/components/PedidoPersonalizado";
 import { Portadilla, Seccion } from "@/components/Bloques";
 
 export const metadata: Metadata = {
   title: "Personalizados",
-  description: "Armá tu cuaderno o agenda con tu nombre: elegí color de tapa, dibujo e interior y mirá cómo queda.",
+  description: "Cuadernos, agendas y libretas hechos a tu medida: contanos tu idea por WhatsApp y te pasamos precio y fecha.",
 };
 
 export default function Personalizados() {
@@ -15,18 +15,17 @@ export default function Personalizados() {
   if (!ABIERTAS.personalizados)
     return (
       <Proximamente titulo="Personalizados">
-        Cuadernos y agendas con tu nombre, eligiendo el color de la tapa, el dibujo y el interior.
+        Cuadernos y agendas hechos a tu medida, con tu nombre y tu estilo.
       </Proximamente>
     );
   return (
     <>
       <Portadilla nota="único, como tu letra" titulo="Personalizados">
-        Elegí cómo lo querés y mirá cómo va quedando. Cuando te guste, nos mandás el diseño y te pasamos precio y fecha
-        de entrega.
+        Contanos cómo te lo imaginás y nos llega por WhatsApp. Lo charlamos juntas y te pasamos precio y fecha de entrega.
       </Portadilla>
 
       <section className="seccion">
-        <Armador />
+        <PedidoPersonalizado />
       </section>
 
       <Seccion
