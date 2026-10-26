@@ -49,7 +49,7 @@ export function TablaProductos({ productos }: { productos: ProductoAdmin[] }) {
       </div>
 
       <div className="admin__tabla-marco">
-        <table className="admin__tabla">
+        <table className="admin__tabla admin__tabla--tarjetas">
           <thead>
             <tr>
               <th scope="col">Producto</th>
@@ -77,21 +77,23 @@ export function TablaProductos({ productos }: { productos: ProductoAdmin[] }) {
                       )}
                     </span>
                     <span>
-                      <strong>{p.nombre}</strong>
+                      <Link className="admin__nombre" href={`/admin/productos/${p.id}`}>
+                        <strong>{p.nombre}</strong>
+                      </Link>
                       <small>{p.id}</small>
                     </span>
                   </div>
                 </td>
-                <td>{TIPOS.find(([t]) => t === p.tipo)?.[1]}</td>
-                <td className="admin__precio">
+                <td data-etiqueta="Sección">{TIPOS.find(([t]) => t === p.tipo)?.[1]}</td>
+                <td className="admin__precio" data-etiqueta="Precio">
                   {precio(p.precio)}
                   {enOferta(p) && <small className="admin__oferta"> oferta</small>}
                 </td>
-                <td className={p.stock === 0 ? "admin__sin-stock" : undefined}>{p.stock ?? "—"}</td>
-                <td>
+                <td className={p.stock === 0 ? "admin__sin-stock" : undefined} data-etiqueta="Stock">{p.stock ?? "—"}</td>
+                <td data-etiqueta="En la tienda">
                   <Interruptor id={p.id} campo="activo" valor={p.activo} etiqueta={`Mostrar ${p.nombre} en la tienda`} />
                 </td>
-                <td>
+                <td data-etiqueta="En Inicio">
                   <Interruptor id={p.id} campo="destacado" valor={Boolean(p.destacado)} etiqueta={`Destacar ${p.nombre} en Inicio`} />
                 </td>
                 <td>
