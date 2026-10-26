@@ -8,6 +8,7 @@ const SECCIONES: [href: string, nombre: string][] = [
   ["/admin/pedidos", "Pedidos y ventas"],
   ["/admin", "Productos"],
   ["/admin/categorias", "Categorías"],
+  ["/admin/secciones", "Secciones"],
   ["/admin/cupones", "Cupones"],
   ["/admin/envios", "Envíos"],
   ["/admin/resenas", "Reseñas"],

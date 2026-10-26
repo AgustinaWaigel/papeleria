@@ -6,7 +6,7 @@ import { exigirAdmin } from "@/lib/admin";
 import { avisarStock } from "@/lib/mails";
 import { TAGS, obtenerCategorias, type FilaProducto } from "@/lib/catalogo";
 import { leerExcel } from "@/lib/excel";
-import { COLORES, NOMBRES_DIBUJO, TIPOS, type TipoProducto } from "@/lib/productos";
+import { COLORES, NOMBRES_DIBUJO, TIPOS, limpiarEscalas, limpiarEtiquetas, type TipoProducto } from "@/lib/productos";
 import { BUCKET_DESCARGABLES, BUCKET_FOTOS, supabaseConfigurado } from "@/lib/supabase/config";
 import { clienteConSesion } from "@/lib/supabase/servidor";
 
@@ -54,6 +54,12 @@ const parrafos = (valor: string) =>
     .map((p) => p.replace(/\s*\n\s*/g, " ").trim())
     .filter(Boolean);
 const oNull = <T,>(lista: T[]) => (lista.length > 0 ? lista : null);
+
+/* Los renglones de "Precio por cantidad": cantidades y descuentos van en dos listas, en el mismo orden. */
+function escalasDelFormulario(datos: FormData) {
+  const descuentos = datos.getAll("escala_descuento").map(Number);
+  return limpiarEscalas(datos.getAll("escala_cantidad").map((c, n) => ({ cantidad: Number(c), descuento: descuentos[n] })));
+}
 
 const MARCA_BUCKET = `/storage/v1/object/public/${BUCKET_FOTOS}/`;
 const rutaEnBucket = (url: string) => (url.includes(MARCA_BUCKET) ? decodeURIComponent(url.split(MARCA_BUCKET)[1]) : null);
@@ -114,6 +120,10 @@ export async function guardarProducto(_: Estado, datos: FormData): Promise<Estad
     descripcion: oNull(parrafos(texto(datos, "descripcion"))),
     caracteristicas: oNull(renglones(texto(datos, "caracteristicas"))),
     fotos: oNull([...quedan, ...subidas]),
+    // Solo si el formulario trajo el campo (la columna existe desde supabase/09-secciones-y-etiquetas.sql).
+    ...(datos.has("con_etiquetas") && { etiquetas: oNull(limpiarEtiquetas(datos.getAll("etiquetas").map(String))) }),
+    // Lo mismo con el precio por cantidad (supabase/10-precio-por-cantidad.sql).
+    ...(datos.has("con_por_cantidad") && { por_cantidad: oNull(escalasDelFormulario(datos)) }),
     // El PDF ya lo subió el navegador al bucket privado: acá llega dónde quedó.
     // Solo si el formulario trajo el campo (la columna existe desde supabase/04-pagos-online.sql).
     ...(datos.has("archivo") && { archivo: tipo === "descargable" ? rutaPdf : null }),

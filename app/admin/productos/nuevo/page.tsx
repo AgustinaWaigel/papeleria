@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { FormProducto } from "@/components/admin/FormProducto";
 import { SinSupabase } from "@/components/admin/SinSupabase";
 import { exigirAdmin } from "@/lib/admin";
-import { obtenerCategorias } from "@/lib/catalogo";
+import { obtenerCategorias, obtenerSecciones } from "@/lib/catalogo";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 
 export const metadata: Metadata = { title: "Nuevo producto" };
@@ -13,6 +13,9 @@ async function Contenido() {
   // Sin supabase/04-pagos-online.sql la columna del PDF no existe y la consulta da error.
   const { error: sinPdf } = await supabase.from("productos").select("archivo").limit(1);
   const { error: sinPeso } = await supabase.from("productos").select("peso_gramos").limit(1);
+  const { error: sinEtiquetas } = await supabase.from("productos").select("etiquetas").limit(1);
+  const secciones = sinEtiquetas ? [] : await obtenerSecciones();
+  const { error: sinPorCantidad } = await supabase.from("productos").select("por_cantidad").limit(1);
   return (
     <>
       <div className="admin__encabezado">
@@ -21,7 +24,13 @@ async function Contenido() {
           <h1>Nuevo producto</h1>
         </div>
       </div>
-      <FormProducto categorias={await obtenerCategorias()} conPdf={!sinPdf} conPeso={!sinPeso} />
+      <FormProducto
+        categorias={await obtenerCategorias()}
+        conPdf={!sinPdf}
+        conPeso={!sinPeso}
+        conPorCantidad={!sinPorCantidad}
+        etiquetas={sinEtiquetas ? undefined : { secciones: secciones.map((s) => [s.id, s.nombre]) }}
+      />
     </>
   );
 }

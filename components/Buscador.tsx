@@ -20,7 +20,7 @@ export function Buscador({ productos, etiquetas }: { productos: Producto[]; etiq
   const resultados = palabras.length
     ? productos.filter((p) => {
         const pajar = normalizar(
-          [p.nombre, p.desc, p.detalle, etiquetas[p.tipo], p.cat && etiquetas[p.cat], ...(p.contenido ?? [])].join(" "),
+          [p.nombre, p.desc, p.detalle, etiquetas[p.tipo], p.cat && etiquetas[p.cat], ...(p.contenido ?? []), ...(p.etiquetas ?? [])].join(" "),
         );
         return palabras.every((palabra) => pajar.includes(palabra));
       })

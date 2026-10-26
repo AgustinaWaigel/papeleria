@@ -2,7 +2,7 @@ import "server-only";
 
 import ExcelJS from "exceljs";
 import type { FilaProducto } from "./catalogo";
-import { COLORES, NOMBRES_DIBUJO, TIPOS, type Categorias, type TipoProducto } from "./productos";
+import { COLORES, NOMBRES_DIBUJO, TIPOS, limpiarEscalas, limpiarEtiquetas, type Categorias, type TipoProducto } from "./productos";
 
 /* Los productos en una planilla: se exportan desde el panel y se vuelven a cargar con los cambios.
    Las listas (fotos, características, contenido de un pack) van una por renglón dentro de la celda;
@@ -17,12 +17,14 @@ const COLUMNAS = [
   { clave: "cat", titulo: "Categoría", ancho: 22 },
   { clave: "precio", titulo: "Precio", ancho: 11 },
   { clave: "precio_anterior", titulo: "Precio anterior", ancho: 15 },
+  { clave: "por_cantidad", titulo: "Por cantidad", ancho: 18 },
   { clave: "stock", titulo: "Stock", ancho: 9 },
   { clave: "resumen", titulo: "Resumen", ancho: 50 },
   { clave: "detalle", titulo: "Detalle", ancho: 26 },
   { clave: "descripcion", titulo: "Descripción", ancho: 60 },
   { clave: "caracteristicas", titulo: "Características", ancho: 40 },
   { clave: "contenido", titulo: "Contenido del pack", ancho: 36 },
+  { clave: "etiquetas", titulo: "Etiquetas", ancho: 28 },
   { clave: "fotos", titulo: "Fotos", ancho: 40 },
   { clave: "dibujo", titulo: "Dibujo", ancho: 16 },
   { clave: "color", titulo: "Color", ancho: 12 },
@@ -36,7 +38,8 @@ type Clave = (typeof COLUMNAS)[number]["clave"];
 const siNo = (valor: boolean) => (valor ? "sí" : "no");
 const nombreDe = (lista: readonly (readonly [string, string])[], id: string | null) => lista.find(([i]) => i === id)?.[1] ?? id ?? "";
 
-export async function armarExcel(filas: FilaProducto[], categorias: Categorias) {
+/* secciones: los nombres de las secciones del menú, para la hoja de ayuda. */
+export async function armarExcel(filas: FilaProducto[], categorias: Categorias, secciones: string[] = []) {
   const libro = new ExcelJS.Workbook();
   libro.creator = "Alas de Ángel Papelería";
 
@@ -53,12 +56,14 @@ export async function armarExcel(filas: FilaProducto[], categorias: Categorias) 
       cat: f.cat ? nombreDe(categorias[f.tipo] ?? [], f.cat) : "",
       precio: f.precio,
       precio_anterior: f.precio_anterior ?? "",
+      por_cantidad: (f.por_cantidad ?? []).map((e) => `${e.cantidad}: ${e.descuento}%`).join(", "),
       stock: f.stock ?? "",
       resumen: f.resumen,
       detalle: f.detalle ?? "",
       descripcion: (f.descripcion ?? []).join("\n\n"),
       caracteristicas: (f.caracteristicas ?? []).join("\n"),
       contenido: (f.contenido ?? []).join("\n"),
+      etiquetas: (f.etiquetas ?? []).join(", "),
       fotos: (f.fotos ?? []).join("\n"),
       dibujo: f.dibujo,
       color: nombreDe(COLORES, f.color),
@@ -84,12 +89,17 @@ export async function armarExcel(filas: FilaProducto[], categorias: Categorias) 
     ),
     ["Precio", "Obligatorio. En pesos, sin signo ni puntos (9800)."],
     ["Precio anterior", "Opcional. Si es mayor que el precio, el producto aparece en oferta."],
+    ["Por cantidad", "Opcional. Desde cuántas unidades y cuánto descuenta cada una: 10: 10%, 20: 15% (llevando 10 o más, 10 % menos cada una; 20 o más, 15 %)."],
     ["Stock", "Opcional. Vacío = no se controla."],
     ["Resumen", "Una o dos frases para la ficha del catálogo."],
     ["Detalle", "Datos cortos (A5 · 80 hojas · rayado)."],
     ["Descripción", "Texto largo. Separá los párrafos con un renglón en blanco (Alt + Enter dos veces)."],
     ["Características", "Una por renglón (Alt + Enter)."],
     ["Contenido del pack", "Solo para packs: un ítem por renglón."],
+    [
+      "Etiquetas",
+      `Opcional. Separadas por comas (Escuela, Vuelta al cole). Las que se llaman como una sección llevan el producto a esa sección${secciones.length > 0 ? `: ${secciones.join(", ")}` : ""}.`,
+    ],
     ["Fotos", "Direcciones de las fotos, una por renglón. Las fotos nuevas conviene subirlas desde el panel."],
     ["Dibujo", `Se muestra cuando no hay foto. Uno de: ${NOMBRES_DIBUJO.join(", ")}.`],
     ["Color", `Uno de: ${COLORES.map(([, n]) => n).join(", ")}.`],
@@ -159,6 +169,10 @@ function siONo(valor: string, siVacio: boolean) {
   if (!v) return siVacio;
   return ["si", "s", "x", "1", "true", "verdadero"].includes(v);
 }
+
+/* "10: 10%, 20: 15%" (también "10=10" o "x10 10%") → [{ cantidad: 10, descuento: 10 }, …] */
+const leerEscalas = (valor: string) =>
+  limpiarEscalas([...valor.matchAll(/(\d+)\D+?(\d+)\s*%?/g)].map(([, cantidad, descuento]) => ({ cantidad: Number(cantidad), descuento: Number(descuento) })));
 
 export type FilaImportada = Omit<FilaProducto, "orden"> & { orden: number };
 
@@ -238,11 +252,15 @@ export async function leerExcel(archivo: ArrayBuffer, categorias: Categorias, ex
       descripcion: oNull(parrafos(t("descripcion"))),
       caracteristicas: oNull(renglones(t("caracteristicas"))),
       fotos: oNull(renglones(t("fotos"))),
+      // Solo con la columna en la planilla: así una base sin supabase/09-secciones-y-etiquetas.sql no se queja.
+      ...(posicion.has("etiquetas") && { etiquetas: oNull(limpiarEtiquetas(t("etiquetas").split(/[\n,;]/))) }),
+      ...(posicion.has("por_cantidad") && { por_cantidad: oNull(leerEscalas(t("por_cantidad"))) }),
     };
     const antes = existentes.get(id);
     if (antes) {
       for (const { clave } of COLUMNAS) {
-        if (clave !== "id" && !posicion.has(clave)) Object.assign(nueva, { [clave]: antes[clave] ?? null });
+        // "in antes": una columna que la base todavía no tiene no se manda.
+        if (clave !== "id" && !posicion.has(clave) && clave in antes) Object.assign(nueva, { [clave]: antes[clave] ?? null });
       }
     }
     filas.push(nueva);

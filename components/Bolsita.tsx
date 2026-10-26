@@ -5,11 +5,13 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyn
 import { registrarPedidoWeb } from "@/app/(tienda)/acciones";
 import {
   cambiarCantidad,
+  cantidadesRenglon,
   foto,
   fotoServidor,
   lugarLibre,
   nuevoCodigo,
   renglones,
+  subtotalRenglon,
   suscribir,
   textoPedido,
   total,
@@ -21,7 +23,7 @@ import {
 import { enlaceWhatsApp, precio } from "@/lib/contacto";
 import type { AjustesEnvio } from "@/lib/seguimiento";
 
-type Acciones = { abrir: () => void; sumar: (id: string) => void };
+type Acciones = { abrir: () => void; sumar: (id: string, cantidad?: number) => void };
 type AjustesCompra = { pagoOnline: boolean; envio: AjustesEnvio; cotizaCorreo: boolean };
 
 const Contexto = createContext<Acciones | null>(null);
@@ -68,6 +70,23 @@ export function PedirPorWhatsApp({ items, nombre, entrega, claro, alEnviar }: {
   );
 }
 
+/* Debajo de cada renglón: el descuento por cantidad que ya tiene y un atajo para llegar al próximo. */
+export function PorCantidad({ renglon: r }: { renglon: Renglon }) {
+  const { actual, siguiente } = cantidadesRenglon(r);
+  const alcanza = siguiente && lugarLibre(r.producto, r.cantidad) >= siguiente.cantidad - r.cantidad;
+  if (!actual && !alcanza) return null;
+  return (
+    <p className="bolsita__escala">
+      {actual && <span className="bolsita__escala-ok">{actual.descuento} % off por cantidad</span>}
+      {siguiente && alcanza && (
+        <button type="button" onClick={() => cambiarCantidad(r.producto.id, siguiente.cantidad - r.cantidad)}>
+          Llevá {siguiente.cantidad} y pagá {siguiente.descuento} % menos cada uno
+        </button>
+      )}
+    </p>
+  );
+}
+
 export function useAccionesBolsita() {
   const acciones = useContext(Contexto);
   if (!acciones) throw new Error("useAccionesBolsita se usa dentro de <ProveedorBolsita>");
@@ -100,18 +119,19 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
 
   const acciones: Acciones = {
     abrir: () => setAbierta(true),
-    sumar: (id) => {
+    sumar: (id, cantidad = 1) => {
       const producto = porId.get(id);
       if (!producto) return;
       const libre = lugarLibre(producto, bolsita[id] ?? 0);
       if (libre > 0) {
-        cambiarCantidad(id, 1);
+        // Con x10 o x20 puede no haber tantos: se suma lo que queda.
+        cambiarCantidad(id, Math.min(cantidad, libre));
         // Se abre sola, así se ve lo que se sumó y el camino para seguir.
         setAbierta(true);
-        return;
+        if (libre >= cantidad) return;
       }
       setAviso({
-        texto: libre > 0 ? `${producto.nombre} ya está en tu bolsita` : `No nos quedan más de ${producto.nombre} por ahora`,
+        texto: libre > 0 ? `Sumamos ${libre}: no nos quedan más de ${producto.nombre}` : `No nos quedan más de ${producto.nombre} por ahora`,
         visible: true,
       });
       clearTimeout(reloj.current);
@@ -152,10 +172,13 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
                   .
                 </li>
               )}
-              {items.map(({ producto: p, cantidad }) => (
+              {items.map((r) => {
+                const { producto: p, cantidad } = r;
+                return (
                 <li className="bolsita__item" key={p.id}>
                   <strong>{p.nombre}</strong>
-                  <span>{precio(p.precio * cantidad)}</span>
+                  <span>{precio(subtotalRenglon(r))}</span>
+                  <PorCantidad renglon={r} />
                   <div className="bolsita__cantidad">
                     <button type="button" aria-label={`Quitar uno de ${p.nombre}`} onClick={() => cambiarCantidad(p.id, -1)}>
                       −
@@ -176,7 +199,8 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
                     Sacar
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
 
             {items.length > 0 && (

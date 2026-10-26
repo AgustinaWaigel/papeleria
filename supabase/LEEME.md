@@ -103,6 +103,22 @@ La API **Paq.ar 2.0** (la de "agreement" y "API-Key") es otra cosa: es para clie
 
 Corré `08-seguridad-pagos.sql` **antes** de publicar la versión con la página de compra (`/comprar`): sin él, el pago online no arma pedidos. Hace que el pedido online solo lo pueda crear el servidor de la tienda (así nadie se saltea la cotización del envío), que un envío sin precio no se pueda pagar online y que los cupones con límite de usos no se puedan usar en varios pedidos a la vez.
 
+## Secciones y etiquetas
+
+Corré `09-secciones-y-etiquetas.sql` en el SQL Editor **antes** de publicar la versión que lo usa (sin la columna `etiquetas`, la tienda no puede leer el catálogo). Suma:
+
+- **Etiquetas** en cada producto (al editarlo, en *Secciones y etiquetas*, o en la columna *Etiquetas* del Excel, separadas por comas). Se ven en la página del producto, cada una con su página (`/seccion/vuelta-al-cole`), y cuentan para el buscador.
+- **Secciones** (panel → *Secciones*): etiquetas que van en el menú *Productos* de la cabecera y en Inicio. Vienen *Escuela*, *Emprendedores* y *Digitales*. Una sección junta todos los productos con su etiqueta, sean de papelería o descargables, y no aparece mientras no tenga ninguno.
+
+## Precio por cantidad (x10, x20…)
+
+Corré `10-precio-por-cantidad.sql` después del `09` y **antes** de publicar la versión que lo usa. En cada producto aparece *Precio por cantidad*: ponés desde cuántas unidades y qué porcentaje descuenta cada una (por ejemplo, desde 10, 10 % off; desde 20, 15 % off). En el Excel va en la columna *Por cantidad* como `10: 10%, 20: 15%`.
+
+- En la página del producto se elige x1, x10, x20… y se ve lo que sale cada uno y cuánto se ahorra. En la bolsita, cada renglón muestra el descuento y un atajo para llegar al siguiente.
+- El descuento lo calcula la base al armar el pedido (por WhatsApp o pagando online), así que no se puede cambiar desde el navegador. El cupón se aplica después, sobre el total con el descuento.
+- El máximo por producto pasa de 99 a 999 unidades.
+- En *Registrar una venta* el precio lo ponés vos: si vendés de a muchos en persona, cargá el precio con el descuento.
+
 ## En producción
 
 Cargá las mismas dos variables (`NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) en tu hosting antes de hacer el build: también configuran qué dominio de imágenes acepta `next/image`. Sumá `NEXT_PUBLIC_SITIO_URL` con tu dominio (por ejemplo `https://www.alasdeangel.com.ar`) para que el sitemap y los links que se comparten apunten bien; en Vercel se toma solo.

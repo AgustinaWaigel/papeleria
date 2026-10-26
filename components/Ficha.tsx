@@ -40,6 +40,11 @@ export function Ficha({ producto: p, orden = 0 }: { producto: Producto; orden?: 
       </h3>
       {p.detalle && <p className="ficha__detalle">{p.detalle}</p>}
       <p className="ficha__desc">{p.desc}</p>
+      {p.porCantidad && (
+        <p className="ficha__cantidad">
+          Llevando {p.porCantidad[0].cantidad}: {p.porCantidad[0].descuento} % off
+        </p>
+      )}
       {p.contenido && (
         <ul className="ficha__contenido">
           {p.contenido.map((cosa) => (

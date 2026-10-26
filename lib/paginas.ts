@@ -24,9 +24,13 @@ export const PAGINAS: Pagina[] = (
   ] satisfies Pagina[]
 ).filter(([href]) => visible(href));
 
+/* Las de PAGINAS que en la cabecera van adentro del menú "Productos", junto con las secciones. */
+export const RUTAS_PRODUCTOS = ["/papeleria", "/descargables", "/personalizados", "/packs-regalo"];
+
 export const PAGINAS_PIE: Pagina[] = (
   [
     ["/buscar", "Buscar"],
+    ["/como-imprimir", "Cómo imprimir los descargables"],
     ["/cuaderno-de-ideas", "Cuaderno de ideas"],
     ["/sobre-nosotras", "Sobre nosotras"],
     ["/preguntas-frecuentes", "Preguntas frecuentes"],

@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 
 /* Bloques de página que se repiten: portadilla, sección con encabezado y franja de cierre. */
 
-export function Portadilla({ nota, titulo, children }: { nota: string; titulo: string; children: ReactNode }) {
+/* chica: en las páginas de catálogo, para que los productos se vean sin bajar. */
+export function Portadilla({ nota, titulo, chica, children }: { nota: string; titulo: string; chica?: boolean; children: ReactNode }) {
   return (
-    <section className="portadilla">
+    <section className={chica ? "portadilla portadilla--chica" : "portadilla"}>
       <div className="contenedor">
         <span className="nota-mano">{nota}</span>
         <h1>{titulo}</h1>

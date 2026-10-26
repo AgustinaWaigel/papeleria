@@ -6,6 +6,7 @@
 
 import { randomInt } from "node:crypto";
 import { redirect } from "next/navigation";
+import { MAXIMO_POR_PRODUCTO } from "@/lib/bolsita";
 import type { PedidoCliente } from "@/lib/seguimiento";
 import { nombreProvincia, numeroCP, provinciaDeCP, SOLO_CRESPO, zonaLocal } from "@/lib/zonas";
 import { obtenerAjustesEnvio } from "@/lib/catalogo";
@@ -23,14 +24,14 @@ const texto = (datos: FormData, campo: string) => String(datos.get(campo) ?? "")
 
 type Item = { id: string; cantidad: number };
 
-/* Lo que manda el navegador, en limpio: cada producto una sola vez y de 1 a 99 unidades (lo mismo que acepta
+/* Lo que manda el navegador, en limpio: cada producto una sola vez y de 1 a 999 unidades (lo mismo que acepta
    la base). Todo lo que se calcula en el servidor (el pedido, el peso del paquete) sale de acá. */
 function limpiarItems(items: unknown): Item[] {
   const porId = new Map<string, number>();
   for (const i of Array.isArray(items) ? items.slice(0, 50) : []) {
     const cantidad = Math.floor(Number(i?.cantidad));
     if (typeof i?.id !== "string" || !Number.isFinite(cantidad) || cantidad < 1) continue;
-    porId.set(i.id, Math.min((porId.get(i.id) ?? 0) + cantidad, 99));
+    porId.set(i.id, Math.min((porId.get(i.id) ?? 0) + cantidad, MAXIMO_POR_PRODUCTO));
   }
   return [...porId].map(([id, cantidad]) => ({ id, cantidad }));
 }

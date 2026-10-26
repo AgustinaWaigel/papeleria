@@ -2,9 +2,13 @@
    No conoce el catálogo: los precios y nombres los pone quien la muestra, con `buscar`. */
 
 import { precio } from "./contacto";
+import { escalaPara, precioUnitario, type Escala } from "./productos";
+
+/* El máximo por producto: el mismo que acepta la base (supabase/10-precio-por-cantidad.sql). */
+export const MAXIMO_POR_PRODUCTO = 999;
 
 export type Bolsita = Record<string, number>;
-export type ResumenProducto = { id: string; nombre: string; precio: number; stock?: number; tipo: string };
+export type ResumenProducto = { id: string; nombre: string; precio: number; stock?: number; tipo: string; porCantidad?: Escala[] };
 export type Buscar = (id: string) => ResumenProducto | undefined;
 
 const CLAVE = "alas-bolsita";
@@ -67,13 +71,23 @@ export const renglones = (bolsita: Bolsita, buscar: Buscar) =>
 
 export type Renglon = ReturnType<typeof renglones>[number];
 
-export const total = (lista: Renglon[]) => lista.reduce((suma, r) => suma + r.producto.precio * r.cantidad, 0);
+/* Lo que sale un renglón, con el descuento por cantidad si lo alcanza. */
+export const subtotalRenglon = (r: Renglon) => precioUnitario(r.producto, r.cantidad) * r.cantidad;
+
+/* El descuento por cantidad de un renglón: el que ya tiene y el próximo que puede alcanzar. */
+export function cantidadesRenglon(r: Renglon) {
+  const actual = escalaPara(r.producto.porCantidad, r.cantidad);
+  const siguiente = (r.producto.porCantidad ?? []).find((e) => e.cantidad > r.cantidad && e.descuento > (actual?.descuento ?? 0));
+  return { actual, siguiente };
+}
+
+export const total = (lista: Renglon[]) => lista.reduce((suma, r) => suma + subtotalRenglon(r), 0);
 
 export const unidades = (lista: Renglon[]) => lista.reduce((suma, r) => suma + r.cantidad, 0);
 
-/* Cuánto más se puede sumar de un producto sin pasarse del stock (Infinity si no se controla). */
+/* Cuánto más se puede sumar de un producto sin pasarse del stock (ni del máximo por producto). */
 export const lugarLibre = (producto: ResumenProducto, cantidad: number) =>
-  producto.stock === undefined ? Infinity : producto.stock - cantidad;
+  Math.min(producto.stock ?? Infinity, MAXIMO_POR_PRODUCTO) - cantidad;
 
 /* Un código corto para reconocer el pedido en WhatsApp y en el panel: "AA-7K3FQ". */
 export function nuevoCodigo() {
@@ -99,7 +113,10 @@ export function textoPedido(lista: Renglon[], { codigo, nombre, entrega }: { cod
     nombre ? `¡Hola Alas de Ángel! Soy ${nombre} y quiero hacer este pedido:` : "¡Hola Alas de Ángel! Quiero hacer este pedido:",
     "",
     ...(codigo ? [`*Pedido ${codigo}*`] : []),
-    ...lista.map(({ producto: p, cantidad: n }) => `• ${n} × ${p.nombre} — ${precio(p.precio * n)}`),
+    ...lista.map((r) => {
+      const { actual } = cantidadesRenglon(r);
+      return `• ${r.cantidad} × ${r.producto.nombre} — ${precio(subtotalRenglon(r))}${actual ? ` (${actual.descuento} % off por cantidad)` : ""}`;
+    }),
     "",
   ];
   if (envio) {

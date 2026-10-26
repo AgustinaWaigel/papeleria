@@ -10,6 +10,7 @@ import {
   PRODUCTOS,
   type Categorias,
   type ColorProducto,
+  type Escala,
   type NombreDibujo,
   type Producto,
   type TipoProducto,
@@ -17,7 +18,7 @@ import {
 import type { AjustesEnvio } from "./seguimiento";
 import type { Zona } from "./zonas";
 
-export const TAGS = { catalogo: "productos", categorias: "categorias", resenas: "resenas", ajustes: "ajustes" } as const;
+export const TAGS = { catalogo: "productos", categorias: "categorias", secciones: "secciones", resenas: "resenas", ajustes: "ajustes" } as const;
 
 /* Una fila de la tabla tal como la devuelve Supabase (ver supabase/*.sql). */
 export type FilaProducto = {
@@ -41,6 +42,8 @@ export type FilaProducto = {
   activo: boolean;
   archivo?: string | null; // el PDF de un descargable, en el bucket privado (supabase/04-pagos-online.sql)
   peso_gramos?: number | null; // para cotizar con Correo Argentino (supabase/07-envios-cupones-y-mas.sql)
+  etiquetas?: string[] | null; // supabase/09-secciones-y-etiquetas.sql
+  por_cantidad?: Escala[] | null; // supabase/10-precio-por-cantidad.sql
 };
 
 const lista = (valor: string[] | null) => (valor && valor.length > 0 ? valor : undefined);
@@ -63,13 +66,15 @@ export function desdeFila(f: FilaProducto): Producto {
     fotos: lista(f.fotos),
     descripcion: lista(f.descripcion),
     caracteristicas: lista(f.caracteristicas),
+    etiquetas: lista(f.etiquetas ?? null),
+    porCantidad: f.por_cantidad && f.por_cantidad.length > 0 ? f.por_cantidad : undefined,
   };
 }
 
-/* Lo que la tienda muestra de cada producto. Las mismas columnas que supabase/06-seguridad.sql deja leer
+/* Lo que la tienda muestra de cada producto. Las mismas columnas que supabase/06-seguridad.sql (y 09, 10) deja leer
    con la clave pública: si sumás una columna que la tienda tiene que ver, va en los dos lados. */
 const COLUMNAS_PUBLICAS =
-  "id, tipo, cat, nombre, resumen, detalle, precio, precio_anterior, stock, dibujo, color, destacado, contenido, fotos, descripcion, caracteristicas, orden, activo";
+  "id, tipo, cat, nombre, resumen, detalle, precio, precio_anterior, stock, dibujo, color, destacado, contenido, fotos, descripcion, caracteristicas, etiquetas, por_cantidad, orden, activo";
 
 export async function obtenerCatalogo(): Promise<Producto[]> {
   "use cache";
@@ -124,6 +129,28 @@ export async function obtenerCategorias(): Promise<Categorias> {
     (categorias[c.tipo] ??= []).push([c.id, c.nombre]);
   }
   return categorias;
+}
+
+/* Las secciones del menú "Productos" (supabase/09-secciones-y-etiquetas.sql). Cada una junta los productos
+   que tienen su etiqueta. */
+export type SeccionMenu = { id: string; nombre: string; descripcion: string | null };
+
+export async function obtenerSecciones(): Promise<SeccionMenu[]> {
+  "use cache";
+  cacheTag(TAGS.secciones);
+
+  if (!supabaseConfigurado) {
+    cacheLife("max");
+    return [];
+  }
+  const { data, error } = await clientePublico().from("secciones").select("id, nombre, descripcion").order("orden").order("nombre");
+  if (error) {
+    // Pasa si todavía no se corrió supabase/09-secciones-y-etiquetas.sql.
+    cacheLife("minutes");
+    return [];
+  }
+  cacheLife("days");
+  return data as SeccionMenu[];
 }
 
 /* Lo que se muestra en la bolsita sobre el envío (ver AjustesEnvio en lib/seguimiento.ts). */

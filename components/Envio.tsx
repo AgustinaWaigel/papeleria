@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cotizarEnvio } from "@/app/(tienda)/acciones";
-import type { Renglon } from "@/lib/bolsita";
+import { total, type Renglon } from "@/lib/bolsita";
 import { precio } from "@/lib/contacto";
 import { costoEnvio, ENTREGAS, type AjustesEnvio, type Entrega } from "@/lib/seguimiento";
 import { nombreProvincia, numeroCP, PROVINCIAS, provinciaDeCP, SOLO_CRESPO, zonaLocal, zonaPara } from "@/lib/zonas";
@@ -24,7 +24,7 @@ export function useEnvio({ items, envio, cotizaCorreo, eleccion, descuento = 0 }
 }) {
   const { entrega, cp, provincia } = eleccion;
   const renglones = items.map((r) => ({ id: r.producto.id, cantidad: r.cantidad }));
-  const montoProductos = items.reduce((s, r) => s + r.producto.precio * r.cantidad, 0) - descuento;
+  const montoProductos = total(items) - descuento;
   const destinoListo = Boolean(numeroCP(cp) && provincia);
   const zona = destinoListo ? zonaPara(envio.zonas, provincia, cp) : null;
 

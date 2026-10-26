@@ -25,6 +25,7 @@ export type PedidoMail = {
   pedido_items: { producto_id: string | null; nombre: string; precio_unitario: number; cantidad: number }[];
 };
 
+const GUIA_IMPRIMIR = `${SITIO_URL}/como-imprimir`;
 const verPedido = (p: PedidoMail) => ({ texto: `Ver mi pedido ${p.codigo}`, url: linkDeSeguimiento(p.codigo, p.clave) });
 const destacado = (etiqueta: string, valor: string) =>
   `<span style="font-size: 13px; color: ${C.tintaSuave};">${escapar(etiqueta)}</span><br><strong style="font-family: ${TITULO}; font-size: 22px; letter-spacing: 1px;">${escapar(valor)}</strong>`;
@@ -54,6 +55,9 @@ export function mailDescargables(p: PedidoMail, descargas: { nombre: string; url
         parrafo(
           `Tocá <strong>Descargar PDF</strong> y guardalo en tu compu o en el celular: lo podés ${resaltado("imprimir todas las veces que quieras")}. El botón sigue andando aunque pase el tiempo, y también los encontrás en la página de tu pedido.`,
         ),
+        parrafo(
+          `¿Primera vez imprimiendo? En nuestra <a href="${GUIA_IMPRIMIR}" style="color: ${C.bordo}; font-weight: bold;">guía para imprimir</a> te contamos qué papel usar y cómo configurar la impresora para que quede perfecto.`,
+        ),
       ],
       boton: verPedido(p),
     }),
@@ -64,6 +68,7 @@ export function mailDescargables(p: PedidoMail, descargas: { nombre: string; url
       ...descargas.map((d) => `• ${d.nombre}: ${d.url}`),
       "",
       "Los podés imprimir todas las veces que quieras. También los encontrás en la página de tu pedido.",
+      `Cómo imprimirlos (papel, impresora y librería): ${GUIA_IMPRIMIR}`,
       `Tu pedido ${p.codigo}: ${verPedido(p).url}`,
     ]),
   };

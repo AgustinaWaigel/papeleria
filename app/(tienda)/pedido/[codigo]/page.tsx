@@ -120,7 +120,8 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
               <div className="seguimiento__aviso seguimiento__aviso--bien" role="status">
                 <p>
                   <strong>Tus descargables están listos.</strong> Bajalos desde acá cuando quieras (también te los mandamos por mail:
-                  si no lo ves, fijate en spam o promociones).
+                  si no lo ves, fijate en spam o promociones). Antes de imprimir, mirá la{" "}
+                  <Link href="/como-imprimir">guía para imprimir</Link>.
                 </p>
                 <ul className="seguimiento__pdfs">
                   {pdfs.map((i) => (

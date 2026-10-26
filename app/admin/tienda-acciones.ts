@@ -1,6 +1,6 @@
 "use server";
 
-/* Acciones del panel para categorías, reseñas y suscriptores. */
+/* Acciones del panel para categorías, secciones, reseñas y suscriptores. */
 
 import { refresh, updateTag } from "next/cache";
 import { exigirAdmin } from "@/lib/admin";
@@ -90,6 +90,55 @@ export async function borrarCategoria(_: Estado, datos: FormData): Promise<Estad
   if (error) return { error: error.message };
 
   updateTag(TAGS.categorias);
+  refresh();
+  return undefined;
+}
+
+// ---------- Secciones ----------
+// Una sección junta los productos con su etiqueta: el id es la etiqueta pasada a identificador.
+
+const SIN_TABLA = "¿Corriste supabase/09-secciones-y-etiquetas.sql?";
+
+export async function crearSeccion(_: Estado, datos: FormData): Promise<Estado> {
+  const { supabase } = await exigirAdmin();
+  const nombre = texto(datos, "nombre");
+  const id = aIdentificador(nombre);
+  if (!nombre || !id) return { error: "Escribí el nombre de la sección." };
+
+  const { data: ultima } = await supabase.from("secciones").select("orden").order("orden", { ascending: false }).limit(1).maybeSingle();
+  const { error } = await supabase
+    .from("secciones")
+    .insert({ id, nombre, descripcion: texto(datos, "descripcion") || null, orden: (ultima?.orden ?? 0) + 10 });
+  if (error) return { error: error.code === "23505" ? `Ya existe una sección «${id}».` : `${error.message}. ${SIN_TABLA}` };
+
+  updateTag(TAGS.secciones);
+  refresh();
+  return { ok: `Listo: ponele la etiqueta «${nombre}» a los productos que van en esta sección.` };
+}
+
+export async function guardarSeccion(_: Estado, datos: FormData): Promise<Estado> {
+  const { supabase } = await exigirAdmin();
+  const nombre = texto(datos, "nombre");
+  if (!nombre) return { error: "El nombre no puede quedar vacío." };
+
+  const { error } = await supabase
+    .from("secciones")
+    .update({ nombre, descripcion: texto(datos, "descripcion") || null, orden: Number(texto(datos, "orden")) || 0 })
+    .eq("id", texto(datos, "id"));
+  if (error) return { error: error.message };
+
+  updateTag(TAGS.secciones);
+  refresh();
+  return { ok: "Guardado." };
+}
+
+/* Los productos no cambian: siguen con su etiqueta, que queda como etiqueta suelta (sin lugar en el menú). */
+export async function borrarSeccion(_: Estado, datos: FormData): Promise<Estado> {
+  const { supabase } = await exigirAdmin();
+  const { error } = await supabase.from("secciones").delete().eq("id", texto(datos, "id"));
+  if (error) return { error: error.message };
+
+  updateTag(TAGS.secciones);
   refresh();
   return undefined;
 }

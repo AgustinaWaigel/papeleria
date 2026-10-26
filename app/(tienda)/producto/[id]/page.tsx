@@ -4,13 +4,14 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import { Seccion } from "@/components/Bloques";
 import { BotonSumar } from "@/components/BotonSumar";
+import { ElegirCantidad } from "@/components/ElegirCantidad";
 import { Ficha, sello } from "@/components/Ficha";
 import { FormAvisoStock } from "@/components/FormAvisoStock";
 import { FormResena } from "@/components/FormResena";
 import { Galeria } from "@/components/Galeria";
 import { Precio } from "@/components/Precio";
 import { obtenerCatalogo, obtenerProducto, obtenerResenas, type Resena } from "@/lib/catalogo";
-import { Dibujo, SECCIONES, agotado, rutaProducto, type Producto } from "@/lib/productos";
+import { Dibujo, SECCIONES, agotado, rutaProducto, rutaSeccion, type Producto } from "@/lib/productos";
 import { SITIO_URL } from "@/lib/sitio";
 
 export async function generateStaticParams() {
@@ -109,8 +110,24 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
               </div>
               <p className="producto__bajada">{p.desc}</p>
 
-              <BotonSumar id={p.id} nombre={p.nombre} grande agotado={agotado(p)} />
-              {agotado(p) ? <FormAvisoStock productoId={p.id} /> : <p className="producto__entrega">{seccion.entrega}</p>}
+              {p.porCantidad && !agotado(p) ? (
+                <ElegirCantidad producto={p} />
+              ) : (
+                <BotonSumar id={p.id} nombre={p.nombre} grande agotado={agotado(p)} />
+              )}
+              {agotado(p) ? (
+                <FormAvisoStock productoId={p.id} />
+              ) : (
+                <p className="producto__entrega">
+                  {seccion.entrega}
+                  {p.tipo === "descargable" && (
+                    <>
+                      {" "}
+                      <Link href="/como-imprimir">Cómo imprimirlo</Link>.
+                    </>
+                  )}
+                </p>
+              )}
 
               {p.descripcion?.map((parrafo) => (
                 <p key={parrafo}>{parrafo}</p>
@@ -136,6 +153,18 @@ export default async function PaginaProducto({ params }: PageProps<"/producto/[i
                     ))}
                   </ul>
                 </>
+              )}
+
+              {p.etiquetas && (
+                <ul className="producto__etiquetas" aria-label="Etiquetas">
+                  {p.etiquetas.map((e) => (
+                    <li key={e}>
+                      <Link className="filtro" href={rutaSeccion(e)}>
+                        {e}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           </div>

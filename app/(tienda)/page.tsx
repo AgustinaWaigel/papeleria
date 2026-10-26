@@ -3,10 +3,11 @@ import { Franja, Seccion } from "@/components/Bloques";
 import { AlasAnimadas } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
 import { Ficha } from "@/components/Ficha";
-import { obtenerCatalogo } from "@/lib/catalogo";
+import { obtenerCatalogo, obtenerSecciones } from "@/lib/catalogo";
 import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS, visible } from "@/lib/paginas";
+import { tieneEtiqueta } from "@/lib/productos";
 import { SITIO_URL } from "@/lib/sitio";
 
 const ESTANTES = [
@@ -96,6 +97,7 @@ export default async function Inicio() {
   // Los que se marcaron "En Inicio" en el panel; si no hay ninguno, los primeros del catálogo.
   const destacados = catalogo.filter((p) => p.destacado);
   const enInicio = (destacados.length > 0 ? destacados : catalogo).slice(0, 8);
+  const secciones = (await obtenerSecciones()).filter((s) => catalogo.some((p) => tieneEtiqueta(p, s.id)));
 
   return (
     <>
@@ -141,6 +143,18 @@ export default async function Inicio() {
           ))}
         </div>
       </Seccion>
+
+      {secciones.length > 0 && (
+        <Seccion nota="¿para qué lo necesitás?" titulo="Buscá por sección">
+          <nav className="filtros filtros--grandes" aria-label="Secciones">
+            {secciones.map((s) => (
+              <Link key={s.id} className="filtro" href={`/seccion/${s.id}`}>
+                {s.nombre}
+              </Link>
+            ))}
+          </nav>
+        </Seccion>
+      )}
 
       <Seccion nota="por dónde empezar" titulo="Cuatro estantes para revolver">
         <div className="estantes">

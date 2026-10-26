@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useState, useSyncExternalStore, useTransition } from "react";
 import { pagarOnline, validarCupon } from "@/app/(tienda)/acciones";
-import { cambiarCantidad, lugarLibre, total, unidades, type EntregaPedido } from "@/lib/bolsita";
+import { cambiarCantidad, lugarLibre, subtotalRenglon, total, unidades, type EntregaPedido } from "@/lib/bolsita";
 import { enlaceWhatsApp, PLAZO_TALLER, precio } from "@/lib/contacto";
-import { PedirPorWhatsApp, useAjustesCompra, useRenglones } from "./Bolsita";
+import { PedirPorWhatsApp, PorCantidad, useAjustesCompra, useRenglones } from "./Bolsita";
 import { destinoCorto, ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
 
 /* La compra online, paso por paso: 1) confirmar lo que hay en la bolsita, 2) cómo lo recibe y cuánto sale el
@@ -146,10 +146,13 @@ export function Compra() {
           {paso === 1 ? (
             <>
               <ul className="paso__items">
-                {items.map(({ producto: p, cantidad }) => (
+                {items.map((r) => {
+                  const { producto: p, cantidad } = r;
+                  return (
                   <li key={p.id}>
                     <strong>{p.nombre}</strong>
-                    <span className="paso__precio">{precio(p.precio * cantidad)}</span>
+                    <span className="paso__precio">{precio(subtotalRenglon(r))}</span>
+                    <PorCantidad renglon={r} />
                     <div className="bolsita__cantidad">
                       <button type="button" aria-label={`Quitar uno de ${p.nombre}`} onClick={() => cambiarCantidad(p.id, -1)}>
                         −
@@ -168,7 +171,8 @@ export function Compra() {
                       Sacar
                     </button>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
               <p className="bolsita__total">
                 Subtotal <span>{precio(subtotal)}</span>
@@ -374,12 +378,12 @@ export function Compra() {
       <aside className="compra-pagina__resumen" aria-label="Resumen de la compra">
         <h2>Resumen</h2>
         <ul className="paso__items paso__items--chico">
-          {items.map(({ producto: p, cantidad }) => (
-            <li key={p.id}>
+          {items.map((r) => (
+            <li key={r.producto.id}>
               <span>
-                {cantidad} × {p.nombre}
+                {r.cantidad} × {r.producto.nombre}
               </span>
-              <span className="paso__precio">{precio(p.precio * cantidad)}</span>
+              <span className="paso__precio">{precio(subtotalRenglon(r))}</span>
             </li>
           ))}
         </ul>

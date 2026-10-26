@@ -18,6 +18,8 @@
                       ficha del catálogo. Sin fotos se muestra el dibujo.
      descripcion      párrafos de texto largo, uno por elemento de la lista
      caracteristicas  lista de datos; si falta, se arma sola a partir de detalle
+     etiquetas        palabras sueltas ("Escuela", "Vuelta al cole"). Las que coinciden con una sección
+                      (tabla secciones) llevan el producto a esa sección del menú.
 */
 
 import type { CSSProperties } from "react";
@@ -43,7 +45,30 @@ export type Producto = {
   caracteristicas?: string[];
   stock?: number; // sin valor: no se controla
   precioAnterior?: number; // si es mayor que precio, está en oferta
+  etiquetas?: string[];
+  porCantidad?: Escala[]; // descuentos llevando varias unidades (supabase/10-precio-por-cantidad.sql)
 };
+
+/* Llevando `cantidad` o más unidades, cada una sale `descuento` % menos. */
+export type Escala = { cantidad: number; descuento: number };
+
+/* La escala que corresponde a esa cantidad (la de mayor descuento alcanzado), o ninguna. */
+export const escalaPara = (escalas: Escala[] | undefined, cantidad: number) =>
+  (escalas ?? []).filter((e) => e.cantidad <= cantidad).sort((a, b) => b.descuento - a.descuento)[0];
+
+/* El precio de una unidad llevando `cantidad`. El mismo cálculo que precio_por_cantidad() en la base. */
+export function precioUnitario(p: { precio: number; porCantidad?: Escala[] }, cantidad: number) {
+  const escala = escalaPara(p.porCantidad, cantidad);
+  return escala ? Math.round((p.precio * (100 - escala.descuento)) / 100) : p.precio;
+}
+
+/* Las escalas en limpio: cantidades de 2 a 999 sin repetir, descuentos de 1 a 90 %, ordenadas. */
+export const limpiarEscalas = (escalas: Escala[]) =>
+  escalas
+    .map((e) => ({ cantidad: Math.floor(e.cantidad), descuento: Math.floor(e.descuento) }))
+    .filter((e, n, todas) => e.cantidad >= 2 && e.cantidad <= 999 && e.descuento >= 1 && e.descuento <= 90 && todas.findIndex((o) => o.cantidad === e.cantidad) === n)
+    .sort((a, b) => a.cantidad - b.cantidad)
+    .slice(0, 6);
 
 export type Categorias = Partial<Record<TipoProducto, [id: string, nombre: string][]>>;
 
@@ -172,6 +197,24 @@ export const TIPOS: [TipoProducto, string][] = [
 ];
 
 export const rutaProducto = (id: string) => `/producto/${id}`;
+
+/* "Vuelta al cole" → "vuelta-al-cole": así se comparan las etiquetas con las secciones y se arma la dirección. */
+export const idEtiqueta = (texto: string) =>
+  texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+export const rutaSeccion = (etiqueta: string) => `/seccion/${idEtiqueta(etiqueta)}`;
+/* Sin repetidas (tampoco "Escuela" y "escuela"), cortas y sin las que no tienen ni una letra. */
+export const limpiarEtiquetas = (lista: string[]) =>
+  lista
+    .map((e) => e.trim().replace(/\s+/g, " ").slice(0, 40))
+    .filter((e, n, todas) => idEtiqueta(e) && todas.findIndex((otra) => idEtiqueta(otra) === idEtiqueta(e)) === n)
+    .slice(0, 20);
+export const tieneEtiqueta = (p: Pick<Producto, "etiquetas">, id: string) => (p.etiquetas ?? []).some((e) => idEtiqueta(e) === id);
 
 /* La sección del catálogo a la que pertenece cada tipo de producto. */
 export const SECCIONES: Record<TipoProducto, { ruta: string; nombre: string; entrega: string }> = {

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function Papeleria() {
   return (
     <>
-      <Portadilla nota="para organizarte, divertirte o regalar (te)" titulo="Papelería">
+      <Portadilla chica nota="para organizarte, divertirte o regalar (te)" titulo="Papelería">
         Cuadernos, agendas, stickers y todo lo que hace falta para que escribir a mano vuelva a dar ganas. Te lo mandamos
         envuelto a tu casa.
       </Portadilla>

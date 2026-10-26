@@ -5,7 +5,8 @@ import { startTransition, useActionState, useEffect, useState, useTransition, ty
 import { guardarProducto } from "@/app/admin/acciones";
 import { agregarCategoria } from "@/app/admin/tienda-acciones";
 import { Precio } from "@/components/Precio";
-import { COLORES, Dibujo, NOMBRES_DIBUJO, TIPOS, type Categorias, type Producto, type TipoProducto } from "@/lib/productos";
+import { precio as formato } from "@/lib/contacto";
+import { COLORES, Dibujo, NOMBRES_DIBUJO, TIPOS, idEtiqueta, type Categorias, type Escala, type Producto, type TipoProducto } from "@/lib/productos";
 import { BUCKET_DESCARGABLES } from "@/lib/supabase/config";
 import { clienteNavegador } from "@/lib/supabase/navegador";
 
@@ -15,7 +16,76 @@ type Props = {
   categorias: Categorias;
   conPdf: boolean;
   conPeso?: boolean; // la base ya tiene la columna del peso (supabase/07-envios-cupones-y-mas.sql)
+  // Con supabase/09-secciones-y-etiquetas.sql: las secciones, para sumarlas con un toque.
+  etiquetas?: { secciones: [id: string, nombre: string][] };
+  conPorCantidad?: boolean; // la base ya tiene la columna (supabase/10-precio-por-cantidad.sql)
 };
+
+/* x10, x20…: desde qué cantidad y cuánto descuenta cada unidad. Muestra cuánto queda con el precio de arriba. */
+function CampoPorCantidad({ iniciales, precio }: { iniciales: Escala[]; precio: number }) {
+  const [filas, setFilas] = useState(iniciales.map((e) => ({ cantidad: String(e.cantidad), descuento: String(e.descuento) })));
+  const cambiar = (n: number, cambios: Partial<(typeof filas)[number]>) => setFilas(filas.map((f, i) => (i === n ? { ...f, ...cambios } : f)));
+  const sumarFila = () => {
+    const ultima = filas.at(-1);
+    // Una sugerencia para arrancar: x10 con 10 %, y después el doble con 5 % más.
+    const siguiente = ultima
+      ? { cantidad: String((Number(ultima.cantidad) || 5) * 2), descuento: String(Math.min((Number(ultima.descuento) || 0) + 5, 90)) }
+      : { cantidad: "10", descuento: "10" };
+    setFilas([...filas, siguiente]);
+  };
+
+  return (
+    <fieldset className="admin__grupo">
+      <legend>Precio por cantidad</legend>
+      <input type="hidden" name="con_por_cantidad" value="1" />
+      <p className="campo__ayuda">
+        Para vender de a muchos: llevando esa cantidad o más, cada unidad sale con el descuento. En la tienda aparece como x10,
+        x20… para elegir. Dejalo vacío si se vende de a uno.
+      </p>
+      {filas.length > 0 && (
+        <ul className="escalas">
+          {filas.map((f, n) => {
+            const unidad = Math.round((precio * (100 - (Number(f.descuento) || 0))) / 100);
+            return (
+              <li key={n} className="escalas__fila">
+                <label>
+                  <span>Desde</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    name="escala_cantidad"
+                    value={f.cantidad}
+                    onChange={(e) => cambiar(n, { cantidad: e.target.value.replace(/\D/g, "") })}
+                  />
+                  <span>unidades</span>
+                </label>
+                <label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    name="escala_descuento"
+                    value={f.descuento}
+                    onChange={(e) => cambiar(n, { descuento: e.target.value.replace(/\D/g, "") })}
+                  />
+                  <span>% off</span>
+                </label>
+                <span className="admin__dato">
+                  {precio > 0 && Number(f.descuento) > 0 && `${formato(unidad)} c/u`}
+                </span>
+                <button className="admin__borrar" type="button" onClick={() => setFilas(filas.filter((_, i) => i !== n))}>
+                  Sacar
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <button className="boton boton--claro boton--chico" type="button" onClick={sumarFila} disabled={filas.length >= 6}>
+        + Sumar una cantidad
+      </button>
+    </fieldset>
+  );
+}
 
 /* "Cuaderno Pluma A5" → "cuaderno-pluma-a5" */
 const aIdentificador = (texto: string) =>
@@ -52,7 +122,96 @@ async function achicarFoto(archivo: File): Promise<File> {
 
 const NUEVA = "__nueva"; // la opción "+ Nueva categoría…" de la lista
 
-export function FormProducto({ producto: p, categorias: todasLasCategorias, conPdf, conPeso = false }: Props) {
+/* Las etiquetas del producto: las secciones se suman con un toque y cualquier otra se escribe. */
+function CampoEtiquetas({ iniciales, secciones }: { iniciales: string[]; secciones: [id: string, nombre: string][] }) {
+  const [etiquetas, setEtiquetas] = useState(iniciales);
+  const [escrita, setEscrita] = useState("");
+  const tiene = (id: string) => etiquetas.some((e) => idEtiqueta(e) === id);
+
+  const sumar = (texto: string) => {
+    const id = idEtiqueta(texto);
+    if (!id || tiene(id)) return;
+    // Si coincide con una sección, va con el nombre de la sección.
+    setEtiquetas([...etiquetas, secciones.find(([s]) => s === id)?.[1] ?? texto.trim()]);
+  };
+  const sacar = (id: string) => setEtiquetas(etiquetas.filter((e) => idEtiqueta(e) !== id));
+
+  return (
+    <fieldset className="admin__grupo">
+      <legend>Secciones y etiquetas</legend>
+      <input type="hidden" name="con_etiquetas" value="1" />
+      {etiquetas.map((e) => (
+        <input key={e} type="hidden" name="etiquetas" value={e} />
+      ))}
+      {secciones.length > 0 && (
+        <div className="campo">
+          <span className="campo__titulo">Secciones del menú</span>
+          <div className="filtros" role="group" aria-label="Secciones del menú">
+            {secciones.map(([id, nombre]) => (
+              <button
+                key={id}
+                className="filtro"
+                type="button"
+                aria-pressed={tiene(id)}
+                onClick={() => (tiene(id) ? sacar(id) : sumar(nombre))}
+              >
+                {nombre}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="campo">
+        <label htmlFor="f-etiqueta">Otras etiquetas</label>
+        <div className="editor__nueva-cat">
+          <input
+            type="text"
+            id="f-etiqueta"
+            value={escrita}
+            placeholder="Por ejemplo: Vuelta al cole"
+            aria-describedby="f-etiqueta-ayuda"
+            onChange={(e) => setEscrita(e.target.value)}
+            // Enter o coma suman la etiqueta en vez de mandar todo el formulario.
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                sumar(escrita);
+                setEscrita("");
+              }
+            }}
+          />
+          <button
+            className="boton boton--chico"
+            type="button"
+            disabled={!idEtiqueta(escrita)}
+            onClick={() => {
+              sumar(escrita);
+              setEscrita("");
+            }}
+          >
+            Sumar
+          </button>
+        </div>
+        <span className="campo__ayuda" id="f-etiqueta-ayuda">
+          Se ven en la página del producto y ayudan a encontrarlo en el buscador.
+        </span>
+        {etiquetas.length > 0 && (
+          <ul className="producto__etiquetas" aria-label="Etiquetas del producto">
+            {etiquetas.map((e) => (
+              <li key={e}>
+                <button className="filtro" type="button" aria-pressed="true" aria-label={`Sacar «${e}»`} onClick={() => sacar(idEtiqueta(e))}>
+                  {e} ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </fieldset>
+  );
+}
+
+export function FormProducto({ producto: p, categorias: todasLasCategorias, conPdf, conPeso = false, etiquetas, conPorCantidad = false }: Props) {
   const [estado, accion, enviando] = useActionState(guardarProducto, undefined);
   const editando = Boolean(p);
 
@@ -323,6 +482,10 @@ export function FormProducto({ producto: p, categorias: todasLasCategorias, conP
             </label>
           </div>
         </fieldset>
+
+        {conPorCantidad && <CampoPorCantidad iniciales={p?.porCantidad ?? []} precio={Number(precio) || 0} />}
+
+        {etiquetas && <CampoEtiquetas iniciales={p?.etiquetas ?? []} secciones={etiquetas.secciones} />}
 
         <fieldset className="admin__grupo">
           <legend>Textos</legend>
