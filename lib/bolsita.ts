@@ -2,7 +2,7 @@
    No conoce el catálogo: los precios y nombres los pone quien la muestra, con `buscar`. */
 
 import { precio } from "./contacto";
-import { escalaPara, precioUnitario, type Escala } from "./productos";
+import { ahorroPorCantidad, escalaPara, precioUnitario, type Escala } from "./productos";
 
 /* El máximo por producto: el mismo que acepta la base (supabase/10-precio-por-cantidad.sql). */
 export const MAXIMO_POR_PRODUCTO = 999;
@@ -115,7 +115,7 @@ export function textoPedido(lista: Renglon[], { codigo, nombre, entrega }: { cod
     ...(codigo ? [`*Pedido ${codigo}*`] : []),
     ...lista.map((r) => {
       const { actual } = cantidadesRenglon(r);
-      return `• ${r.cantidad} × ${r.producto.nombre} — ${precio(subtotalRenglon(r))}${actual ? ` (${actual.descuento} % off por cantidad)` : ""}`;
+      return `• ${r.cantidad} × ${r.producto.nombre} — ${precio(subtotalRenglon(r))}${actual ? ` (ahorrás ${precio(ahorroPorCantidad(r.producto, r.cantidad))} por cantidad)` : ""}`;
     }),
     "",
   ];

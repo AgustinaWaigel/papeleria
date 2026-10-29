@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { precio } from "@/lib/contacto";
-import { escalaPara, precioUnitario, type Producto } from "@/lib/productos";
+import { ahorroPorCantidad, precioUnitario, type Producto } from "@/lib/productos";
 import { useAccionesBolsita } from "./Bolsita";
 
 /* En la página de un producto con precio por cantidad: x1, x10, x20… con lo que sale cada unidad y el total. */
@@ -11,7 +11,7 @@ export function ElegirCantidad({ producto: p }: { producto: Pick<Producto, "id" 
   const [cantidad, setCantidad] = useState(1);
   const escalas = p.porCantidad ?? [];
   const unitario = precioUnitario(p, cantidad);
-  const ahorro = (p.precio - unitario) * cantidad;
+  const ahorro = ahorroPorCantidad(p, cantidad);
 
   return (
     <div className="por-cantidad">
@@ -22,7 +22,7 @@ export function ElegirCantidad({ producto: p }: { producto: Pick<Producto, "id" 
         {[1, ...escalas.map((e) => e.cantidad)].map((n) => (
           <button key={n} className="filtro" type="button" aria-pressed={cantidad === n} onClick={() => setCantidad(n)}>
             x{n}
-            {escalaPara(escalas, n) && <span className="por-cantidad__off"> −{escalaPara(escalas, n)!.descuento} %</span>}
+            {ahorroPorCantidad(p, n) > 0 && <span className="por-cantidad__off"> −{precio(ahorroPorCantidad(p, n))}</span>}
           </button>
         ))}
       </div>

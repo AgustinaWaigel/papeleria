@@ -21,6 +21,7 @@ import {
   type ResumenProducto,
 } from "@/lib/bolsita";
 import { enlaceWhatsApp, precio } from "@/lib/contacto";
+import { ahorroPorCantidad } from "@/lib/productos";
 import type { AjustesEnvio } from "@/lib/seguimiento";
 
 type Acciones = { abrir: () => void; sumar: (id: string, cantidad?: number) => void };
@@ -77,10 +78,10 @@ export function PorCantidad({ renglon: r }: { renglon: Renglon }) {
   if (!actual && !alcanza) return null;
   return (
     <p className="bolsita__escala">
-      {actual && <span className="bolsita__escala-ok">{actual.descuento} % off por cantidad</span>}
+      {actual && <span className="bolsita__escala-ok">Ahorrás {precio(ahorroPorCantidad(r.producto, r.cantidad))} por cantidad</span>}
       {siguiente && alcanza && (
         <button type="button" onClick={() => cambiarCantidad(r.producto.id, siguiente.cantidad - r.cantidad)}>
-          Llevá {siguiente.cantidad} y pagá {siguiente.descuento} % menos cada uno
+          Llevá {siguiente.cantidad} y ahorrás {precio(ahorroPorCantidad(r.producto, siguiente.cantidad))}
         </button>
       )}
     </p>

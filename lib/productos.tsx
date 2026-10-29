@@ -76,6 +76,10 @@ export function precioUnitario(p: { precio: number; porCantidad?: Escala[] }, ca
   return escala ? Math.round((p.precio * (100 - escala.descuento)) / 100) : p.precio;
 }
 
+/* Lo que se ahorra en total llevando `cantidad`, comparado con pagar cada una a precio de lista. */
+export const ahorroPorCantidad = (p: { precio: number; porCantidad?: Escala[] }, cantidad: number) =>
+  (p.precio - precioUnitario(p, cantidad)) * cantidad;
+
 /* Las escalas en limpio: cantidades de 2 a 999 sin repetir, descuentos de 1 a 90 %, ordenadas. */
 export const limpiarEscalas = (escalas: Escala[]) =>
   escalas

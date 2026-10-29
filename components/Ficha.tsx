@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { Dibujo, agotado, enOferta, rutaProducto, type Producto } from "@/lib/productos";
+import { precio } from "@/lib/contacto";
+import { Dibujo, agotado, ahorroPorCantidad, enOferta, rutaProducto, type Producto } from "@/lib/productos";
 import { BotonSumar } from "./BotonSumar";
 import { Precio } from "./Precio";
 
@@ -43,7 +44,7 @@ export function Ficha({ producto: p, orden = 0 }: { producto: Producto; orden?: 
       {p.otraVersion && p.formato !== "canva" && <p className="ficha__cantidad">También editable en Canva</p>}
       {p.porCantidad && (
         <p className="ficha__cantidad">
-          Llevando {p.porCantidad[0].cantidad}: {p.porCantidad[0].descuento} % off
+          Llevando {p.porCantidad[0].cantidad}, ahorrás {precio(ahorroPorCantidad(p, p.porCantidad[0].cantidad))}
         </p>
       )}
       {p.contenido && (
