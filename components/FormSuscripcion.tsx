@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { suscribirse } from "@/app/(tienda)/acciones";
+import { ABIERTAS } from "@/lib/paginas";
 
 /* regalo: el nombre del descargable que se regala al anotarse (se elige en el panel, en Suscriptores). */
 export function FormSuscripcion({ regalo }: { regalo?: string | null }) {
@@ -16,7 +17,7 @@ export function FormSuscripcion({ regalo }: { regalo?: string | null }) {
           prometido.
         </p>
       ) : (
-        <p>Productos nuevos, descargables y ofertas. Poquitos mails, prometido.</p>
+        <p>Productos nuevos{ABIERTAS.descargables ? ", descargables" : ""} y ofertas. Poquitos mails, prometido.</p>
       )}
       {estado?.ok ? (
         <p className="suscripcion__ok" role="status">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Franja, Seccion } from "@/components/Bloques";
-import { AlasAnimadas } from "@/components/Alas";
+import { hayIlustracion, Ilustracion } from "@/components/Alas";
 import { TallerPortada } from "@/components/EnElTaller";
 import { Ficha } from "@/components/Ficha";
 import { AsiLoUsan } from "@/components/AsiLoUsan";
@@ -9,15 +9,16 @@ import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS, visible } from "@/lib/paginas";
 import { tieneEtiqueta, unoPorFormato } from "@/lib/productos";
+import { CATALOGO, MARCA, PORTADA } from "@/lib/marca";
 import { SITIO_URL } from "@/lib/sitio";
 
 const ESTANTES = [
   {
-    href: "/papeleria",
+    href: CATALOGO.ruta,
     pestana: "Para tocar",
-    titulo: "Papelería",
-    texto: "Cuadernos cosidos, agendas, stickers, washi tapes y lapiceras. Te llegan a tu casa.",
-    ir: "Ver productos",
+    titulo: CATALOGO.nombre,
+    texto: CATALOGO.texto,
+    ir: CATALOGO.boton,
   },
   {
     href: "/descargables",
@@ -30,28 +31,38 @@ const ESTANTES = [
     href: "/personalizados",
     pestana: "A tu medida",
     titulo: "Personalizados",
-    texto: "Contanos tu idea, con tu nombre y tu estilo, y te lo hacemos a mano. Antes, te mostramos una muestra.",
+    texto: "Contanos tu idea, con tu nombre y tu estilo, y te lo hacemos a medida. Antes, te mostramos una muestra.",
     ir: "Contar mi idea",
   },
   {
     href: "/packs-regalo",
     pestana: "Para regalar",
     titulo: "Packs regalo",
-    texto: "Combos ya armados y envueltos, con una tarjeta escrita a mano.",
+    texto: "Combos ya armados y envueltos, listos para regalar.",
     ir: "Ver packs",
   },
 ];
 
 const PASOS = [
-  ["Llená tu bolsita", "Sumá lo que te guste: productos físicos y descargables pueden ir juntos en el mismo pedido."],
+  [
+    "Llená tu bolsita",
+    ABIERTAS.descargables
+      ? "Sumá lo que te guste: productos físicos y descargables pueden ir juntos en el mismo pedido."
+      : "Sumá lo que te guste y elegí la cantidad de cada cosa.",
+  ],
   pagoOnlineActivo
     ? ["Pagá o escribinos", "Pagá online con Mercado Pago en el momento, o mandanos el pedido por WhatsApp y coordinamos el pago y el envío."]
     : ["Mandanos tu pedido", "Elegí cómo lo recibís (te mostramos el costo del envío) y mandanos el pedido por WhatsApp: te pasamos los datos para la transferencia."],
-  ["Recibilo", "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."],
+  [
+    "Recibilo",
+    ABIERTAS.descargables
+      ? "Lo físico viaja envuelto a tu casa. Los descargables te llegan por mail apenas se acredita el pago."
+      : "Te lo llevamos a tu casa o lo retirás, como te quede mejor.",
+  ],
 ];
 
 /* Le dice a Google cómo se llama el sitio y quién está detrás, para que aparezca al buscar la marca
-   (con o sin tilde) y muestre "Alas de Ángel" como nombre del sitio en los resultados. */
+   (con o sin tilde) y muestre su nombre como nombre del sitio en los resultados. */
 function DatosMarca() {
   const datos = {
     "@context": "https://schema.org",
@@ -60,16 +71,16 @@ function DatosMarca() {
         "@type": "WebSite",
         "@id": `${SITIO_URL}/#sitio`,
         url: `${SITIO_URL}/`,
-        name: "Alas de Ángel Papelería",
-        alternateName: ["Alas de Ángel", "Alas de Angel", "Alas de Angel Papelería"],
+        name: MARCA.completo,
+        alternateName: [...new Set([MARCA.nombre, MARCA.nombreArchivo, `${MARCA.nombreArchivo} ${MARCA.rubro}`.trim()])],
         inLanguage: "es-AR",
         publisher: { "@id": `${SITIO_URL}/#marca` },
       },
       {
         "@type": "Organization",
         "@id": `${SITIO_URL}/#marca`,
-        name: "Alas de Ángel Papelería",
-        alternateName: "Alas de Angel",
+        name: MARCA.completo,
+        alternateName: MARCA.nombreArchivo,
         url: `${SITIO_URL}/`,
         email: CONTACTO.email,
         sameAs: [enlaceInstagram],
@@ -100,41 +111,45 @@ export default async function Inicio() {
   const enInicio = unoPorFormato(destacados.length > 0 ? destacados : catalogo).slice(0, 8);
   const secciones = (await obtenerSecciones()).filter((s) => catalogo.some((p) => tieneEtiqueta(p, s.id)));
   const fotosClientas = await obtenerFotosClientas();
+  // Las secciones cerradas no figuran; personalizados y packs, si están cerradas, aparecen como "Próximamente"
+  // solo en la papelería original (en otros rubros puede que nunca existan).
+  const estantes = ESTANTES.filter((e) => visible(e.href) || (MARCA.rubroId === "papeleria" && e.href !== "/descargables"));
 
   return (
     <>
       <DatosMarca />
       <section className="portada">
-        <div className="contenedor portada__grilla">
+        <div className={hayIlustracion ? "contenedor portada__grilla" : "contenedor portada__grilla portada__grilla--sola"}>
           <div className="portada__texto">
-            <span className="nota-mano">papelería creativa</span>
+            {MARCA.nota && <span className="nota-mano">{MARCA.nota}</span>}
             <h1>
-              Para escribir, soñar y <span className="resalte">volar.</span>
+              {PORTADA.titulo} {PORTADA.resalte && <span className="resalte">{PORTADA.resalte}</span>}
             </h1>
-            <p>
-              Papelería hecha a mano, con mucho amor. Cuadernos, agendas, cartucheras y detalles para acompañar tus
-              días.
-            </p>
+            {PORTADA.texto && <p>{PORTADA.texto}</p>}
             <div className="fila-botones">
-              <Link className="boton" href="/papeleria">
-                Ver la papelería
+              <Link className="boton" href={CATALOGO.ruta}>
+                {CATALOGO.boton}
               </Link>
-              <Link className="boton boton--claro" href="/descargables">
-                Ver descargables
-              </Link>
+              {visible("/descargables") && (
+                <Link className="boton boton--claro" href="/descargables">
+                  Ver descargables
+                </Link>
+              )}
             </div>
           </div>
-          <div className="portada__dibujo">
-            <AlasAnimadas />
-          </div>
+          {hayIlustracion && (
+            <div className="portada__dibujo">
+              <Ilustracion />
+            </div>
+          )}
         </div>
       </section>
 
       <Seccion
-        nota="recién salidos del taller"
-        titulo="Lo que hay en la mesa"
+        nota={PORTADA.notaDestacados}
+        titulo={PORTADA.tituloDestacados}
         accion={
-          <Link className="boton boton--claro" href={catalogo.some((p) => p.tipo === "fisico") ? "/papeleria" : "/descargables"}>
+          <Link className="boton boton--claro" href={catalogo.some((p) => p.tipo === "fisico") || !visible("/descargables") ? CATALOGO.ruta : "/descargables"}>
             Ver todo
           </Link>
         }
@@ -173,9 +188,10 @@ export default async function Inicio() {
       </Seccion>
       )}
 
-      <Seccion nota="por dónde empezar" titulo="Cuatro estantes para revolver">
+      {estantes.length > 1 && (
+      <Seccion nota="por dónde empezar" titulo="Elegí por dónde arrancar">
         <div className="estantes">
-          {ESTANTES.map((e) => (
+          {estantes.map((e) => (
             <Link
               key={e.href}
               className={visible(e.href) ? "estante" : "estante estante--pronto"}
@@ -189,6 +205,7 @@ export default async function Inicio() {
           ))}
         </div>
       </Seccion>
+      )}
 
       {fotosClientas.length > 0 && (
         <Seccion nota="fotos de nuestras clientas" titulo="Así lo usan">
@@ -217,7 +234,7 @@ export default async function Inicio() {
               </Link>
             }
           >
-            Contanos cómo te imaginás tu cuaderno o agenda y te lo hacemos a mano. Antes de hacerlo, te mostramos una muestra.
+            Contanos cómo te lo imaginás y te lo hacemos a medida. Antes de hacerlo, te mostramos una muestra.
           </Franja>
         </Seccion>
       )}

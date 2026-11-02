@@ -57,6 +57,9 @@ export type FilaProducto = {
   otra_version?: string | null; // mismo script
 };
 
+const abierto = (p: { tipo: TipoProducto }) =>
+  (ABIERTAS.packs || p.tipo !== "pack") && (ABIERTAS.descargables || p.tipo !== "descargable");
+
 const lista = (valor: string[] | null) => (valor && valor.length > 0 ? valor : undefined);
 
 export function desdeFila(f: FilaProducto): Producto {
@@ -96,7 +99,7 @@ export async function obtenerCatalogo(): Promise<Producto[]> {
 
   if (!supabaseConfigurado) {
     cacheLife("max");
-    return PRODUCTOS;
+    return PRODUCTOS.filter(abierto);
   }
 
   const { data, error } = await clientePublico()
@@ -111,12 +114,12 @@ export async function obtenerCatalogo(): Promise<Producto[]> {
     // Mejor una tienda con el catálogo de respaldo que una tienda rota; se reintenta en minutos.
     console.error("No se pudo leer el catálogo de Supabase:", error.message);
     cacheLife("minutes");
-    return PRODUCTOS;
+    return PRODUCTOS.filter(abierto);
   }
   // Los cambios del panel se ven al instante por el tag; el plazo es solo un seguro.
   cacheLife("days");
-  // Los packs no se muestran mientras su sección esté guardada (ver lib/paginas.ts).
-  return (data as FilaProducto[]).map(desdeFila).filter((p) => ABIERTAS.packs || p.tipo !== "pack");
+  // Los packs y los descargables no se muestran mientras su sección esté cerrada (SECCIONES_ABIERTAS).
+  return (data as FilaProducto[]).map(desdeFila).filter(abierto);
 }
 
 export async function obtenerProducto(id: string) {

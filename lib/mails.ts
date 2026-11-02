@@ -23,6 +23,7 @@ import { linkDeDescarga, linkDeRegalo } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
 import { supabaseConfigurado } from "./supabase/config";
 import { clienteServicio, SUPABASE_SECRETA } from "./supabase/servidor";
+import { MARCA } from "./marca";
 
 /* Cuándo y a quién salen los mails de la tienda (lo que dicen está en lib/plantillas-mail.ts). Salen de la
    casilla de Gmail (con una "contraseña de aplicación", ver supabase/LEEME.md), así quien compra puede
@@ -53,7 +54,7 @@ const transporte = () =>
 // Sin adjuntos: la cabecera va por link y los PDF con un botón de descarga (los adjuntos suman para caer en spam,
 // y en spam Gmail los bloquea).
 const enviar = (to: string, mail: Mail, extra: { replyTo?: string } = {}) =>
-  transporte().sendMail({ from: { name: "Alas de Ángel Papelería", address: USUARIO }, to, ...mail, ...extra });
+  transporte().sendMail({ from: { name: `${MARCA.completo}`, address: USUARIO }, to, ...mail, ...extra });
 
 async function leerPedido(codigo: string) {
   const { data } = await clienteServicio()

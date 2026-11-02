@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CONTACTO, enlaceInstagram, enlaceWhatsApp } from "@/lib/contacto";
 import { PAGINAS, PAGINAS_LEGALES, PAGINAS_PIE } from "@/lib/paginas";
 import { FormSuscripcion } from "./FormSuscripcion";
+import { MARCA } from "@/lib/marca";
 
 export function Pie({ regalo }: { regalo?: string | null }) {
   return (
@@ -9,7 +10,7 @@ export function Pie({ regalo }: { regalo?: string | null }) {
       <div className="contenedor">
         <FormSuscripcion regalo={regalo} />
         <div className="pie__grilla">
-          <p className="pie__lema">Para escribir, soñar y volar.</p>
+          <p className="pie__lema">{MARCA.lema || MARCA.nombre}</p>
           <div>
             <h2>Tienda</h2>
             <ul>
@@ -21,7 +22,7 @@ export function Pie({ regalo }: { regalo?: string | null }) {
             </ul>
           </div>
           <div>
-            <h2>Alas de Ángel Papelería</h2>
+            <h2>{MARCA.completo}</h2>
             <ul>
               {PAGINAS_PIE.map(([href, nombre]) => (
                 <li key={href}>
@@ -34,18 +35,22 @@ export function Pie({ regalo }: { regalo?: string | null }) {
             <h2>Escribinos</h2>
             <ul>
               <li>
-                <a href={enlaceWhatsApp("¡Hola Alas de Ángel!")} target="_blank" rel="noopener">
+                <a href={enlaceWhatsApp(`¡Hola ${MARCA.nombre}!`)} target="_blank" rel="noopener">
                   WhatsApp
                 </a>
               </li>
-              <li>
-                <a href={enlaceInstagram} target="_blank" rel="noopener">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href={`mailto:${CONTACTO.email}`}>{CONTACTO.email}</a>
-              </li>
+              {CONTACTO.instagram && (
+                <li>
+                  <a href={enlaceInstagram} target="_blank" rel="noopener">
+                    Instagram
+                  </a>
+                </li>
+              )}
+              {CONTACTO.email && (
+                <li>
+                  <a href={`mailto:${CONTACTO.email}`}>{CONTACTO.email}</a>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -59,7 +64,10 @@ export function Pie({ regalo }: { regalo?: string | null }) {
               </li>
             ))}
           </ul>
-          <p>© Alas de Ángel Papelería · Para escribir, soñar y volar.</p>
+          <p>
+            © {MARCA.completo}
+            {MARCA.lema && ` · ${MARCA.lema}`}
+          </p>
         </div>
       </div>
     </footer>

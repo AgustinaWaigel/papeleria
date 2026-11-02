@@ -1,4 +1,4 @@
-/* Alas de Ángel Papelería — tipos y datos fijos del catálogo.
+/* Tipos y datos fijos del catálogo.
    Los productos se cargan y editan desde el panel (/admin), uno por uno o con un Excel.
 
    Cada producto:
@@ -23,6 +23,7 @@
 */
 
 import type { CSSProperties } from "react";
+import { CATALOGO } from "./marca";
 
 export type TipoProducto = "fisico" | "descargable" | "pack";
 export type ColorProducto = "lavanda" | "amanecer" | "halo" | "menta";
@@ -206,14 +207,14 @@ const DIBUJOS = {
 export const NOMBRES_DIBUJO = Object.keys(DIBUJOS) as NombreDibujo[];
 
 export const COLORES: [ColorProducto, string][] = [
-  ["lavanda", "Rosa"],
-  ["amanecer", "Vino"],
-  ["halo", "Lima"],
-  ["menta", "Verde claro"],
+  ["lavanda", "Secundario (COLOR_SECUNDARIO)"],
+  ["amanecer", "Principal (COLOR_PRINCIPAL)"],
+  ["halo", "Acento (COLOR_ACENTO)"],
+  ["menta", "Terciario (COLOR_TERCIARIO)"],
 ];
 
 export const TIPOS: [TipoProducto, string][] = [
-  ["fisico", "Papelería"],
+  ["fisico", CATALOGO.nombre],
   ["descargable", "Descargable"],
   ["pack", "Pack regalo"],
 ];
@@ -247,7 +248,7 @@ export const tieneEtiqueta = (p: Pick<Producto, "etiquetas">, id: string) => (p.
 
 /* La sección del catálogo a la que pertenece cada tipo de producto. */
 export const SECCIONES: Record<TipoProducto, { ruta: string; nombre: string; entrega: string }> = {
-  fisico: { ruta: "/papeleria", nombre: "Papelería", entrega: "Te lo mandamos envuelto a tu casa. El envío se coordina por WhatsApp al cerrar el pedido." },
+  fisico: { ruta: CATALOGO.ruta, nombre: CATALOGO.nombre, entrega: "Te lo mandamos envuelto a tu casa. El envío se coordina por WhatsApp al cerrar el pedido." },
   descargable: { ruta: "/descargables", nombre: "Descargables", entrega: "Te llega por mail en PDF apenas se acredita el pago. Lo imprimís todas las veces que quieras." },
   pack: { ruta: "/packs-regalo", nombre: "Packs regalo", entrega: "Va en caja, envuelto y con una tarjeta escrita a mano con el mensaje que nos digas." },
 };

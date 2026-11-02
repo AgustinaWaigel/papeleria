@@ -5,6 +5,7 @@ import { clienteServicio, SUPABASE_SECRETA } from "./supabase/servidor";
 import { avisarVenta, enviarConfirmacion, enviarDescargables } from "./mails";
 import { linkDeSeguimiento } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
+import { MARCA } from "./marca";
 
 /* Cobro online con Mercado Pago (Checkout Pro): la tienda arma el pedido, Mercado Pago cobra en su
    página y después avisa. Las credenciales van en .env.local (ver .env.example). Sin ellas, la bolsita
@@ -76,7 +77,7 @@ export async function crearLinkDePago(pedido: PedidoCobro, comprador: { nombre?:
       back_urls: { success: `${vuelta}&vaciar=1`, pending: `${vuelta}&vaciar=1`, failure: vuelta },
       ...(publico && { auto_return: "approved", notification_url: `${SITIO_URL}/api/mercadopago` }),
       ...(pedido.cupon && { expires: true, expiration_date_to: new Date(Date.now() + MINUTOS_CUPON * 60 * 1000).toISOString() }),
-      statement_descriptor: "ALAS DE ANGEL",
+      statement_descriptor: MARCA.descriptor,
     }),
   });
   return preferencia.init_point;

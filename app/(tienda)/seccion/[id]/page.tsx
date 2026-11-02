@@ -5,6 +5,7 @@ import { Portadilla, Seccion } from "@/components/Bloques";
 import { Ficha } from "@/components/Ficha";
 import { obtenerCatalogo, obtenerSecciones } from "@/lib/catalogo";
 import { idEtiqueta, tieneEtiqueta, unoPorFormato } from "@/lib/productos";
+import { MARCA } from "@/lib/marca";
 
 /* Una sección del menú "Productos" (tabla secciones) o una etiqueta suelta: en los dos casos, todos los
    productos que la llevan, sean de papelería o descargables. */
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: PageProps<"/seccion/[id]">): 
   if (!s) return {};
   return {
     title: s.nombre,
-    description: s.descripcion ?? `${s.nombre}: productos de Alas de Ángel Papelería.`,
+    description: s.descripcion ?? `${s.nombre}: productos de ${MARCA.completo}.`,
     alternates: { canonical: `/seccion/${id}` },
   };
 }

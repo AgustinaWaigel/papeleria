@@ -7,6 +7,7 @@ import { cambiarCantidad, lugarLibre, subtotalRenglon, total, unidades, type Ent
 import { enlaceWhatsApp, PLAZO_TALLER, precio } from "@/lib/contacto";
 import { PedirPorWhatsApp, PorCantidad, useAjustesCompra, useRenglones } from "./Bolsita";
 import { destinoCorto, ElegirEnvio, textoCosto, textoDestino, useEnvio, type EleccionEnvio } from "./Envio";
+import { MARCA, CATALOGO } from "@/lib/marca";
 
 /* La compra online, paso por paso: 1) confirmar lo que hay en la bolsita, 2) cómo lo recibe y cuánto sale el
    envío, 3) los datos de quien compra y el pago, con el total final. Lo que muestra (descuento, envío, total)
@@ -84,7 +85,7 @@ export function Compra() {
       <div className="paso">
         <span className="nota-mano">todavía vacía</span>
         <p>
-          Tu bolsita está vacía. Sumá algo desde <Link href="/papeleria">la papelería</Link> o{" "}
+          Tu bolsita está vacía. Sumá algo desde <Link href={CATALOGO.ruta}>{CATALOGO.nombre.toLowerCase()}</Link> o{" "}
           <Link href="/descargables">los descargables</Link>.
         </p>
       </div>
@@ -413,7 +414,7 @@ function AvisoPlazo({ antes }: { antes: string }) {
     <div className="seguimiento__aviso seguimiento__aviso--espera">
       <p>
         <strong>Antes de {antes}:</strong> {PLAZO_TALLER} Si lo necesitás para una fecha o tenés alguna duda,{" "}
-        <a href={enlaceWhatsApp("¡Hola Alas de Ángel! Tengo una consulta sobre los tiempos de mi pedido.")} target="_blank" rel="noopener">
+        <a href={enlaceWhatsApp(`¡Hola ${MARCA.nombre}! Tengo una consulta sobre los tiempos de mi pedido.`)} target="_blank" rel="noopener">
           escribinos por WhatsApp
         </a>
         .

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { visible } from "@/lib/paginas";
 import Link from "next/link";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { Estanteria } from "@/components/Estanteria";
@@ -15,6 +17,7 @@ const AVISOS = [
 ];
 
 export default function Descargables() {
+  if (!visible("/descargables")) notFound(); // sección cerrada (SECCIONES_ABIERTAS)
   return (
     <>
       <Portadilla chica nota="de la pantalla a la hoja" titulo="Descargables para imprimir">

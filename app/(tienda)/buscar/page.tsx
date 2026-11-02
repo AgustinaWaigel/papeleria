@@ -4,10 +4,11 @@ import { Portadilla, Seccion } from "@/components/Bloques";
 import { Buscador } from "@/components/Buscador";
 import { obtenerCatalogo, obtenerCategorias } from "@/lib/catalogo";
 import { SECCIONES } from "@/lib/productos";
+import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Buscar",
-  description: "Buscá entre los cuadernos, agendas, stickers, descargables y packs de Alas de Ángel.",
+  description: `Buscá entre todos los productos de ${MARCA.nombre}.`,
   robots: { index: false },
 };
 

@@ -5,11 +5,12 @@ import { enlaceWhatsApp, PLAZO_TALLER } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { ABIERTAS } from "@/lib/paginas";
 import { SOLO_CRESPO } from "@/lib/zonas";
+import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
   description:
-    "Cómo hacer un pedido, medios de pago, envíos, retiro, descargables y cambios en Alas de Ángel Papelería.",
+    `Cómo hacer un pedido, medios de pago, envíos, retiro, descargables y cambios en ${MARCA.completo}.`,
 };
 
 type Pregunta = [pregunta: string, respuesta: string];
@@ -172,7 +173,7 @@ function DatosParaGoogle() {
   );
 }
 
-const WHATSAPP = enlaceWhatsApp("¡Hola Alas de Ángel! Tengo una consulta:");
+const WHATSAPP = enlaceWhatsApp(`¡Hola ${MARCA.nombre}! Tengo una consulta:`);
 
 export default function PreguntasFrecuentes() {
   return (

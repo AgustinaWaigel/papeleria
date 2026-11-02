@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { visible } from "@/lib/paginas";
 import Link from "next/link";
 import { Franja, Portadilla } from "@/components/Bloques";
 import { enlaceWhatsApp } from "@/lib/contacto";
+import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Cómo imprimir los descargables",
   description:
-    "Guía para imprimir los descargables de Alas de Ángel: qué papel usar, cómo configurar la impresora, qué pedir en la librería y cómo recortar y encuadernar.",
+    `Guía para imprimir los descargables de ${MARCA.nombre}: qué papel usar, cómo configurar la impresora, qué pedir en la librería y cómo recortar y encuadernar.`,
 };
 
 const INDICE: [id: string, titulo: string][] = [
@@ -50,6 +53,7 @@ const PROBLEMAS: [problema: string, solucion: string][] = [
 ];
 
 export default function ComoImprimir() {
+  if (!visible("/como-imprimir")) notFound(); // sin descargables no hace falta (SECCIONES_ABIERTAS)
   return (
     <>
       <Portadilla nota="de la pantalla a la hoja" titulo="Cómo imprimir los descargables">

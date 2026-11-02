@@ -4,10 +4,11 @@ import { Proximamente } from "@/components/EnElTaller";
 import { ABIERTAS } from "@/lib/paginas";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { Estanteria } from "@/components/Estanteria";
+import { CATALOGO } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Packs regalo",
-  description: "Combos de papelería ya armados y envueltos, con tarjeta escrita a mano.",
+  description: "Combos ya armados y envueltos, listos para regalar.",
 };
 
 export default function PacksRegalo() {
@@ -15,7 +16,7 @@ export default function PacksRegalo() {
   if (!ABIERTAS.packs)
     return (
       <Proximamente titulo="Packs regalo">
-        Combos de papelería ya armados y envueltos, con una tarjeta escrita a mano.
+        Combos ya armados y envueltos, listos para regalar.
       </Proximamente>
     );
   return (
@@ -33,10 +34,10 @@ export default function PacksRegalo() {
         cielo
         nota="a tu manera"
         titulo="¿Preferís armar el tuyo?"
-        bajada="Elegí lo que quieras de la papelería, sumalo a la bolsita y avisanos por WhatsApp que es para regalo: lo armamos en caja igual que los packs."
+        bajada="Elegí lo que quieras del catálogo, sumalo a la bolsita y avisanos por WhatsApp que es para regalo: lo armamos en caja igual que los packs."
         accion={
-          <Link className="boton" href="/papeleria">
-            Elegir de la papelería
+          <Link className="boton" href={CATALOGO.ruta}>
+            {CATALOGO.boton}
           </Link>
         }
       />

@@ -2,6 +2,7 @@
 
 import { enlaceWhatsApp } from "@/lib/contacto";
 import { ABIERTAS } from "@/lib/paginas";
+import { MARCA } from "@/lib/marca";
 
 const MOTIVOS = [
   "Una consulta sobre un producto",
@@ -18,7 +19,7 @@ export function FormularioContacto() {
     const datos = new FormData(e.currentTarget);
     const nombre = String(datos.get("nombre")).trim();
     const mensaje = String(datos.get("mensaje")).trim();
-    const texto = `¡Hola Alas de Ángel! Soy ${nombre}.\nTe escribo por: ${datos.get("motivo")}\n\n${mensaje}`;
+    const texto = `¡Hola ${MARCA.nombre}! Soy ${nombre}.\nTe escribo por: ${datos.get("motivo")}\n\n${mensaje}`;
     window.open(enlaceWhatsApp(texto), "_blank", "noopener");
   }
 

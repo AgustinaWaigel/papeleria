@@ -3,9 +3,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { NavAdmin } from "@/components/admin/NavAdmin";
 import { Isotipo } from "@/components/Alas";
+import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
-  title: { default: "Panel", template: "%s · Panel · Alas de Ángel Papelería" },
+  title: { default: "Panel", template: `%s · Panel · ${MARCA.completo}` },
   robots: { index: false, follow: false },
 };
 
@@ -17,7 +18,7 @@ export default function LayoutAdmin({ children }: LayoutProps<"/admin">) {
           <Link className="logo" href="/admin">
             <Isotipo />
             <span>
-              Alas de Ángel<small>Panel</small>
+              {MARCA.nombre}<small>Panel</small>
             </span>
           </Link>
           <Link className="boton boton--claro boton--chico" href="/" target="_blank">

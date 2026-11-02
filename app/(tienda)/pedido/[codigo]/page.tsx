@@ -11,6 +11,7 @@ import { CONFIRMADOS, fechaLinda } from "@/lib/pedidos";
 import { nombreEntrega, pasos, textoPago, type PedidoCliente } from "@/lib/seguimiento";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 import { clientePublico } from "@/lib/supabase/servidor";
+import { MARCA } from "@/lib/marca";
 
 /* El seguimiento de un pedido: lo ve quien tenga el link con la clave (le llega al comprar). */
 export const metadata: Metadata = { title: "Tu pedido", robots: { index: false, follow: false } };
@@ -52,7 +53,7 @@ async function Seguimiento({ params, searchParams }: PageProps<"/pedido/[codigo]
   const encontrado = lista.findIndex(([estado]) => estado === p.estado);
   const actual = encontrado === -1 && pagado ? lista.length - 1 : encontrado;
   const pago = p.medio_pago === "Mercado Pago" ? textoPago(p.pago_estado) : null;
-  const whatsapp = enlaceWhatsApp(`¡Hola Alas de Ángel! Te escribo por mi pedido ${p.codigo}.`);
+  const whatsapp = enlaceWhatsApp(`¡Hola ${MARCA.nombre}! Te escribo por mi pedido ${p.codigo}.`);
 
   return (
     <>

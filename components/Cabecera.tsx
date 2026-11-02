@@ -7,6 +7,7 @@ import { unidades } from "@/lib/bolsita";
 import { PAGINAS, RUTAS_PRODUCTOS } from "@/lib/paginas";
 import { useAccionesBolsita, useRenglones } from "./Bolsita";
 import { Isotipo } from "./Alas";
+import { MARCA } from "@/lib/marca";
 
 /* secciones: las del menú "Productos" que tienen algo para mostrar (ver app/(tienda)/layout.tsx). */
 export function Cabecera({ secciones }: { secciones: [id: string, nombre: string][] }) {
@@ -55,9 +56,12 @@ export function Cabecera({ secciones }: { secciones: [id: string, nombre: string
   return (
     <header className="cabecera">
       <div className="contenedor cabecera__fila">
-        <Link className="logo" href="/" aria-label="Alas de Ángel Papelería, inicio">
+        <Link className="logo" href="/" aria-label={`${MARCA.completo}, inicio`}>
           <Isotipo />
-          <span>Alas de Ángel<small>Papelería</small></span>
+          <span>
+            {MARCA.nombre}
+            {MARCA.rubro && <small>{MARCA.rubro}</small>}
+          </span>
         </Link>
 
         <nav id="navegacion" aria-label="Principal" className={menuAbierto ? "abierto" : undefined}>

@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
 import { ABIERTAS } from "@/lib/paginas";
+import { MARCA, CATALOGO } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Sobre nosotras",
-  description: "Quiénes estamos detrás de Alas de Ángel y cómo trabajamos.",
+  description: `Quiénes estamos detrás de ${MARCA.nombre} y cómo trabajamos.`,
 };
 
 const PRINCIPIOS = [
@@ -18,7 +19,7 @@ export default function SobreNosotras() {
   return (
     <>
       <Portadilla nota="mucho gusto" titulo="Sobre nosotras">
-        Alas de Ángel es una papelería chica, hecha por gente que todavía anota todo a mano.
+        {MARCA.nombre} es una papelería chica, hecha por gente que todavía anota todo a mano.
       </Portadilla>
 
       <Seccion>
@@ -60,8 +61,8 @@ export default function SobreNosotras() {
         <Franja
           titulo="Pasá a ver lo que hacemos"
           accion={
-            <Link className="boton" href="/papeleria">
-              Ver la papelería
+            <Link className="boton" href={CATALOGO.ruta}>
+              {CATALOGO.boton}
             </Link>
           }
         >

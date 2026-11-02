@@ -4,10 +4,11 @@ import { Portadilla, Seccion } from "@/components/Bloques";
 import { CONTACTO, enlaceWhatsApp, PLAZO_TALLER } from "@/lib/contacto";
 import { pagoOnlineActivo } from "@/lib/mercadopago";
 import { SOLO_CRESPO } from "@/lib/zonas";
+import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones",
-  description: "Cómo comprar en Alas de Ángel Papelería: precios, pagos, envíos, descargables, cambios y arrepentimiento.",
+  description: `Cómo comprar en ${MARCA.completo}: precios, pagos, envíos, descargables, cambios y arrepentimiento.`,
 };
 
 /* Texto base, pensado para un emprendimiento chico en Argentina. Conviene que lo lea alguien de confianza
@@ -23,9 +24,9 @@ export default function Terminos() {
         <div className="prosa">
           <h2>Quiénes somos</h2>
           <p>
-            Alas de Ángel Papelería es un emprendimiento de papelería creativa de Argentina. Nos podés escribir a{" "}
+            {MARCA.completo} es un emprendimiento de Argentina. Nos podés escribir a{" "}
             <a href={`mailto:${CONTACTO.email}`}>{CONTACTO.email}</a> o por{" "}
-            <a href={enlaceWhatsApp("¡Hola Alas de Ángel!")} target="_blank" rel="noopener">
+            <a href={enlaceWhatsApp(`¡Hola ${MARCA.nombre}!`)} target="_blank" rel="noopener">
               WhatsApp
             </a>
             . Al comprar en la tienda aceptás estos términos.
@@ -99,7 +100,7 @@ export default function Terminos() {
 
           <h2>Diseños</h2>
           <p>
-            Los diseños, ilustraciones, textos y fotos de la tienda son de Alas de Ángel. No se pueden copiar ni usar con fines
+            Los diseños, ilustraciones, textos y fotos de la tienda son de {MARCA.nombre}. No se pueden copiar ni usar con fines
             comerciales sin permiso.
           </p>
 

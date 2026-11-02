@@ -23,6 +23,7 @@ import {
 import { enlaceWhatsApp, precio } from "@/lib/contacto";
 import { ahorroPorCantidad } from "@/lib/productos";
 import type { AjustesEnvio } from "@/lib/seguimiento";
+import { CATALOGO } from "@/lib/marca";
 
 type Acciones = { abrir: () => void; sumar: (id: string, cantidad?: number) => void };
 type AjustesCompra = { pagoOnline: boolean; envio: AjustesEnvio; cotizaCorreo: boolean };
@@ -163,8 +164,8 @@ export function ProveedorBolsita({ catalogo, pagoOnline, envio, cotizaCorreo, ch
                 <li className="bolsita__vacia">
                   <span className="nota-mano">todavía vacía</span>
                   Sumá algo desde{" "}
-                  <Link href="/papeleria" onClick={cerrar}>
-                    la papelería
+                  <Link href={CATALOGO.ruta} onClick={cerrar}>
+                    {CATALOGO.nombre.toLowerCase()}
                   </Link>{" "}
                   o{" "}
                   <Link href="/descargables" onClick={cerrar}>

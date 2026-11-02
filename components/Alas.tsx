@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { ALA_BANNER, ALA_LOGO, HALO_BANNER, HALO_LOGO } from "@/lib/alas";
+import { MARCA } from "@/lib/marca";
 
 /* El símbolo de la marca: las alas con el halo. Los trazos están en lib/alas.ts.
    Las animaciones (en app/sitio.css) se apagan solas con prefers-reduced-motion. */
@@ -56,8 +57,23 @@ export function AlasAnimadas() {
   );
 }
 
-/* El logo: un ala sola sobre el cuadrado vino. */
+/* El logo, según MARCA_LOGO:
+   - "alas": el ala sola sobre el cuadrado del color principal (el de Alas de Ángel);
+   - "inicial": la primera letra del nombre sobre el mismo cuadrado;
+   - una ruta de /public (/logo.png): esa imagen. */
 export function Isotipo() {
+  if (MARCA.logo !== "alas" && MARCA.logo !== "inicial")
+    // eslint-disable-next-line @next/next/no-img-element -- el logo puede ser SVG o PNG de cualquier tamaño
+    return <img className="isotipo isotipo--imagen" src={MARCA.logo} alt="" />;
+  if (MARCA.logo === "inicial")
+    return (
+      <svg className="isotipo isotipo--inicial" viewBox="-500 -500 1000 1000" aria-hidden="true">
+        <rect x="-500" y="-500" width="1000" height="1000" rx="200" />
+        <text x="0" y="40" textAnchor="middle" dominantBaseline="middle">
+          {MARCA.inicial}
+        </text>
+      </svg>
+    );
   return (
     <svg className="isotipo" viewBox="-500 -500 1000 1000" aria-hidden="true">
       <rect x="-500" y="-500" width="1000" height="1000" rx="200" />
@@ -66,3 +82,25 @@ export function Isotipo() {
     </svg>
   );
 }
+
+/* El dibujo grande de la portada (y de "en el taller" y /enlaces), según MARCA_ILUSTRACION:
+   "alas" (las alas animadas), "logo" (el logo grande), "ninguno", o una ruta de /public (/portada.png). */
+export function Ilustracion() {
+  const i = MARCA.ilustracion;
+  if (i === "ninguno" || i === "ninguna" || i === "") return null;
+  if (i === "alas") return <AlasAnimadas />;
+  if (i === "logo")
+    return (
+      <div className="ilustracion ilustracion--logo">
+        <Isotipo />
+      </div>
+    );
+  return (
+    <div className="ilustracion">
+      {/* eslint-disable-next-line @next/next/no-img-element -- imagen elegida por la tienda, de cualquier tamaño */}
+      <img src={i} alt="" />
+    </div>
+  );
+}
+
+export const hayIlustracion = !["ninguno", "ninguna", ""].includes(MARCA.ilustracion);

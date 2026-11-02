@@ -1,6 +1,7 @@
 import { exigirAdmin } from "@/lib/admin";
 import { obtenerCategorias, obtenerSecciones, type FilaProducto } from "@/lib/catalogo";
 import { armarExcel } from "@/lib/excel";
+import { MARCA } from "@/lib/marca";
 
 /* Descarga todos los productos (también los ocultos) en un Excel. Sin productos sirve de plantilla. */
 export async function GET() {
@@ -17,7 +18,7 @@ export async function GET() {
   return new Response(new Uint8Array(archivo), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="productos-alas-de-angel-${fecha}.xlsx"`,
+      "Content-Disposition": `attachment; filename="productos-${MARCA.nombreArchivo.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${fecha}.xlsx"`,
       "Cache-Control": "no-store",
     },
   });

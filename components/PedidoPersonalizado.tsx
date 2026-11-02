@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { enlaceWhatsApp } from "@/lib/contacto";
+import { MARCA } from "@/lib/marca";
 
 const IDEAS = [
   "Qué querés: cuaderno, agenda, libreta, cartuchera…",
@@ -21,7 +22,7 @@ export function PedidoPersonalizado() {
   function enviar(e: FormEvent) {
     e.preventDefault();
     const lineas = [
-      nombre.trim() ? `¡Hola Alas de Ángel! Soy ${nombre.trim()} y quiero un personalizado:` : "¡Hola Alas de Ángel! Quiero un personalizado:",
+      nombre.trim() ? `¡Hola ${MARCA.nombre}! Soy ${nombre.trim()} y quiero un personalizado:` : `¡Hola ${MARCA.nombre}! Quiero un personalizado:`,
       "",
       idea.trim(),
       ...(fecha.trim() ? ["", `Lo necesito para: ${fecha.trim()}`] : []),

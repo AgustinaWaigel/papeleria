@@ -3,18 +3,18 @@ import Link from "next/link";
 import { Franja, Portadilla, Seccion } from "@/components/Bloques";
 import { Estanteria } from "@/components/Estanteria";
 import { ABIERTAS } from "@/lib/paginas";
+import { MARCA, CATALOGO } from "@/lib/marca";
 
 export const metadata: Metadata = {
-  title: "Papelería",
-  description: "Cuadernos, agendas, stickers, washi tapes, lapiceras y tarjetas. Catálogo de papelería de Alas de Ángel.",
+  title: CATALOGO.nombre,
+  description: `${CATALOGO.texto} Catálogo de ${MARCA.completo}.`,
 };
 
 export default function Papeleria() {
   return (
     <>
-      <Portadilla chica nota="para organizarte, divertirte o regalar (te)" titulo="Papelería">
-        Cuadernos, agendas, stickers y todo lo que hace falta para que escribir a mano vuelva a dar ganas. Te lo mandamos
-        envuelto a tu casa.
+      <Portadilla chica nota={CATALOGO.nota} titulo={CATALOGO.nombre}>
+        {CATALOGO.intro}
       </Portadilla>
 
       <Seccion>

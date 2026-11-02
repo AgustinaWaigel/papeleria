@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { FormPresupuesto } from "@/components/FormPresupuesto";
-import { ABIERTAS } from "@/lib/paginas";
+import { ABIERTAS, visible } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Pedidos por mayor",
@@ -29,6 +30,7 @@ const PARA_QUIEN = [
 ];
 
 export default function PedidosPorMayor() {
+  if (!visible("/pedidos-por-mayor")) notFound(); // sección cerrada (SECCIONES_ABIERTAS)
   return (
     <>
       <Portadilla nota="de a muchos" titulo="Pedidos por mayor">

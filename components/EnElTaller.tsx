@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { enlaceInstagram } from "@/lib/contacto";
+import { CONTACTO, enlaceInstagram } from "@/lib/contacto";
+import { MARCA } from "@/lib/marca";
 import { ABIERTAS } from "@/lib/paginas";
-import { AlasAnimadas } from "./Alas";
+import { hayIlustracion, Ilustracion } from "./Alas";
 import { Portadilla, Seccion } from "./Bloques";
 
 /* Lo que se ve mientras no hay productos cargados: la tienda "en el taller". */
@@ -11,29 +12,33 @@ const NOVEDADES = "#novedades"; // el formulario de suscripción del pie
 export function TallerPortada() {
   return (
     <section className="portada">
-      <div className="contenedor portada__grilla">
+      <div className={hayIlustracion ? "contenedor portada__grilla" : "contenedor portada__grilla portada__grilla--sola"}>
         <div className="portada__texto">
           <span className="nota-mano">en el taller</span>
           <h1>
             Estamos fabricando algo <span className="resalte">lindo.</span>
           </h1>
           <p>
-            Hacemos cuadernos, armamos agendas y diseñamos plantillas para imprimir. Muy pronto vas a poder verlos y
-            pedirlos acá.
+            {MARCA.rubroId === "papeleria"
+              ? "Hacemos cuadernos, armamos agendas y diseñamos plantillas para imprimir. Muy pronto vas a poder verlos y pedirlos acá."
+              : `${MARCA.descripcion || MARCA.lema} Muy pronto vas a poder verlo y pedirlo acá.`}
           </p>
           <div className="fila-botones">
             <a className="boton" href={NOVEDADES}>
               Avisame cuando abran
             </a>
-            <a className="boton boton--claro" href={enlaceInstagram} target="_blank" rel="noopener">
-              Ver el Instagram
-            </a>
+            {CONTACTO.instagram && (
+              <a className="boton boton--claro" href={enlaceInstagram} target="_blank" rel="noopener">
+                Ver el Instagram
+              </a>
+            )}
           </div>
         </div>
-        <div className="portada__dibujo">
-          <AlasAnimadas />
-          
-        </div>
+        {hayIlustracion && (
+          <div className="portada__dibujo">
+            <Ilustracion />
+          </div>
+        )}
       </div>
     </section>
   );

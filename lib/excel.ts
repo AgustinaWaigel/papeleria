@@ -3,6 +3,7 @@ import "server-only";
 import ExcelJS from "exceljs";
 import type { FilaProducto } from "./catalogo";
 import { COLORES, NOMBRES_DIBUJO, TIPOS, limpiarEscalas, limpiarEtiquetas, type Categorias, type TipoProducto } from "./productos";
+import { MARCA } from "./marca";
 
 /* Los productos en una planilla: se exportan desde el panel y se vuelven a cargar con los cambios.
    Las listas (fotos, características, contenido de un pack) van una por renglón dentro de la celda;
@@ -41,7 +42,7 @@ const nombreDe = (lista: readonly (readonly [string, string])[], id: string | nu
 /* secciones: los nombres de las secciones del menú, para la hoja de ayuda. */
 export async function armarExcel(filas: FilaProducto[], categorias: Categorias, secciones: string[] = []) {
   const libro = new ExcelJS.Workbook();
-  libro.creator = "Alas de Ángel Papelería";
+  libro.creator = `${MARCA.completo}`;
 
   const hoja = libro.addWorksheet(HOJA, { views: [{ state: "frozen", ySplit: 1, xSplit: 2 }] });
   hoja.columns = COLUMNAS.map((c) => ({ header: c.titulo, key: c.clave, width: c.ancho }));

@@ -4,6 +4,7 @@ import { EditorCategorias, type FilaCategoria } from "@/components/admin/EditorC
 import { SinSupabase } from "@/components/admin/SinSupabase";
 import { exigirAdmin } from "@/lib/admin";
 import { supabaseConfigurado } from "@/lib/supabase/config";
+import { CATALOGO } from "@/lib/marca";
 
 export const metadata: Metadata = { title: "Categorías" };
 
@@ -28,11 +29,11 @@ async function Contenido() {
       </div>
       {error && <p className="admin__error">No se pudieron leer: {error.message}. ¿Corriste supabase/02-pedidos-y-mas.sql?</p>}
       <p className="campo__ayuda mb-e5">
-        Son los filtros que aparecen arriba de Papelería y Descargables. Los packs no usan categorías. Una categoría sin
+        Son los filtros que aparecen arriba del catálogo y de Descargables. Los packs no usan categorías. Una categoría sin
         productos no se muestra en la tienda.
       </p>
       <div className="editor__campos">
-        <EditorCategorias tipo="fisico" titulo="Papelería" categorias={de("fisico")} />
+        <EditorCategorias tipo="fisico" titulo={CATALOGO.nombre} categorias={de("fisico")} />
         <EditorCategorias tipo="descargable" titulo="Descargables" categorias={de("descargable")} />
       </div>
     </>

@@ -1,4 +1,5 @@
-/* Alas de Ángel — piezas propias de la marca (las fichas, el cuaderno alado, la bolsita).
+/* Piezas propias de la tienda (las fichas, la portada, la bolsita).
+   Los colores, fuentes, radios y sombras los pone lib/tema.ts desde las variables de entorno.
    Se cargan en la capa "components" de Tailwind desde globals.css: las utilidades las pisan.
    Los valores salen de marca/tokens.css. */
 
@@ -27,7 +28,7 @@ h1, h2, h3 {
   line-height: var(--interlinea-titulo);
   margin: 0;
   text-wrap: balance;
-  text-transform: uppercase;
+  text-transform: var(--titulos-mayusculas);
   letter-spacing: 0.015em;
 }
 h1 { font-size: var(--texto-3xl); }
@@ -154,7 +155,7 @@ a:hover { color: var(--color-tinta); }
   font-size: var(--texto-l);
   font-weight: 800;
   line-height: 0.95;
-  text-transform: uppercase;
+  text-transform: var(--titulos-mayusculas);
   letter-spacing: 0.03em;
   color: var(--color-tinta);
   text-decoration: none;
@@ -305,7 +306,7 @@ a:hover { color: var(--color-tinta); }
 .portada__texto p { color: var(--color-lavanda-suave); }
 .portada .boton { background: var(--color-halo); color: var(--color-amanecer-fuerte); border-color: var(--color-nube); }
 .portada .boton--claro { background: transparent; color: var(--color-nube); }
-.portada .boton:hover { color: var(--color-amanecer-fuerte); box-shadow: 4px 4px 0 var(--color-amanecer-fuerte); }
+.portada .boton:hover { color: var(--color-amanecer-fuerte); box-shadow: var(--sombra-sello-principal); }
 .portada .boton--claro:hover { color: var(--color-nube); background: rgb(255 255 255 / 0.1); }
 
 /* Palabra resaltada con marcador, dentro de un título. */
@@ -331,7 +332,7 @@ a:hover { color: var(--color-tinta); }
   height: auto;
   overflow: visible;
   fill: #fff;
-  filter: drop-shadow(5px 8px 5px rgb(45 6 28 / 0.55));
+  filter: drop-shadow(5px 8px 5px color-mix(in srgb, var(--color-amanecer-fuerte) 55%, black 20%));
 }
 .portada__dibujo:has(.alas) { padding-bottom: var(--espacio-7); }
 
@@ -366,6 +367,21 @@ a:hover { color: var(--color-tinta); }
 .isotipo__ala, .isotipo__halo { fill: #fff; transition: transform var(--mov-suave) var(--mov-curva); }
 .logo:hover .isotipo__ala { transform: rotate(-7deg); }
 .logo:hover .isotipo__halo { transform: translateY(-28px); }
+
+/* Otros logos (MARCA_LOGO): la inicial sobre el cuadrado, o una imagen propia. */
+.isotipo--inicial text { fill: var(--color-nube); font-family: var(--fuente-titulo); font-size: 640px; font-weight: 800; }
+.isotipo--imagen { object-fit: contain; aspect-ratio: 1; border-radius: var(--radio-s); }
+.logo:hover .isotipo--inicial { rotate: -6deg; }
+.isotipo--inicial { transition: rotate var(--mov-suave) var(--mov-curva); }
+
+/* El dibujo de la portada cuando no son las alas (MARCA_ILUSTRACION). */
+.ilustracion { width: 100%; }
+.ilustracion img { width: 100%; height: auto; border-radius: var(--radio-l); }
+.ilustracion--logo .isotipo { width: 100%; height: auto; rotate: -4deg; filter: drop-shadow(10px 12px 0 color-mix(in srgb, var(--color-amanecer-fuerte) 70%, black)); }
+.ilustracion--logo .isotipo rect { fill: var(--color-halo); }
+.ilustracion--logo .isotipo--inicial text { fill: var(--color-amanecer-fuerte); }
+.ilustracion--logo .isotipo__ala, .ilustracion--logo .isotipo__halo { fill: var(--color-amanecer-fuerte); }
+.portada__grilla--sola { grid-template-columns: 1fr !important; min-height: 0 !important; }
 
 
 /* ---------- Portada de páginas internas ---------- */
@@ -580,7 +596,7 @@ a:hover { color: var(--color-tinta); }
   border: 0;
   overflow: hidden;
 }
-.visor::backdrop { background: rgb(40 8 26 / 0.85); backdrop-filter: blur(3px); }
+.visor::backdrop { background: color-mix(in srgb, var(--color-amanecer-fuerte) 70%, black); backdrop-filter: blur(3px); }
 .visor[open]::backdrop { animation: aparecer 200ms ease-out; }
 .visor__marco { position: absolute; inset: 1rem 5rem 3.5rem; }
 /* ".visor" adelante: si no, gana el "object-fit: cover" de .galeria img y la recorta. */
@@ -1135,7 +1151,7 @@ a:hover { color: var(--color-tinta); }
 .pie a { color: var(--color-nube); }
 .pie a:hover { color: var(--color-halo); }
 .pie__grilla { display: grid; gap: var(--espacio-7); grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
-.pie__lema { font-family: var(--fuente-titulo); font-size: var(--texto-l); font-weight: 700; line-height: 1.25; text-transform: uppercase; color: var(--color-nube); max-width: 14ch; }
+.pie__lema { font-family: var(--fuente-titulo); font-size: var(--texto-l); font-weight: 700; line-height: 1.25; text-transform: var(--titulos-mayusculas); color: var(--color-nube); max-width: 14ch; }
 .pie h2 { font-family: var(--fuente-etiqueta); font-size: var(--texto-etiqueta); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-halo); margin-bottom: var(--espacio-3); }
 .pie ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-2); font-size: var(--texto-s); }
 .pie__legal { margin-top: var(--espacio-7); padding-top: var(--espacio-5); border-top: var(--linea-fina) solid var(--color-tinta-suave); font-size: var(--texto-xs); }
@@ -1339,7 +1355,7 @@ a:hover { color: var(--color-tinta); }
   border: 0;
   overflow: visible;
 }
-.confirmar::backdrop { background: rgb(40 8 26 / 0.45); backdrop-filter: blur(2px); }
+.confirmar::backdrop { background: color-mix(in srgb, color-mix(in srgb, var(--color-amanecer-fuerte) 60%, black) 45%, transparent); backdrop-filter: blur(2px); }
 .confirmar[open] { animation: despegar 260ms var(--mov-curva); }
 .confirmar[open]::backdrop { animation: aparecer 200ms ease-out; }
 .confirmar__tarjeta {
@@ -1354,7 +1370,7 @@ a:hover { color: var(--color-tinta); }
 .confirmar__nota { margin-top: var(--espacio-2); font-size: var(--texto-s); color: var(--color-tinta-suave); }
 .confirmar__botones { display: flex; flex-wrap: wrap; justify-content: end; gap: var(--espacio-3); margin-top: var(--espacio-5); }
 .confirmar__si { background: var(--color-amanecer); }
-.confirmar__si:hover { box-shadow: 4px 4px 0 var(--color-amanecer-fuerte); }
+.confirmar__si:hover { box-shadow: var(--sombra-sello-principal); }
 
 .admin__vacio { padding: var(--espacio-6); text-align: center; color: var(--color-tinta-suave); }
 
@@ -1432,7 +1448,7 @@ a:hover { color: var(--color-tinta); }
   border: var(--borde);
   border-radius: var(--radio-pastilla);
   rotate: 4deg;
-  box-shadow: 2px 2px 0 var(--color-tinta);
+  box-shadow: var(--sombra-sello-chica);
   animation: despegar 500ms var(--mov-curva) 300ms backwards;
 }
 .sello--quieto { position: static; rotate: none; box-shadow: none; animation: none; }
@@ -1763,10 +1779,10 @@ a.tablero:hover { color: var(--color-tinta); translate: -2px -2px; box-shadow: v
   color: var(--color-tinta);
   border: 2px solid var(--color-nube);
   border-radius: var(--radio-pastilla);
-  box-shadow: 4px 4px 0 var(--color-amanecer-fuerte);
+  box-shadow: var(--sombra-sello-principal);
   transition: transform var(--mov-rapido) var(--mov-curva), box-shadow var(--mov-rapido) var(--mov-curva);
 }
-.enlace-grande:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--color-amanecer-fuerte); }
+.enlace-grande:hover { transform: translate(-2px, -2px); box-shadow: var(--sombra-sello-principal-alta); }
 .enlace-grande:active { transform: none; box-shadow: none; scale: 0.98; }
 .enlace-grande__texto { flex: 1; min-width: 0; }
 .enlace-grande small { display: block; margin-top: 0.15em; font-family: var(--fuente-texto); font-size: var(--texto-s); font-weight: 500; letter-spacing: 0; opacity: 0.9; overflow-wrap: anywhere; }

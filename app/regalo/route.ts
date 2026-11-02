@@ -1,5 +1,6 @@
 import { BUCKET_DESCARGABLES, supabaseConfigurado } from "@/lib/supabase/config";
 import { clienteServicio, SUPABASE_SECRETA } from "@/lib/supabase/servidor";
+import { MARCA } from "@/lib/marca";
 
 /* El botón del mail de regalo por suscribirse. Con el mail y la clave del suscriptor, lleva a un link del PDF que
    dura un minuto (como app/(tienda)/pedido/[codigo]/pdf/[producto]/route.ts). Es siempre el regalo de ahora: si
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   const extension = producto.archivo.split(".").pop() ?? "pdf";
   const { data: firmado } = await supabase.storage
     .from(BUCKET_DESCARGABLES)
-    .createSignedUrl(producto.archivo, 60, { download: `${producto.nombre} - Alas de Angel.${extension}` });
+    .createSignedUrl(producto.archivo, 60, { download: `${producto.nombre} - ${MARCA.nombreArchivo}.${extension}` });
   if (!firmado) return aDescargables();
   return Response.redirect(firmado.signedUrl, 302);
 }

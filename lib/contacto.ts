@@ -1,11 +1,8 @@
-/* Datos de contacto: cambiá estos valores por los reales.
-   El WhatsApp va con código de país y sin signos: 54 9 + característica + número. */
-export const CONTACTO = {
-  whatsapp: "5493434042410",
-  email: "papeleria.alasdeangel@gmail.com",
-  instagram: "alasdeangel.papeleria",
-  tiktok: "alasdeangel.papeleria",
-};
+import { CONTACTO_MARCA } from "./marca";
+
+/* Datos de contacto: salen de CONTACTO_WHATSAPP, CONTACTO_EMAIL, CONTACTO_INSTAGRAM y CONTACTO_TIKTOK
+   (rubros/<rubro>.env). El WhatsApp va con código de país y sin signos: 54 9 + característica + número. */
+export const CONTACTO = CONTACTO_MARCA;
 
 export const enlaceWhatsApp = (texto: string) =>
   `https://wa.me/${CONTACTO.whatsapp}?text=${encodeURIComponent(texto)}`;

@@ -5,6 +5,7 @@
 import { CONTACTO, enlaceInstagram, PLAZO_TALLER, precio } from "./contacto";
 import { linkDeSeguimiento, type Entrega } from "./seguimiento";
 import { SITIO_URL } from "./sitio";
+import { COLORES, FUENTES, MARCA } from "./marca";
 
 export type Mail = { subject: string; html: string; text: string };
 
@@ -45,7 +46,7 @@ const tarjetaPdf = ({ nombre, url }: { nombre: string; url: string }) =>
 export function mailDescargables(p: PedidoMail, descargas: { nombre: string; url: string }[]): Mail {
   const intro = descargas.length === 1 ? "¡Gracias por tu compra! Acá está tu descargable:" : "¡Gracias por tu compra! Acá están tus descargables:";
   return {
-    subject: `Tus descargables de Alas de Ángel · pedido ${p.codigo}`,
+    subject: `Tus descargables de ${MARCA.nombre} · pedido ${p.codigo}`,
     html: plantilla({
       nota: "recién salido del taller",
       titulo: saludo(p.cliente_nombre),
@@ -77,7 +78,7 @@ export function mailDescargables(p: PedidoMail, descargas: { nombre: string; url
 /* El regalo por anotarse en las novedades: el descargable con su botón (que no vence). */
 export function mailRegalo(nombre: string, url: string): Mail {
   return {
-    subject: `Tu regalo de Alas de Ángel: ${nombre}`,
+    subject: `Tu regalo de ${MARCA.nombre}: ${nombre}`,
     html: plantilla({
       nota: "gracias por sumarte",
       titulo: "¡Acá está tu regalo!",
@@ -297,18 +298,35 @@ const saludo = (nombre: string | null) => {
   return pila ? `¡Hola, ${pila}!` : "¡Hola!";
 };
 
-const textoPlano = (lineas: string[]) => [...lineas, "", "Cualquier cosa, respondé este mail.", "Alas de Ángel Papelería"].join("\n");
+const textoPlano = (lineas: string[]) => [...lineas, "", "Cualquier cosa, respondé este mail.", `${MARCA.completo}`].join("\n");
 
-/* Los colores de marca/tokens.css. Un mail no puede leer variables CSS: van escritos. */
-const C = { bordo: "#7F2350", nube: "#F6E7D4", rosa: "#F4A9CB", rosaSuave: "#FBDCE9", tinta: "#0B5E41", tintaSuave: "#2F6E55", lima: "#B9D53B", renglon: "#E3CDB6" };
+/* Los colores del rubro (lib/marca.ts). Un mail no puede leer variables CSS: van escritos. */
+const C = {
+  bordo: COLORES.amanecer,
+  nube: COLORES.nube,
+  rosa: COLORES.lavanda,
+  rosaSuave: COLORES["lavanda-suave"],
+  tinta: COLORES.tinta,
+  tintaSuave: COLORES["tinta-suave"],
+  lima: COLORES.halo,
+  renglon: COLORES.renglon,
+};
 // Sin fuentes externas (Gmail no las carga y suman para que un mail parezca spam): las de la marca si la
 // persona las tiene instaladas y, si no, las de reemplazo (parecidas y seguras).
-const TITULO = "'Baloo 2', 'Trebuchet MS', Arial, sans-serif";
-const TEXTO = "Karla, 'Segoe UI', Arial, sans-serif";
-const MANO = "'La Belle Aurore', 'Brush Script MT', cursive";
+const TITULO = `'${FUENTES.etiquetas}', 'Trebuchet MS', Arial, sans-serif`;
+const TEXTO = `'${FUENTES.texto}', 'Segoe UI', Arial, sans-serif`;
+const MANO = FUENTES.mano ? `'${FUENTES.mano}', 'Brush Script MT', cursive` : TITULO;
 // La dirección de la tienda en el pie del mail y de donde sale la cabecera (public/mail-cabecera.png): desde
 // localhost, la publicada. La imagen va por link y no adjunta: un mail sin adjuntos cae menos en spam.
-const PUBLICO = SITIO_URL.startsWith("https://") ? SITIO_URL : "https://www.alasdeangel.com.ar";
+const PUBLICO = SITIO_URL;
+const DOMINIO = SITIO_URL.replace(/^https?:\/\/(www\.)?/, "");
+
+/* La franja de arriba del mail: la imagen de MARCA_MAIL_CABECERA (en /public) o, sin imagen, el nombre
+   de la tienda sobre el color principal. */
+const cabecera = () =>
+  MARCA.mailCabecera
+    ? `<img src="${PUBLICO}${escapar(MARCA.mailCabecera)}" width="560" alt="${escapar(MARCA.completo)}" style="display: block; width: 100%; height: auto; border: 0; border-radius: 22px 22px 0 0;">`
+    : `<div style="padding: 26px 28px; font-family: ${TITULO}; font-size: 26px; font-weight: bold; letter-spacing: 1px; color: ${C.nube};">${escapar(MARCA.nombre)}${MARCA.rubro ? `<span style="display: block; font-family: ${TEXTO}; font-size: 14px; font-weight: normal; letter-spacing: 0; color: ${C.rosaSuave};">${escapar(MARCA.rubro)}</span>` : ""}</div>`;
 
 const parrafo = (html: string) => `<p style="margin: 0 0 18px; font-family: ${TEXTO}; font-size: 16px; line-height: 1.6; color: ${C.tinta};">${html}</p>`;
 const resaltado = (texto: string) => `<span style="background: ${C.lima}; padding: 0 4px;">${escapar(texto)}</span>`;
@@ -355,7 +373,7 @@ function plantilla({ nota, titulo, bloques, boton }: { nota: string; titulo: str
 <tr><td align="center" style="padding: 24px 12px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; border-collapse: separate; background: #FFFBF5; border: 2px solid ${C.tinta}; border-radius: 24px; box-shadow: 6px 6px 0 ${C.tinta}; overflow: hidden;">
     <tr><td style="padding: 0; background: ${C.bordo}; border-bottom: 2px solid ${C.tinta}; border-radius: 22px 22px 0 0;">
-      <img src="${PUBLICO}/mail-cabecera.png" width="560" alt="Alas de Ángel Papelería" style="display: block; width: 100%; height: auto; border: 0; border-radius: 22px 22px 0 0;">
+      ${cabecera()}
     </td></tr>
     <tr><td style="padding: 32px 28px 28px;">
       <div style="font-family: ${MANO}; font-size: 20px; color: ${C.bordo}; margin-bottom: 4px;">${escapar(nota)}</div>
@@ -373,13 +391,13 @@ function plantilla({ nota, titulo, bloques, boton }: { nota: string; titulo: str
       }
       <p style="margin: 0; padding-top: 18px; border-top: 1.5px dashed ${C.renglon}; font-family: ${TEXTO}; font-size: 14px; line-height: 1.6; color: ${C.tintaSuave};">
         ¿Alguna duda? Respondé este mail y te contestamos.<br>
-        <span style="font-family: ${MANO}; font-size: 19px; color: ${C.bordo};">con cariño, Alas de Ángel</span>
+        <span style="font-family: ${MANO}; font-size: 19px; color: ${C.bordo};">con cariño, ${escapar(MARCA.nombre)}</span>
       </p>
     </td></tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px;">
     <tr><td align="center" style="padding: 22px 12px 0; font-family: ${TEXTO}; font-size: 13px; color: ${C.tintaSuave};">
-      <a href="${PUBLICO}" style="color: ${C.tintaSuave};">alasdeangel.com.ar</a> &nbsp;·&nbsp; <a href="${enlaceInstagram}" style="color: ${C.tintaSuave};">@${escapar(CONTACTO.instagram)}</a>
+      <a href="${PUBLICO}" style="color: ${C.tintaSuave};">${escapar(DOMINIO)}</a>${CONTACTO.instagram ? ` &nbsp;·&nbsp; <a href="${enlaceInstagram}" style="color: ${C.tintaSuave};">@${escapar(CONTACTO.instagram)}</a>` : ""}
     </td></tr>
   </table>
 </td></tr>

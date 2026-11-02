@@ -1,12 +1,19 @@
 {
-  "name": "alas-de-angel",
+  "name": "tienda-multirubro",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "rubro": "node scripts/rubro.mjs",
+    "dev:papeleria": "node scripts/rubro.mjs papeleria dev",
+    "dev:gastronomia": "node scripts/rubro.mjs gastronomia dev",
+    "dev:indumentaria": "node scripts/rubro.mjs indumentaria dev",
+    "dev:belleza": "node scripts/rubro.mjs belleza dev",
+    "dev:mascotas": "node scripts/rubro.mjs mascotas dev",
+    "dev:tecnologia": "node scripts/rubro.mjs tecnologia dev"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Portadilla, Seccion } from "@/components/Bloques";
 import { CONTACTO } from "@/lib/contacto";
+import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: "Política de privacidad",
-  description: "Qué datos pedimos en Alas de Ángel Papelería, para qué los usamos y cómo pedir que los corrijamos o borremos.",
+  description: `Qué datos pedimos en ${MARCA.completo}, para qué los usamos y cómo pedir que los corrijamos o borremos.`,
 };
 
 /* Ley 25.326 de Protección de Datos Personales. Los dos últimos párrafos son los textos que pide la normativa. */

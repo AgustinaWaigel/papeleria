@@ -3,6 +3,7 @@
 
 import { precio } from "./contacto";
 import { ahorroPorCantidad, escalaPara, precioUnitario, type Escala } from "./productos";
+import { MARCA } from "./marca";
 
 /* El máximo por producto: el mismo que acepta la base (supabase/10-precio-por-cantidad.sql). */
 export const MAXIMO_POR_PRODUCTO = 999;
@@ -110,7 +111,7 @@ export function textoPedido(lista: Renglon[], { codigo, nombre, entrega }: { cod
   const costoEnvio = typeof envio?.costo === "number" ? envio.costo : null;
 
   const lineas = [
-    nombre ? `¡Hola Alas de Ángel! Soy ${nombre} y quiero hacer este pedido:` : "¡Hola Alas de Ángel! Quiero hacer este pedido:",
+    nombre ? `¡Hola ${MARCA.nombre}! Soy ${nombre} y quiero hacer este pedido:` : `¡Hola ${MARCA.nombre}! Quiero hacer este pedido:`,
     "",
     ...(codigo ? [`*Pedido ${codigo}*`] : []),
     ...lista.map((r) => {

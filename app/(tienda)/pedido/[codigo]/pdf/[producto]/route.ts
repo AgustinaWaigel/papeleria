@@ -1,6 +1,7 @@
 import { CONFIRMADOS, type EstadoPedido } from "@/lib/pedidos";
 import { BUCKET_DESCARGABLES, supabaseConfigurado } from "@/lib/supabase/config";
 import { clienteServicio, SUPABASE_SECRETA } from "@/lib/supabase/servidor";
+import { MARCA } from "@/lib/marca";
 
 /* El botón "Descargar PDF" del mail y del seguimiento. Con el código y la clave del pedido, y solo si está pagado
    y lleva ese descargable, lleva a un link del PDF que dura un minuto: así el botón del mail no vence nunca.
@@ -27,7 +28,7 @@ export async function GET(request: Request, ctx: RouteContext<"/pedido/[codigo]/
   const extension = descargable.archivo.split(".").pop() ?? "pdf";
   const { data: firmado } = await supabase.storage
     .from(BUCKET_DESCARGABLES)
-    .createSignedUrl(descargable.archivo, 60, { download: `${descargable.nombre} - Alas de Angel.${extension}` });
+    .createSignedUrl(descargable.archivo, 60, { download: `${descargable.nombre} - ${MARCA.nombreArchivo}.${extension}` });
   if (!firmado) return alSeguimiento();
   return Response.redirect(firmado.signedUrl, 302);
 }

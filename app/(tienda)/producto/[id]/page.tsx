@@ -26,6 +26,7 @@ import {
   type Producto,
 } from "@/lib/productos";
 import { SITIO_URL } from "@/lib/sitio";
+import { MARCA } from "@/lib/marca";
 
 export async function generateStaticParams() {
   const ids = (await obtenerCatalogo()).map((p) => ({ id: p.id }));
@@ -55,7 +56,7 @@ function DatosParaGoogle({ p, resenas }: { p: Producto; resenas: Resena[] }) {
     name: p.nombre,
     description: p.desc,
     sku: p.id,
-    brand: { "@type": "Brand", name: "Alas de Ángel Papelería" },
+    brand: { "@type": "Brand", name: `${MARCA.completo}` },
     ...(p.fotos && { image: p.fotos.map((f) => (f.startsWith("http") ? f : SITIO_URL + f)) }),
     offers: {
       "@type": "Offer",

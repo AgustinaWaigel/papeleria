@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { AlasAnimadas } from "@/components/Alas";
+import { Ilustracion } from "@/components/Alas";
 import { CONTACTO, enlaceInstagram, enlaceTiktok, enlaceWhatsApp } from "@/lib/contacto";
 import { PAGINAS } from "@/lib/paginas";
+import { CATALOGO, MARCA } from "@/lib/marca";
 
 /* La página de enlaces: la del QR de los cuadernos y la del link de la bio de Instagram y TikTok.
    Por eso los textos no dan por hecho de dónde viene la persona.
@@ -11,7 +12,7 @@ import { PAGINAS } from "@/lib/paginas";
 
 export const metadata: Metadata = {
   title: "Enlaces",
-  description: "El catálogo, el Instagram, el TikTok y el WhatsApp de Alas de Ángel Papelería, a un toque.",
+  description: `El catálogo, las redes y el WhatsApp de ${MARCA.completo}, a un toque.`,
 };
 
 function IconoCatalogo() {
@@ -61,14 +62,14 @@ function Flecha() {
 const REDES: { clase: string; href: string; icono: ReactNode; nombre: string; detalle: string }[] = [
   {
     clase: "whatsapp",
-    href: enlaceWhatsApp("¡Hola Alas de Ángel! Quería hacerles una consulta:"),
+    href: enlaceWhatsApp(`¡Hola ${MARCA.nombre}! Quería hacerles una consulta:`),
     icono: <IconoWhatsApp />,
     nombre: "WhatsApp",
     detalle: "Consultas, pedidos y personalizados",
   },
   { clase: "instagram", href: enlaceInstagram, icono: <IconoInstagram />, nombre: "Instagram", detalle: `@${CONTACTO.instagram}` },
   { clase: "tiktok", href: enlaceTiktok, icono: <IconoTiktok />, nombre: "TikTok", detalle: `@${CONTACTO.tiktok}` },
-];
+].filter((r) => (r.clase === "instagram" ? CONTACTO.instagram : r.clase === "tiktok" ? CONTACTO.tiktok : CONTACTO.whatsapp));
 
 export default function Enlaces() {
   let n = 0;
@@ -76,19 +77,19 @@ export default function Enlaces() {
     <main className="enlaces">
       <div className="enlaces__caja">
         <div className="enlaces__alas">
-          <AlasAnimadas />
+          <Ilustracion />
         </div>
-        <span className="nota-mano">papelería creativa</span>
-        <h1>Alas de Ángel</h1>
-        <p className="enlaces__lema">Para escribir, soñar y volar.</p>
+        {MARCA.nota && <span className="nota-mano">{MARCA.nota}</span>}
+        <h1>{MARCA.nombre}</h1>
+        {MARCA.lema && <p className="enlaces__lema">{MARCA.lema}</p>}
 
         <ul className="enlaces__lista">
           <li style={{ "--n": n++ } as CSSProperties}>
-            <Link className="enlace-grande enlace-grande--catalogo" href="/papeleria">
+            <Link className="enlace-grande enlace-grande--catalogo" href={CATALOGO.ruta}>
               <span className="enlace-grande__icono"><IconoCatalogo /></span>
               <span className="enlace-grande__texto">
                 Ver el catálogo
-                <small>Cuadernos, agendas y más</small>
+                <small>{CATALOGO.nombre}</small>
               </span>
               <Flecha />
             </Link>
